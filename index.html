@@ -8,58 +8,89 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <link rel="stylesheet" href="style.css" />
-</head>
-<body class="bg-brand-dark text-slate-100 font-sans antialiased selection:bg-brand-gold selection:text-black">
+  
+<script>
+  function initTheme() {
+    const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    updateThemeIcons();
+  }
 
-  <header class="sticky top-0 z-50 backdrop-blur-md bg-brand-dark/90 border-b border-brand-border">
+  function toggleTheme() {
+    const isLight = document.documentElement.classList.toggle('light');
+    localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+    updateThemeIcons();
+  }
+
+  function updateThemeIcons() {
+    const isLight = document.documentElement.classList.contains('light');
+    document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+      icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+    });
+  }
+
+  initTheme();
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', toggleTheme);
+    });
+    updateThemeIcons();
+  });
+</script>
+
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between">
+
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-brand-card/90 border-b border-brand-border">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       <a href="index.html" class="flex items-center gap-3">
         <img src="images/fundo transparente fonte clara.png" alt="Logo agenlits" class="h-10 w-auto object-contain hover:opacity-90 transition" />
       </a>
       <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-brand-muted">
-        <a href="#funcionalidades" class="hover:text-brand-gold transition">Funcionalidades</a>
-        <a href="#como-funciona" class="hover:text-brand-gold transition">Como Funciona</a>
-        <a href="#precos" class="hover:text-brand-gold transition">Planos</a>
-        <a href="#faq" class="hover:text-brand-gold transition">Dúvidas</a>
+        <a href="#funcionalidades" class="hover:text-brand-emerald transition">Funcionalidades</a>
+        <a href="#como-funciona" class="hover:text-brand-emerald transition">Como Funciona</a>
+        <a href="#precos" class="hover:text-brand-emerald transition">Planos</a>
       </nav>
-      <div class="hidden md:flex items-center gap-4">
-        <a href="login.html" class="text-sm font-semibold hover:text-brand-gold px-3 py-2 transition">Entrar</a>
-        <a href="cadastro.html" class="text-sm font-semibold bg-brand-gold text-black px-5 py-2.5 rounded-lg hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10">Criar Minha Conta</a>
+      <div class="flex items-center gap-4">
+        
+<button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema claro/escuro" aria-label="Mudar tema">
+  <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+</button>
+
+        <a href="login.html" class="btn-secondary-invert text-xs px-4 py-2.5 rounded-xl hidden sm:inline-block">Entrar</a>
+        <a href="cadastro.html" class="btn-emerald-invert text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/10">Criar Minha Conta</a>
       </div>
-      <button id="menu-btn" class="md:hidden text-2xl text-slate-300 hover:text-white" aria-label="Abrir Menu">
-        <i class="ph ph-list"></i>
-      </button>
     </div>
   </header>
 
-  <section class="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-brand-card border border-brand-border text-brand-gold mb-6">
+  <section class="relative overflow-hidden pt-16 pb-24 text-center">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-brand-card border border-brand-border text-brand-emerald mb-6">
         <i class="ph-bold ph-sparkle"></i> Plataforma SaaS para Barbearias Modernas
       </span>
-      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight sm:leading-none">
-        Acabe com o troca-troca de mensagens e lotes de horários no WhatsApp.
+      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight">
+        Acabe com a confusão de mensagens e lotes de horários no WhatsApp.
       </h1>
-      <p class="mt-6 text-lg sm:text-xl text-brand-muted max-w-2xl mx-auto">
-        Entregue um link exclusivo com sua marca para seus clientes agendarem 24 horas por dia.
+      <p class="mt-6 text-base sm:text-lg text-brand-muted max-w-2xl mx-auto">
+        Entregue um link exclusivo com a sua marca para seus clientes escolherem serviços, barbeiros e agendarem 24 horas por dia.
       </p>
       <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="cadastro.html" class="w-full sm:w-auto px-8 py-4 bg-brand-gold text-black font-bold rounded-xl hover:bg-brand-goldHover transition shadow-xl shadow-brand-gold/20 flex items-center justify-center gap-2">
+        <a href="cadastro.html" class="btn-emerald-invert px-8 py-4 rounded-2xl text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/20 w-full sm:w-auto">
           Começar Teste de 14 Dias Grátis <i class="ph-bold ph-arrow-right"></i>
+        </a>
+        <a href="agendar.html" class="btn-secondary-invert px-8 py-4 rounded-2xl text-sm flex items-center justify-center gap-2 w-full sm:w-auto">
+          <i class="ph-bold ph-eye"></i> Ver Página de Agendamento
         </a>
       </div>
     </div>
   </section>
 
   <footer class="py-10 border-t border-brand-border text-center text-xs text-brand-muted">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <img src="images/fundo transparente fonte clara.png" alt="agenlits" class="h-6 w-auto object-contain opacity-70 hover:opacity-100 transition" />
-        <span>&copy; 2026 agenlits. Todos os direitos reservados.</span>
-      </div>
-    </div>
+    &copy; 2026 agenlits. Todos os direitos reservados.
   </footer>
-
-  <script src="script.js"></script>
 </body>
 </html>

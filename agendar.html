@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agendar Horário — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte clara.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  
+<script>
+  function initTheme() {
+    const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    updateThemeIcons();
+  }
+
+  function toggleTheme() {
+    const isLight = document.documentElement.classList.toggle('light');
+    localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+    updateThemeIcons();
+  }
+
+  function updateThemeIcons() {
+    const isLight = document.documentElement.classList.contains('light');
+    document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+      icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+    });
+  }
+
+  initTheme();
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', toggleTheme);
+    });
+    updateThemeIcons();
+  });
+</script>
+
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between">
+
+  <header class="border-b border-brand-border py-4 px-6 bg-brand-card/90 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html">
+          <img src="images/fundo transparente fonte clara.png" alt="agenlits" class="h-8 w-auto object-contain" />
+        </a>
+        <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
+          Agendamento Online
+        </span>
+      </div>
+      
+<button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema claro/escuro" aria-label="Mudar tema">
+  <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+</button>
+
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8">
+    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-10 shadow-2xl relative">
+      
+      <div class="text-center pb-6 border-b border-brand-border mb-8">
+        <div class="w-16 h-16 rounded-2xl bg-brand-darker border border-brand-border mx-auto flex items-center justify-center text-2xl text-brand-emerald mb-3">
+          <i class="ph ph-scissors"></i>
+        </div>
+        <h1 id="shop-name-display" class="text-2xl sm:text-3xl font-extrabold tracking-tight">Carregando barbearia...</h1>
+        <p id="shop-phone-display" class="text-xs text-brand-muted mt-1">Carregando informações...</p>
+      </div>
+
+      <div class="space-y-8">
+        <!-- 1. SERVIÇOS -->
+        <div>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-brand-emerald flex items-center gap-2 mb-3">
+            <span class="w-6 h-6 rounded-full bg-brand-emerald/10 border border-brand-emerald flex items-center justify-center text-xs font-bold">1</span>
+            Selecione o Serviço
+          </h2>
+          <div id="services-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="py-8 text-center text-brand-muted text-xs col-span-full">Carregando serviços disponíveis...</div>
+          </div>
+        </div>
+
+        <!-- 2. BARBEIROS -->
+        <div>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-brand-emerald flex items-center gap-2 mb-3">
+            <span class="w-6 h-6 rounded-full bg-brand-emerald/10 border border-brand-emerald flex items-center justify-center text-xs font-bold">2</span>
+            Selecione o Barbeiro
+          </h2>
+          <div id="barbers-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="py-6 text-center text-brand-muted text-xs col-span-full">Carregando equipe...</div>
+          </div>
+        </div>
+
+        <!-- 3. DATA E HORA -->
+        <div>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-brand-emerald flex items-center gap-2 mb-3">
+            <span class="w-6 h-6 rounded-full bg-brand-emerald/10 border border-brand-emerald flex items-center justify-center text-xs font-bold">3</span>
+            Escolha o Dia e Horário
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-brand-muted mb-1.5">Data do Atendimento</label>
+              <input type="date" id="booking-date" class="w-full px-3.5 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-brand-muted mb-1.5">Horário Disponível</label>
+              <select id="booking-time" class="w-full px-3.5 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition cursor-pointer">
+                <option value="">Selecione primeiro uma data</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. DADOS DO CLIENTE -->
+        <div class="pt-4 border-t border-brand-border">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-brand-emerald flex items-center gap-2 mb-3">
+            <span class="w-6 h-6 rounded-full bg-brand-emerald/10 border border-brand-emerald flex items-center justify-center text-xs font-bold">4</span>
+            Seus Dados
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-brand-muted mb-1.5">Seu Nome Completo</label>
+              <input type="text" id="client-name" placeholder="Ex: João Souza" class="w-full px-3.5 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-brand-muted mb-1.5">WhatsApp para Confirmação</label>
+              <input type="tel" id="client-phone" placeholder="(11) 99999-9999" maxlength="15" class="w-full px-3.5 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
+            </div>
+          </div>
+        </div>
+
+        <button type="button" id="btn-confirm-booking" class="btn-emerald-invert w-full py-4 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 mt-6">
+          Confirmar Meu Agendamento <i class="ph-bold ph-check"></i>
+        </button>
+      </div>
+
+      <div id="booking-success-modal" class="hidden absolute inset-0 bg-brand-card/95 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center p-6 text-center z-30">
+        <div class="w-16 h-16 rounded-2xl bg-brand-emerald/20 border border-brand-emerald text-brand-emerald flex items-center justify-center text-3xl mb-4 animate-bounce">
+          <i class="ph-bold ph-calendar-check"></i>
+        </div>
+        <h3 class="text-2xl font-extrabold">Agendamento Realizado!</h3>
+        <p class="text-xs text-brand-muted mt-2 max-w-sm" id="booking-summary-text">
+          Seu horário foi reservado com sucesso. Aguardamos você!
+        </p>
+        <button onclick="location.reload()" class="btn-emerald-invert px-6 py-3 rounded-xl text-xs mt-6">
+          Fazer Novo Agendamento
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      let currentShop = null;
+      let selectedService = null;
+      let selectedBarber = null;
+
+      const shopNameDisplay = document.getElementById('shop-name-display');
+      const shopPhoneDisplay = document.getElementById('shop-phone-display');
+      const servicesGrid = document.getElementById('services-grid');
+      const barbersGrid = document.getElementById('barbers-grid');
+      const dateInput = document.getElementById('booking-date');
+      const timeSelect = document.getElementById('booking-time');
+      const clientNameInput = document.getElementById('client-name');
+      const clientPhoneInput = document.getElementById('client-phone');
+      const btnConfirm = document.getElementById('btn-confirm-booking');
+      const successModal = document.getElementById('booking-success-modal');
+      const summaryText = document.getElementById('booking-summary-text');
+
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.min = today;
+      dateInput.value = today;
+
+      clientPhoneInput.addEventListener('input', (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 10) e.target.value = '(' + v.slice(0, 2) + ') ' + v.slice(2, 7) + '-' + v.slice(7);
+        else if (v.length > 6) e.target.value = '(' + v.slice(0, 2) + ') ' + v.slice(2, 6) + '-' + v.slice(6);
+        else if (v.length > 2) e.target.value = '(' + v.slice(0, 2) + ') ' + v.slice(2);
+        else e.target.value = v;
+      });
+
+      async function init() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('b') || 'barbearia-do-valerio';
+
+        const { data: shop, error: shopError } = await client
+          .from('barbershops')
+          .select('*')
+          .eq('slug', slug)
+          .maybeSingle();
+
+        if (shopError || !shop) {
+          shopNameDisplay.textContent = 'Barbearia não encontrada';
+          shopPhoneDisplay.textContent = 'Verifique o link de acesso.';
+          return;
+        }
+
+        currentShop = shop;
+        shopNameDisplay.textContent = shop.name;
+        shopPhoneDisplay.textContent = shop.phone ? 'WhatsApp: ' + shop.phone : '';
+
+        const { data: services } = await client.from('services').select('*').eq('barbershop_id', shop.id);
+        if (services && services.length) {
+          servicesGrid.innerHTML = services.map(s => `
+            <div onclick="window.chooseService('${s.id}', '${s.name}', ${s.price}, ${s.duration_minutes}, this)" class="service-card cursor-pointer p-4 rounded-2xl bg-brand-darker border border-brand-border hover:border-brand-emerald transition flex items-center justify-between">
+              <div>
+                <div class="font-bold text-sm text-brand-main">${s.name}</div>
+                <div class="text-[11px] text-brand-muted">${s.duration_minutes} minutos</div>
+              </div>
+              <span class="text-sm font-extrabold text-brand-emerald">R$ ${parseFloat(s.price).toFixed(2).replace('.', ',')}</span>
+            </div>
+          `).join('');
+        } else {
+          servicesGrid.innerHTML = '<div class="text-brand-muted text-xs col-span-full">Nenhum serviço disponível no momento.</div>';
+        }
+
+        const { data: barbers } = await client.from('barbers').select('*').eq('barbershop_id', shop.id);
+        if (barbers && barbers.length) {
+          barbersGrid.innerHTML = barbers.map(b => `
+            <div onclick="window.chooseBarber('${b.id}', '${b.name}', this)" class="barber-card cursor-pointer p-4 rounded-2xl bg-brand-darker border border-brand-border hover:border-brand-emerald transition flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-brand-card border border-brand-border flex items-center justify-center font-bold text-xs text-brand-emerald">
+                ${b.name.slice(0, 2).toUpperCase()}
+              </div>
+              <div class="font-bold text-xs text-brand-main">${b.name}</div>
+            </div>
+          `).join('');
+        } else {
+          barbersGrid.innerHTML = '<div class="text-brand-muted text-xs col-span-full">Qualquer profissional disponível.</div>';
+        }
+
+        populateTimes();
+      }
+
+      window.chooseService = (id, name, price, duration, element) => {
+        selectedService = { id, name, price, duration };
+        document.querySelectorAll('.service-card').forEach(c => c.classList.remove('border-brand-emerald', 'bg-brand-emerald/10'));
+        element.classList.add('border-brand-emerald', 'bg-brand-emerald/10');
+      };
+
+      window.chooseBarber = (id, name, element) => {
+        selectedBarber = { id, name };
+        document.querySelectorAll('.barber-card').forEach(c => c.classList.remove('border-brand-emerald', 'bg-brand-emerald/10'));
+        element.classList.add('border-brand-emerald', 'bg-brand-emerald/10');
+      };
+
+      function populateTimes() {
+        const times = ['09:00', '09:40', '10:20', '11:00', '11:40', '13:00', '13:40', '14:20', '15:00', '15:40', '16:20', '17:00', '17:40', '18:20'];
+        timeSelect.innerHTML = '<option value="">Escolha o horário</option>' + times.map(t => `<option value="${t}">${t}</option>`).join('');
+      }
+
+      dateInput.addEventListener('change', populateTimes);
+
+      btnConfirm.addEventListener('click', async () => {
+        if (!selectedService) return alert('Por favor, escolha um serviço.');
+        if (!timeSelect.value) return alert('Por favor, selecione um horário.');
+        const clientName = clientNameInput.value.trim();
+        const clientPhone = clientPhoneInput.value.trim();
+        if (!clientName) return alert('Por favor, informe seu nome.');
+        if (!clientPhone) return alert('Por favor, informe seu WhatsApp.');
+
+        btnConfirm.disabled = true;
+        btnConfirm.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Confirmando...';
+
+        summaryText.innerHTML = `Horário agendado para <strong>${clientName}</strong> no dia <strong>${dateInput.value.split('-').reverse().join('/')}</strong> às <strong>${timeSelect.value}</strong> para <strong>${selectedService.name}</strong>.`;
+        successModal.classList.remove('hidden');
+      });
+
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>

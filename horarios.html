@@ -9,40 +9,79 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
-</head>
-<body class="bg-brand-dark text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-brand-gold selection:text-black">
+  
+<script>
+  function initTheme() {
+    const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    updateThemeIcons();
+  }
 
-  <header class="sticky top-0 z-40 bg-brand-dark/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+  function toggleTheme() {
+    const isLight = document.documentElement.classList.toggle('light');
+    localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+    updateThemeIcons();
+  }
+
+  function updateThemeIcons() {
+    const isLight = document.documentElement.classList.contains('light');
+    document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+      icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+    });
+  }
+
+  initTheme();
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', toggleTheme);
+    });
+    updateThemeIcons();
+  });
+</script>
+
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
     <div class="flex items-center gap-4">
       <a href="painel.html" class="flex items-center gap-2">
         <img src="images/fundo transparente fonte clara.png" alt="agenlits" class="h-8 w-auto object-contain" />
       </a>
-      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-card border border-brand-border text-brand-gold">
+      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
         Horários de Atendimento
       </span>
     </div>
-    <a href="painel.html" class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-brand-card border border-brand-border hover:border-brand-gold transition">
-      <i class="ph-bold ph-arrow-left"></i> Voltar ao Painel
-    </a>
+    <div class="flex items-center gap-3">
+      
+<button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema claro/escuro" aria-label="Mudar tema">
+  <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+</button>
+
+      <a href="painel.html" class="btn-secondary-invert flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs">
+        <i class="ph-bold ph-arrow-left"></i> Painel
+      </a>
+    </div>
   </header>
 
   <main class="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-8 py-8 space-y-6">
     <div>
-      <h1 class="text-2xl font-extrabold text-white flex items-center gap-2">
-        <i class="ph-bold ph-clock text-brand-gold"></i> Horários de Funcionamento
+      <h1 class="text-2xl font-extrabold flex items-center gap-2">
+        <i class="ph-bold ph-clock text-brand-emerald"></i> Horários de Funcionamento
       </h1>
-      <p class="text-xs text-brand-muted mt-1">Configure os dias e horários em que sua barbearia estará disponível para agendamentos automáticos.</p>
+      <p class="text-xs text-brand-muted mt-1">Configure os horários em que os clientes podem agendar.</p>
     </div>
 
     <div id="status-msg" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
 
-    <div class="bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
-      <div id="days-container" class="space-y-4">
-        <!-- Renderizado dinamicamente -->
-      </div>
+    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
+      <div id="days-container" class="space-y-4"></div>
 
       <div class="pt-4 border-t border-brand-border flex justify-end">
-        <button type="button" id="btn-save-hours" class="px-6 py-3 bg-brand-gold text-black font-bold text-xs rounded-xl hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10 flex items-center gap-2">
+        <button type="button" id="btn-save-hours" class="btn-emerald-invert px-6 py-3 rounded-xl text-xs flex items-center gap-2">
           Salvar Horários de Atendimento <i class="ph-bold ph-check"></i>
         </button>
       </div>
@@ -96,26 +135,19 @@
         if (savedHours) savedHours.forEach(h => { map[h.day_of_week] = h; });
 
         daysContainer.innerHTML = daysOfWeek.map(d => {
-          const item = map[d.day] || {
-            open_time: '09:00',
-            close_time: '19:00',
-            is_closed: d.day === 0 // Domingo fechado por padrão
-          };
-
+          const item = map[d.day] || { open_time: '09:00', close_time: '19:00', is_closed: d.day === 0 };
           return `
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-brand-dark border border-brand-border gap-4">
-              <div class="w-40 font-semibold text-sm text-white">${d.name}</div>
-              
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-brand-darker border border-brand-border gap-4">
+              <div class="w-40 font-semibold text-sm">${d.name}</div>
               <div class="flex items-center gap-4 flex-1">
                 <label class="flex items-center gap-2 text-xs text-brand-muted cursor-pointer">
-                  <input type="checkbox" id="closed-${d.day}" ${item.is_closed ? 'checked' : ''} onchange="window.toggleDay(${d.day})" class="w-4 h-4 rounded text-brand-gold focus:ring-brand-gold bg-brand-card border-brand-border" />
+                  <input type="checkbox" id="closed-${d.day}" ${item.is_closed ? 'checked' : ''} onchange="window.toggleDay(${d.day})" class="w-4 h-4 rounded text-brand-emerald focus:ring-brand-emerald bg-brand-card border-brand-border" />
                   <span>Fechado</span>
                 </label>
-
                 <div id="times-${d.day}" class="flex items-center gap-2 ${item.is_closed ? 'opacity-30 pointer-events-none' : ''}">
-                  <input type="time" id="open-${d.day}" value="${item.open_time || '09:00'}" class="px-2.5 py-1.5 bg-brand-card border border-brand-border rounded-lg text-xs text-white focus:outline-none focus:border-brand-gold" />
+                  <input type="time" id="open-${d.day}" value="${item.open_time || '09:00'}" class="px-2.5 py-1.5 bg-brand-card border border-brand-border rounded-lg text-xs focus:outline-none focus:border-brand-emerald" />
                   <span class="text-xs text-brand-muted">até</span>
-                  <input type="time" id="close-${d.day}" value="${item.close_time || '19:00'}" class="px-2.5 py-1.5 bg-brand-card border border-brand-border rounded-lg text-xs text-white focus:outline-none focus:border-brand-gold" />
+                  <input type="time" id="close-${d.day}" value="${item.close_time || '19:00'}" class="px-2.5 py-1.5 bg-brand-card border border-brand-border rounded-lg text-xs focus:outline-none focus:border-brand-emerald" />
                 </div>
               </div>
             </div>
@@ -124,40 +156,28 @@
       }
 
       window.toggleDay = (day) => {
-        const isClosed = document.getElementById(`closed-${day}`).checked;
-        const timesDiv = document.getElementById(`times-${day}`);
-        if (isClosed) {
-          timesDiv.classList.add('opacity-30', 'pointer-events-none');
-        } else {
-          timesDiv.classList.remove('opacity-30', 'pointer-events-none');
-        }
+        const isClosed = document.getElementById('closed-' + day).checked;
+        const timesDiv = document.getElementById('times-' + day);
+        if (isClosed) timesDiv.classList.add('opacity-30', 'pointer-events-none');
+        else timesDiv.classList.remove('opacity-30', 'pointer-events-none');
       };
 
       btnSave.addEventListener('click', async () => {
         btnSave.disabled = true;
-        btnSave.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Salvando horários...';
+        btnSave.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Salvando...';
 
-        const payload = daysOfWeek.map(d => {
-          const isClosed = document.getElementById(`closed-${d.day}`).checked;
-          const openTime = document.getElementById(`open-${d.day}`).value;
-          const closeTime = document.getElementById(`close-${d.day}`).value;
+        const payload = daysOfWeek.map(d => ({
+          barbershop_id: currentShopId,
+          day_of_week: d.day,
+          day_name: d.name,
+          open_time: document.getElementById('open-' + d.day).value,
+          close_time: document.getElementById('close-' + d.day).value,
+          is_closed: document.getElementById('closed-' + d.day).checked
+        }));
 
-          return {
-            barbershop_id: currentShopId,
-            day_of_week: d.day,
-            day_name: d.name,
-            open_time: openTime,
-            close_time: closeTime,
-            is_closed: isClosed
-          };
-        });
-
-        const { error } = await client.from('business_hours').upsert(payload, { onConflict: 'barbershop_id,day_of_week' });
-
+        await client.from('business_hours').upsert(payload, { onConflict: 'barbershop_id,day_of_week' });
         btnSave.disabled = false;
         btnSave.innerHTML = 'Salvar Horários de Atendimento <i class="ph-bold ph-check"></i>';
-
-        if (error) return showNotice('Erro ao salvar horários: ' + error.message, true);
         showNotice('Horários atualizados com sucesso!');
       });
 

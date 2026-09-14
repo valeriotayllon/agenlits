@@ -1,24 +1,81 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --color-gold: #D4AF37;
-  --color-gold-hover: #B8972C;
-  --color-dark: #0B0F17;
-  --color-card: #161F30;
-  --color-border: #22304A;
-  --color-muted: #94A3B8;
+  /* Paleta Base Solicitada */
+  --jet-black: #272D2D;
+  --powder-blue: #B8C5D6;
+  --alice-blue: #EDF5FC;
+  --emerald: #23CE6B;
+  --emerald-hover: #1eb85f;
+
+  /* Tema Escuro Padrão */
+  --bg-main: #1d2222;
+  --bg-card: #272D2D;
+  --bg-darker: #161a1a;
+  --border-color: #384242;
+  --text-main: #EDF5FC;
+  --text-muted: #B8C5D6;
+}
+
+html.light {
+  /* Tema Claro */
+  --bg-main: #EDF5FC;
+  --bg-card: #ffffff;
+  --bg-darker: #e2ecf5;
+  --border-color: #B8C5D6;
+  --text-main: #272D2D;
+  --text-muted: #4e5a5a;
+}
+
+*, ::before, ::after {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  background-color: var(--color-dark);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.bg-brand-dark { background-color: var(--color-dark); }
-.bg-brand-card { background-color: var(--color-card); }
-.bg-brand-gold { background-color: var(--color-gold); }
-.bg-brand-goldHover:hover { background-color: var(--color-gold-hover); }
-.border-brand-border { border-color: var(--color-border); }
-.border-brand-gold { border-color: var(--color-gold); }
-.text-brand-gold { color: var(--color-gold); }
-.text-brand-muted { color: var(--color-muted); }
+.bg-brand-main { background-color: var(--bg-main); }
+.bg-brand-card { background-color: var(--bg-card); }
+.bg-brand-darker { background-color: var(--bg-darker); }
+.border-brand-border { border-color: var(--border-color); }
+.text-brand-main { color: var(--text-main); }
+.text-brand-muted { color: var(--text-muted); }
+.text-brand-emerald { color: var(--emerald); }
+.bg-brand-emerald { background-color: var(--emerald); }
+
+/* BOTÕES COM INVERSÃO DE COR NO HOVER */
+.btn-emerald-invert {
+  background-color: var(--emerald) !important;
+  color: #272D2D !important;
+  border: 2px solid var(--emerald) !important;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s ease-in-out;
+}
+
+.btn-emerald-invert:hover {
+  background-color: transparent !important;
+  color: var(--emerald) !important;
+  border-color: var(--emerald) !important;
+}
+
+.btn-secondary-invert {
+  background-color: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border: 1.5px solid var(--border-color) !important;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s ease-in-out;
+}
+
+.btn-secondary-invert:hover {
+  background-color: var(--emerald) !important;
+  color: #272D2D !important;
+  border-color: var(--emerald) !important;
+}

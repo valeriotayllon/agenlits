@@ -9,76 +9,112 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
-</head>
-<body class="bg-brand-dark text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-brand-gold selection:text-black">
+  
+<script>
+  function initTheme() {
+    const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    updateThemeIcons();
+  }
 
-  <header class="sticky top-0 z-40 bg-brand-dark/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+  function toggleTheme() {
+    const isLight = document.documentElement.classList.toggle('light');
+    localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+    updateThemeIcons();
+  }
+
+  function updateThemeIcons() {
+    const isLight = document.documentElement.classList.contains('light');
+    document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+      icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+    });
+  }
+
+  initTheme();
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', toggleTheme);
+    });
+    updateThemeIcons();
+  });
+</script>
+
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
     <div class="flex items-center gap-4">
       <a href="painel.html" class="flex items-center gap-2">
         <img src="images/fundo transparente fonte clara.png" alt="agenlits" class="h-8 w-auto object-contain" />
       </a>
-      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-card border border-brand-border text-brand-gold">
+      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
         Serviços & Preços
       </span>
     </div>
-    <a href="painel.html" class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-brand-card border border-brand-border hover:border-brand-gold transition">
-      <i class="ph-bold ph-arrow-left"></i> Voltar ao Painel
-    </a>
+    <div class="flex items-center gap-3">
+      
+<button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema claro/escuro" aria-label="Mudar tema">
+  <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+</button>
+
+      <a href="painel.html" class="btn-secondary-invert flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs">
+        <i class="ph-bold ph-arrow-left"></i> Painel
+      </a>
+    </div>
   </header>
 
   <main class="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-8 py-8 space-y-8">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-extrabold text-white flex items-center gap-2">
-          <i class="ph-bold ph-scissors text-brand-gold"></i> Catálogo de Serviços
-        </h1>
-        <p class="text-xs text-brand-muted mt-1">Defina os serviços oferecidos, valores e duração aproximada de cada atendimento.</p>
-      </div>
+    <div>
+      <h1 class="text-2xl font-extrabold flex items-center gap-2">
+        <i class="ph-bold ph-scissors text-brand-emerald"></i> Catálogo de Serviços
+      </h1>
+      <p class="text-xs text-brand-muted mt-1">Defina os serviços oferecidos, valores e duração aproximada de cada atendimento.</p>
     </div>
 
-    <!-- Alerta de Notificação -->
     <div id="status-msg" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Formulário de Adicionar Serviço -->
-      <div class="bg-brand-card border border-brand-border rounded-2xl p-6 h-fit shadow-xl">
-        <h2 class="text-sm font-bold text-white mb-4 pb-2 border-b border-brand-border flex items-center gap-2">
-          <i class="ph-bold ph-plus-circle text-brand-gold"></i> Novo Serviço
+      <div class="bg-brand-card border border-brand-border rounded-3xl p-6 h-fit shadow-xl">
+        <h2 class="text-sm font-bold mb-4 pb-2 border-b border-brand-border flex items-center gap-2">
+          <i class="ph-bold ph-plus-circle text-brand-emerald"></i> Novo Serviço
         </h2>
 
         <form id="service-form" onsubmit="return false;" class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Nome do Serviço</label>
-            <input type="text" id="service-name" placeholder="Ex: Corte Degrade, Barba Terapia" class="w-full px-3 py-2.5 bg-brand-dark border border-brand-border rounded-xl text-xs text-white focus:outline-none focus:border-brand-gold" />
+            <label class="block text-xs font-semibold text-brand-muted mb-1">Nome do Serviço</label>
+            <input type="text" id="service-name" placeholder="Ex: Corte Degrade, Barba" class="w-full px-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Preço (R$)</label>
-              <input type="number" step="0.50" id="service-price" placeholder="40.00" class="w-full px-3 py-2.5 bg-brand-dark border border-brand-border rounded-xl text-xs text-white focus:outline-none focus:border-brand-gold" />
+              <label class="block text-xs font-semibold text-brand-muted mb-1">Preço (R$)</label>
+              <input type="number" step="0.50" id="service-price" placeholder="40.00" class="w-full px-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald" />
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Duração (min)</label>
-              <input type="number" step="5" id="service-duration" value="30" class="w-full px-3 py-2.5 bg-brand-dark border border-brand-border rounded-xl text-xs text-white focus:outline-none focus:border-brand-gold" />
+              <label class="block text-xs font-semibold text-brand-muted mb-1">Duração (min)</label>
+              <input type="number" step="5" id="service-duration" value="30" class="w-full px-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald" />
             </div>
           </div>
 
-          <button type="button" id="btn-save-service" class="w-full py-3 bg-brand-gold text-black font-bold text-xs rounded-xl hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10 flex items-center justify-center gap-1.5 mt-2">
+          <button type="button" id="btn-save-service" class="btn-emerald-invert w-full py-3 rounded-xl text-xs flex items-center justify-center gap-1.5 mt-2">
             Adicionar Serviço <i class="ph-bold ph-plus"></i>
           </button>
         </form>
       </div>
 
-      <!-- Lista de Serviços Cadastrados -->
-      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-2xl p-6 shadow-xl">
-        <h2 class="text-sm font-bold text-white mb-4 pb-2 border-b border-brand-border flex items-center justify-between">
+      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-3xl p-6 shadow-xl">
+        <h2 class="text-sm font-bold mb-4 pb-2 border-b border-brand-border flex items-center justify-between">
           <span>Serviços Ativos</span>
           <span id="services-count" class="text-xs font-normal text-brand-muted">0 serviços</span>
         </h2>
 
         <div id="services-list" class="space-y-3">
           <div class="text-center py-10 text-brand-muted text-xs">
-            <i class="ph ph-circle-notch animate-spin text-xl mb-2 text-brand-gold"></i>
+            <i class="ph ph-circle-notch animate-spin text-xl mb-2 text-brand-emerald"></i>
             <p>Carregando serviços...</p>
           </div>
         </div>
@@ -97,7 +133,6 @@
       const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       let currentShopId = null;
-
       const nameInput = document.getElementById('service-name');
       const priceInput = document.getElementById('service-price');
       const durationInput = document.getElementById('service-duration');
@@ -126,22 +161,22 @@
         const { data: services, error } = await client.from('services').select('*').eq('barbershop_id', currentShopId).order('created_at', { ascending: false });
         if (error) return showNotice('Erro ao buscar serviços: ' + error.message, true);
 
-        countEl.textContent = `${services.length} ${services.length === 1 ? 'serviço' : 'serviços'}`;
+        countEl.textContent = services.length + (services.length === 1 ? ' serviço' : ' serviços');
 
         if (!services.length) {
-          listContainer.innerHTML = '<div class="py-12 text-center text-brand-muted text-xs">Nenhum serviço cadastrado ainda. Preencha o formulário ao lado para começar.</div>';
+          listContainer.innerHTML = '<div class="py-12 text-center text-brand-muted text-xs">Nenhum serviço cadastrado ainda.</div>';
           return;
         }
 
         listContainer.innerHTML = services.map(s => `
-          <div class="flex items-center justify-between p-3.5 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold/40 transition">
+          <div class="flex items-center justify-between p-3.5 rounded-2xl bg-brand-darker border border-brand-border hover:border-brand-emerald/40 transition">
             <div>
-              <div class="text-sm font-bold text-white">${s.name}</div>
-              <div class="text-[11px] text-brand-muted mt-0.5">Duração média: <span class="text-slate-300 font-semibold">${s.duration_minutes} min</span></div>
+              <div class="text-sm font-bold">${s.name}</div>
+              <div class="text-[11px] text-brand-muted mt-0.5">Duração: <span class="font-semibold">${s.duration_minutes} min</span></div>
             </div>
             <div class="flex items-center gap-4">
-              <span class="text-sm font-extrabold text-brand-gold">R$ ${parseFloat(s.price).toFixed(2).replace('.', ',')}</span>
-              <button onclick="window.removeService('${s.id}')" class="text-brand-muted hover:text-red-400 text-base p-1.5 rounded-lg hover:bg-red-950/30 transition" title="Excluir">
+              <span class="text-sm font-extrabold text-brand-emerald">R$ ${parseFloat(s.price).toFixed(2).replace('.', ',')}</span>
+              <button onclick="window.removeService('${s.id}')" class="text-brand-muted hover:text-red-400 text-base p-1.5 rounded-lg transition" title="Excluir">
                 <i class="ph ph-trash"></i>
               </button>
             </div>
@@ -151,8 +186,7 @@
 
       window.removeService = async (id) => {
         if (!confirm('Deseja excluir este serviço?')) return;
-        const { error } = await client.from('services').delete().eq('id', id);
-        if (error) return showNotice('Erro ao excluir serviço: ' + error.message, true);
+        await client.from('services').delete().eq('id', id);
         showNotice('Serviço removido com sucesso!');
         loadServices();
       };
@@ -162,22 +196,14 @@
         const price = parseFloat(priceInput.value);
         const duration = parseInt(durationInput.value);
 
-        if (!name) return showNotice('Informe o nome do serviço.', true);
-        if (isNaN(price) || price <= 0) return showNotice('Informe um preço válido.', true);
-        if (isNaN(duration) || duration <= 0) return showNotice('Informe uma duração válida.', true);
+        if (!name || isNaN(price) || isNaN(duration)) return showNotice('Preencha todos os campos.', true);
 
         btnSave.disabled = true;
         btnSave.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Salvando...';
 
-        const { error } = await client.from('services').insert([
-          { barbershop_id: currentShopId, name, price, duration_minutes: duration }
-        ]);
-
+        await client.from('services').insert([{ barbershop_id: currentShopId, name, price, duration_minutes: duration }]);
         btnSave.disabled = false;
         btnSave.innerHTML = 'Adicionar Serviço <i class="ph-bold ph-plus"></i>';
-
-        if (error) return showNotice('Erro ao cadastrar serviço: ' + error.message, true);
-
         nameInput.value = '';
         priceInput.value = '';
         showNotice('Serviço cadastrado com sucesso!');

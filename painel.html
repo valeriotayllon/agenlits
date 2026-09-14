@@ -9,26 +9,66 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
-</head>
-<body class="bg-brand-dark text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-brand-gold selection:text-black">
+  
+<script>
+  function initTheme() {
+    const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+    updateThemeIcons();
+  }
 
-  <header class="sticky top-0 z-40 bg-brand-dark/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+  function toggleTheme() {
+    const isLight = document.documentElement.classList.toggle('light');
+    localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+    updateThemeIcons();
+  }
+
+  function updateThemeIcons() {
+    const isLight = document.documentElement.classList.contains('light');
+    document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+      icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+    });
+  }
+
+  initTheme();
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', toggleTheme);
+    });
+    updateThemeIcons();
+  });
+</script>
+
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
     <div class="flex items-center gap-4">
       <a href="painel.html" class="flex items-center gap-2">
         <img src="images/fundo transparente fonte clara.png" alt="agenlits" class="h-8 w-auto object-contain" />
       </a>
-      <span class="hidden sm:inline-block px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-card border border-brand-border text-brand-gold">
+      <span class="hidden sm:inline-block px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
         Painel de Gestão
       </span>
     </div>
 
-    <div class="flex items-center gap-3 sm:gap-5">
+    <div class="flex items-center gap-3 sm:gap-4">
+      
+<button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema claro/escuro" aria-label="Mudar tema">
+  <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+</button>
+
+
       <div class="text-right hidden sm:block">
-        <div id="user-display-name" class="text-xs font-bold text-white">Carregando...</div>
+        <div id="user-display-name" class="text-xs font-bold">Carregando...</div>
         <div id="user-display-email" class="text-[11px] text-brand-muted">...</div>
       </div>
 
-      <button id="btn-logout" class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition">
+      <button id="btn-logout" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition cursor-pointer">
         <i class="ph-bold ph-sign-out text-base"></i>
         <span>Sair</span>
       </button>
@@ -36,120 +76,119 @@
   </header>
 
   <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-8 py-8 space-y-8">
-    <div class="bg-gradient-to-r from-brand-card to-brand-card/70 border border-brand-border rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
+    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
       <div>
-        <span class="text-xs font-bold uppercase tracking-wider text-brand-gold">Visão Geral</span>
-        <h1 id="shop-name-title" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Sua Barbearia</h1>
+        <span class="text-xs font-bold uppercase tracking-wider text-brand-emerald">Visão Geral</span>
+        <h1 id="shop-name-title" class="text-2xl sm:text-3xl font-extrabold mt-1">Sua Barbearia</h1>
         <p class="text-xs text-brand-muted mt-1">Gerencie sua equipe, horários e acompanhe os agendamentos em tempo real.</p>
       </div>
 
-      <div class="w-full md:w-auto bg-brand-dark/90 border border-brand-border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      <div class="w-full md:w-auto bg-brand-darker border border-brand-border rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div>
-          <div class="text-[11px] uppercase font-bold text-brand-muted">Página pública de agendamento</div>
-          <div id="public-link-text" class="text-xs font-mono text-brand-gold break-all mt-0.5">agenlits.com/...</div>
+          <div class="text-[11px] uppercase font-bold text-brand-muted">Link público de agendamento</div>
+          <div id="public-link-text" class="text-xs font-mono text-brand-emerald break-all mt-0.5">3lits-agenlits.vercel.app/agendar.html?b=...</div>
         </div>
-        <button id="btn-copy-link" class="w-full sm:w-auto mt-2 sm:mt-0 px-3 py-2 bg-brand-gold text-black rounded-lg text-xs font-bold hover:bg-brand-goldHover transition flex items-center justify-center gap-1 shrink-0">
-          <i class="ph-bold ph-copy"></i> Copiar Link
-        </button>
+        <div class="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+          <button id="btn-copy-link" class="btn-emerald-invert px-3.5 py-2 rounded-xl text-xs flex items-center justify-center gap-1 shrink-0">
+            <i class="ph-bold ph-copy"></i> Copiar
+          </button>
+          <a id="btn-visit-page" href="#" target="_blank" class="btn-secondary-invert px-3.5 py-2 rounded-xl text-xs flex items-center justify-center gap-1 shrink-0">
+            <i class="ph-bold ph-arrow-square-out"></i> Abrir
+          </a>
+        </div>
       </div>
     </div>
 
+    <!-- Métricas -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-brand-card border border-brand-border rounded-xl p-5">
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-5">
         <div class="flex items-center justify-between text-brand-muted mb-2">
           <span class="text-xs font-semibold uppercase">Agendamentos Hoje</span>
-          <i class="ph ph-calendar-check text-xl text-brand-gold"></i>
+          <i class="ph ph-calendar-check text-xl text-brand-emerald"></i>
         </div>
-        <div class="text-2xl font-extrabold text-white">0</div>
-        <span class="text-[11px] text-brand-muted">Nenhum cliente agendado para hoje</span>
+        <div class="text-2xl font-extrabold">0</div>
+        <span class="text-[11px] text-brand-muted">Nenhum cliente agendado</span>
       </div>
 
-      <div class="bg-brand-card border border-brand-border rounded-xl p-5">
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-5">
         <div class="flex items-center justify-between text-brand-muted mb-2">
           <span class="text-xs font-semibold uppercase">Barbeiros Ativos</span>
-          <i class="ph ph-users-three text-xl text-brand-gold"></i>
+          <i class="ph ph-users-three text-xl text-brand-emerald"></i>
         </div>
-        <div id="metric-barbers" class="text-2xl font-extrabold text-white">0</div>
-        <span class="text-[11px] text-emerald-400">Equipe cadastrada</span>
+        <div id="metric-barbers" class="text-2xl font-extrabold">0</div>
+        <span class="text-[11px] text-brand-emerald">Equipe cadastrada</span>
       </div>
 
-      <div class="bg-brand-card border border-brand-border rounded-xl p-5">
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-5">
         <div class="flex items-center justify-between text-brand-muted mb-2">
           <span class="text-xs font-semibold uppercase">Serviços Ativos</span>
-          <i class="ph ph-scissors text-xl text-brand-gold"></i>
+          <i class="ph ph-scissors text-xl text-brand-emerald"></i>
         </div>
-        <div id="metric-services" class="text-2xl font-extrabold text-white">0</div>
-        <span class="text-[11px] text-slate-300">Catálogo pronto</span>
+        <div id="metric-services" class="text-2xl font-extrabold">0</div>
+        <span class="text-[11px] text-brand-muted">Catálogo configurado</span>
       </div>
 
-      <div class="bg-brand-card border border-brand-border rounded-xl p-5">
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-5">
         <div class="flex items-center justify-between text-brand-muted mb-2">
           <span class="text-xs font-semibold uppercase">Status da Conta</span>
-          <i class="ph ph-shield-check text-xl text-emerald-400"></i>
+          <i class="ph ph-shield-check text-xl text-brand-emerald"></i>
         </div>
-        <div class="text-sm font-bold text-emerald-400 mt-1">Período Grátis Ativo</div>
-        <span class="text-[11px] text-brand-muted">14 dias restantes de teste</span>
+        <div class="text-sm font-bold text-brand-emerald mt-1">Período Grátis Ativo</div>
+        <span class="text-[11px] text-brand-muted">14 dias de teste</span>
       </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-2xl p-6">
+      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-3xl p-6">
         <div class="flex items-center justify-between pb-4 border-b border-brand-border mb-4">
-          <h2 class="text-base font-bold text-white flex items-center gap-2">
-            <i class="ph-bold ph-calendar text-brand-gold"></i> Próximos Agendamentos
+          <h2 class="text-base font-bold flex items-center gap-2">
+            <i class="ph-bold ph-calendar text-brand-emerald"></i> Próximos Agendamentos
           </h2>
-          <button class="text-xs text-brand-gold hover:underline font-semibold">Novo Agendamento Manual</button>
+          <a href="agendar.html" target="_blank" class="btn-emerald-invert px-3 py-1.5 rounded-lg text-xs flex items-center gap-1">
+            + Novo Agendamento
+          </a>
         </div>
 
-        <div class="py-12 text-center text-brand-muted space-y-3">
-          <div class="w-12 h-12 rounded-full bg-brand-dark border border-brand-border flex items-center justify-center mx-auto text-xl text-brand-gold">
+        <div class="py-14 text-center text-brand-muted space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border flex items-center justify-center mx-auto text-xl text-brand-emerald">
             <i class="ph ph-scissors"></i>
           </div>
-          <p class="text-sm text-slate-300 font-medium">Nenhum agendamento registrado ainda.</p>
-          <p class="text-xs max-w-sm mx-auto text-brand-muted">
-            Compartilhe o link da sua barbearia com os clientes no Instagram ou WhatsApp para começar a receber reservas!
+          <p class="text-sm font-medium">Nenhum agendamento registrado ainda.</p>
+          <p class="text-xs max-w-sm mx-auto">
+            Compartilhe seu link público de agendamento para receber reservas dos clientes.
           </p>
         </div>
       </div>
 
-      <!-- Configurações Rápidas com links ativos -->
-      <div class="bg-brand-card border border-brand-border rounded-2xl p-6 space-y-4">
-        <h2 class="text-base font-bold text-white pb-3 border-b border-brand-border flex items-center gap-2">
-          <i class="ph-bold ph-gear text-brand-gold"></i> Configurações Rápidas
+      <div class="bg-brand-card border border-brand-border rounded-3xl p-6 space-y-4">
+        <h2 class="text-base font-bold pb-3 border-b border-brand-border flex items-center gap-2">
+          <i class="ph-bold ph-gear text-brand-emerald"></i> Configurações Rápidas
         </h2>
 
         <div class="space-y-3 text-sm">
-          <a href="servicos.html" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
+          <a href="servicos.html" class="btn-secondary-invert p-3.5 rounded-2xl flex items-center justify-between group">
             <div class="flex items-center gap-3">
-              <i class="ph ph-scissors text-lg text-brand-gold"></i>
-              <span class="font-medium text-slate-200 group-hover:text-white">Serviços & Preços</span>
+              <i class="ph ph-scissors text-lg text-brand-emerald group-hover:text-inherit"></i>
+              <span>Serviços & Preços</span>
             </div>
-            <i class="ph-bold ph-caret-right text-xs text-brand-muted group-hover:text-brand-gold transition"></i>
+            <i class="ph-bold ph-caret-right text-xs"></i>
           </a>
 
-          <a href="horarios.html" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
+          <a href="horarios.html" class="btn-secondary-invert p-3.5 rounded-2xl flex items-center justify-between group">
             <div class="flex items-center gap-3">
-              <i class="ph ph-clock text-lg text-brand-gold"></i>
-              <span class="font-medium text-slate-200 group-hover:text-white">Horários de Atendimento</span>
+              <i class="ph ph-clock text-lg text-brand-emerald group-hover:text-inherit"></i>
+              <span>Horários de Atendimento</span>
             </div>
-            <i class="ph-bold ph-caret-right text-xs text-brand-muted group-hover:text-brand-gold transition"></i>
+            <i class="ph-bold ph-caret-right text-xs"></i>
           </a>
 
-          <a href="barbeiros.html" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
+          <a href="barbeiros.html" class="btn-secondary-invert p-3.5 rounded-2xl flex items-center justify-between group">
             <div class="flex items-center gap-3">
-              <i class="ph ph-user-plus text-lg text-brand-gold"></i>
-              <span class="font-medium text-slate-200 group-hover:text-white">Cadastrar Barbeiros</span>
+              <i class="ph ph-user-plus text-lg text-brand-emerald group-hover:text-inherit"></i>
+              <span>Cadastrar Barbeiros</span>
             </div>
-            <i class="ph-bold ph-caret-right text-xs text-brand-muted group-hover:text-brand-gold transition"></i>
+            <i class="ph-bold ph-caret-right text-xs"></i>
           </a>
-
-          <div class="p-3 rounded-xl bg-brand-dark/50 border border-brand-border/60 opacity-60 flex items-center justify-between cursor-not-allowed">
-            <div class="flex items-center gap-3">
-              <i class="ph ph-whatsapp-logo text-lg text-brand-gold"></i>
-              <span class="text-brand-muted text-xs">Lembretes WhatsApp (Em breve)</span>
-            </div>
-            <span class="text-[10px] bg-brand-card px-2 py-0.5 rounded text-brand-gold font-mono">PRO</span>
-          </div>
         </div>
       </div>
     </div>
@@ -163,8 +202,7 @@
     (() => {
       const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
-
-      const supabasePanelClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       document.addEventListener('DOMContentLoaded', async () => {
         const userNameEl = document.getElementById('user-display-name');
@@ -172,44 +210,40 @@
         const shopNameTitle = document.getElementById('shop-name-title');
         const publicLinkText = document.getElementById('public-link-text');
         const btnCopyLink = document.getElementById('btn-copy-link');
+        const btnVisitPage = document.getElementById('btn-visit-page');
         const btnLogout = document.getElementById('btn-logout');
         const metricBarbers = document.getElementById('metric-barbers');
         const metricServices = document.getElementById('metric-services');
 
-        const { data: { session } } = await supabasePanelClient.auth.getSession();
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = 'login.html';
 
-        if (!session) {
-          window.location.href = 'login.html';
-          return;
-        }
-
-        const user = session.user;
-        userEmailEl.textContent = user.email;
-        userNameEl.textContent = user.user_metadata?.full_name || 'Administrador';
+        userEmailEl.textContent = session.user.email;
+        userNameEl.textContent = session.user.user_metadata?.full_name || 'Administrador';
 
         try {
-          const { data: barbershop } = await supabasePanelClient
+          const { data: barbershop } = await client
             .from('barbershops')
             .select('*')
-            .eq('owner_id', user.id)
+            .eq('owner_id', session.user.id)
             .maybeSingle();
 
           if (barbershop) {
             shopNameTitle.textContent = barbershop.name;
-            const fullUrl = `agenlits.com/${barbershop.slug}`;
+            const fullUrl = '3lits-agenlits.vercel.app/agendar.html?b=' + barbershop.slug;
             publicLinkText.textContent = fullUrl;
+            btnVisitPage.href = 'agendar.html?b=' + barbershop.slug;
 
             btnCopyLink.addEventListener('click', () => {
-              navigator.clipboard.writeText(`https://${fullUrl}`);
+              navigator.clipboard.writeText('https://' + fullUrl);
               btnCopyLink.innerHTML = '<i class="ph-bold ph-check"></i> Copiado!';
               setTimeout(() => {
-                btnCopyLink.innerHTML = '<i class="ph-bold ph-copy"></i> Copiar Link';
+                btnCopyLink.innerHTML = '<i class="ph-bold ph-copy"></i> Copiar';
               }, 2500);
             });
 
-            // Contadores reais das novas telas
-            const { count: sCount } = await supabasePanelClient.from('services').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershop.id);
-            const { count: bCount } = await supabasePanelClient.from('barbers').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershop.id);
+            const { count: sCount } = await client.from('services').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershop.id);
+            const { count: bCount } = await client.from('barbers').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershop.id);
 
             if (metricServices) metricServices.textContent = sCount || 0;
             if (metricBarbers) metricBarbers.textContent = bCount || 0;
@@ -220,9 +254,7 @@
 
         btnLogout.addEventListener('click', async () => {
           if (confirm('Deseja realmente sair da sua conta?')) {
-            btnLogout.disabled = true;
-            btnLogout.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Saindo...';
-            await supabasePanelClient.auth.signOut();
+            await client.auth.signOut();
             window.location.href = 'login.html';
           }
         });
