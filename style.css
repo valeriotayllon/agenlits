@@ -1,0 +1,57 @@
+/* BarberFlow - Custom Styles & Config */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --color-gold: #D4AF37;
+  --color-gold-hover: #B8972C;
+  --color-dark: #0B0F17;
+  --color-card: #161F30;
+  --color-border: #22304A;
+  --color-muted: #94A3B8;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Classes utilitárias do Tailwind estendidas via CSS puro */
+.bg-brand-dark {
+  background-color: var(--color-dark);
+}
+
+.bg-brand-card {
+  background-color: var(--color-card);
+}
+
+.bg-brand-gold {
+  background-color: var(--color-gold);
+}
+
+.bg-brand-goldHover:hover {
+  background-color: var(--color-gold-hover);
+}
+
+.border-brand-border {
+  border-color: var(--color-border);
+}
+
+.border-brand-gold {
+  border-color: var(--color-gold);
+}
+
+.text-brand-gold {
+  color: var(--color-gold);
+}
+
+.text-brand-muted {
+  color: var(--color-muted);
+}
+
+/* Efeito suave de rotação de ícones */
+.transition-transform {
+  transition: transform 0.2s ease-in-out;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}

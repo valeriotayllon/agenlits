@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BarberFlow — Sistema Completo de Gestão e Agendamento para Barbearias</title>
+  <!-- TailwindCSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Ícones Phosphor -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- CSS Customizado -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-brand-dark text-slate-100 font-sans antialiased selection:bg-brand-gold selection:text-black">
+
+  <!-- NAVBAR -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-brand-dark/90 border-b border-brand-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-gold flex items-center justify-center text-black font-extrabold text-xl shadow-lg shadow-brand-gold/20">
+          <i class="ph ph-scissors"></i>
+        </div>
+        <span class="text-xl font-bold tracking-tight">Barber<span class="text-brand-gold">Flow</span></span>
+      </a>
+
+      <!-- Links Desktop -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-brand-muted">
+        <a href="#funcionalidades" class="hover:text-brand-gold transition">Funcionalidades</a>
+        <a href="#como-funciona" class="hover:text-brand-gold transition">Como Funciona</a>
+        <a href="#precos" class="hover:text-brand-gold transition">Planos</a>
+        <a href="#faq" class="hover:text-brand-gold transition">Dúvidas</a>
+      </nav>
+
+      <!-- Botões de Ação -->
+      <div class="hidden md:flex items-center gap-4">
+        <a href="#login" class="text-sm font-semibold hover:text-brand-gold px-3 py-2 transition">Entrar</a>
+        <a href="#precos" class="text-sm font-semibold bg-brand-gold text-black px-5 py-2.5 rounded-lg hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10">Criar Minha Conta</a>
+      </div>
+
+      <!-- Menu Mobile -->
+      <button id="menu-btn" class="md:hidden text-2xl text-slate-300 hover:text-white" aria-label="Abrir Menu">
+        <i class="ph ph-list"></i>
+      </button>
+    </div>
+
+    <!-- Dropdown Mobile -->
+    <div id="mobile-menu" class="hidden md:hidden bg-brand-dark border-b border-brand-border px-4 pt-2 pb-6 space-y-3">
+      <a href="#funcionalidades" class="block py-2 text-brand-muted hover:text-brand-gold">Funcionalidades</a>
+      <a href="#como-funciona" class="block py-2 text-brand-muted hover:text-brand-gold">Como Funciona</a>
+      <a href="#precos" class="block py-2 text-brand-muted hover:text-brand-gold">Planos</a>
+      <a href="#faq" class="block py-2 text-brand-muted hover:text-brand-gold">Dúvidas</a>
+      <div class="pt-4 border-t border-brand-border flex flex-col gap-2">
+        <a href="#login" class="w-full text-center py-2.5 font-medium rounded-lg border border-brand-border text-slate-200">Entrar</a>
+        <a href="#precos" class="w-full text-center py-2.5 font-semibold bg-brand-gold text-black rounded-lg">Experimente Grátis</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-brand-card border border-brand-border text-brand-gold mb-6">
+        <i class="ph-bold ph-sparkle"></i> Plataforma SaaS para Barbearias Modernas
+      </span>
+      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight sm:leading-none">
+        Acabe com o troca-troca de mensagens e lotes de horários no WhatsApp.
+      </h1>
+      <p class="mt-6 text-lg sm:text-xl text-brand-muted max-w-2xl mx-auto">
+        Entregue um link exclusivo com sua marca para seus clientes agendarem 24 horas por dia. Controle barbeiros, comissões, faturamento e receba pagamentos adiantados.
+      </p>
+
+      <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="#precos" class="w-full sm:w-auto px-8 py-4 bg-brand-gold text-black font-bold rounded-xl hover:bg-brand-goldHover transition shadow-xl shadow-brand-gold/20 flex items-center justify-center gap-2">
+          Começar Teste de 14 Dias Grátis <i class="ph-bold ph-arrow-right"></i>
+        </a>
+        <a href="#demo" class="w-full sm:w-auto px-8 py-4 bg-brand-card border border-brand-border text-white font-semibold rounded-xl hover:border-brand-gold transition flex items-center justify-center gap-2">
+          <i class="ph-bold ph-play"></i> Ver Demonstração
+        </a>
+      </div>
+
+      <div class="mt-8 flex items-center justify-center gap-6 text-xs text-brand-muted">
+        <span class="flex items-center gap-1.5"><i class="ph-bold ph-check-circle text-brand-gold"></i> Sem taxa de adesão</span>
+        <span class="flex items-center gap-1.5"><i class="ph-bold ph-check-circle text-brand-gold"></i> Cancele quando quiser</span>
+        <span class="flex items-center gap-1.5"><i class="ph-bold ph-check-circle text-brand-gold"></i> Suporte humanizado via WhatsApp</span>
+      </div>
+
+      <!-- Preview Mockup -->
+      <div class="mt-14 max-w-4xl mx-auto rounded-2xl border border-brand-border bg-brand-card/50 p-3 shadow-2xl backdrop-blur-sm">
+        <div class="rounded-xl overflow-hidden bg-brand-card border border-brand-border p-6 text-left">
+          <div class="flex items-center justify-between pb-4 border-b border-brand-border">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+              <span class="text-xs text-brand-muted ml-2 font-mono">barberflow.com/barbearia-vintage</span>
+            </div>
+            <span class="text-xs font-semibold px-2 py-1 rounded bg-brand-gold/20 text-brand-gold">Página Pública do Cliente</span>
+          </div>
+          <div class="py-6 flex flex-col md:flex-row gap-6 items-center justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-white">Barbearia Vintage Club</h3>
+              <p class="text-xs text-brand-muted mt-1">Corte clássico, barba na toalha quente e cerveja artesanal.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="px-3 py-1.5 rounded-lg bg-emerald-950 border border-emerald-700 text-emerald-400 text-xs font-semibold">
+                ● Aberto agora
+              </span>
+              <button class="text-xs bg-brand-gold text-black font-bold px-4 py-2 rounded-lg">Agendar Horário</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFÍCIOS / FEATURES -->
+  <section id="funcionalidades" class="py-20 border-t border-brand-border bg-brand-dark/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-3xl font-extrabold text-white">Tudo que sua barbearia precisa em um só lugar</h2>
+        <p class="mt-3 text-brand-muted">Projetado especificamente para a rotina ágil da barbearia, do dono ao cliente final.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="p-6 rounded-2xl bg-brand-card border border-brand-border hover:border-brand-gold/50 transition">
+          <div class="w-12 h-12 rounded-xl bg-brand-gold/10 text-brand-gold flex items-center justify-center text-2xl mb-5">
+            <i class="ph ph-globe"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Link Próprio Personalizado</h3>
+          <p class="text-sm text-brand-muted leading-relaxed">
+            Seu cliente acessa <strong>seusite.com/suabarbearia</strong> direto pelo Instagram ou WhatsApp, escolhe o barbeiro e marca em menos de 1 minuto.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-brand-card border border-brand-border hover:border-brand-gold/50 transition">
+          <div class="w-12 h-12 rounded-xl bg-brand-gold/10 text-brand-gold flex items-center justify-center text-2xl mb-5">
+            <i class="ph ph-whatsapp-logo"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Lembretes por WhatsApp</h3>
+          <p class="text-sm text-brand-muted leading-relaxed">
+            Reduza faltas e no-shows a zero. O sistema dispara confirmação imediata e lembretes automáticos com botão de cancelamento ou reagendamento.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-brand-card border border-brand-border hover:border-brand-gold/50 transition">
+          <div class="w-12 h-12 rounded-xl bg-brand-gold/10 text-brand-gold flex items-center justify-center text-2xl mb-5">
+            <i class="ph ph-credit-card"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Cobrança de Sinal / PIX</h3>
+          <p class="text-sm text-brand-muted leading-relaxed">
+            Exija pagamento de 50% ou valor total antecipado via Stripe/PIX para horários concorridos de sexta e sábado.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-brand-card border border-brand-border hover:border-brand-gold/50 transition">
+          <div class="w-12 h-12 rounded-xl bg-brand-gold/10 text-brand-gold flex items-center justify-center text-2xl mb-5">
+            <i class="ph ph-users-three"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Painel Individual por Barbeiro</h3>
+          <p class="text-sm text-brand-muted leading-relaxed">
+            Cada profissional tem seu login restrito: visualiza sua própria fila, bloqueia horários de almoço e acompanha comissões do dia.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-brand-card border border-brand-border hover:border-brand-gold/50 transition">
+          <div class="w-12 h-12 rounded-xl bg-brand-gold/10 text-brand-gold flex items-center justify-center text-2xl mb-5">
+            <i class="ph ph-clock-countdown"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Anti-Conflito Inteligente</h3>
+          <p class="text-sm text-brand-muted leading-relaxed">
+            O algoritmo calcula a duração de cada serviço (ex: barba 30min + corte 40min) e nunca permite dois clientes no mesmo barbeiro.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-brand-card border border-brand-border hover:border-brand-gold/50 transition">
+          <div class="w-12 h-12 rounded-xl bg-brand-gold/10 text-brand-gold flex items-center justify-center text-2xl mb-5">
+            <i class="ph ph-chart-line-up"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Métricas de Faturamento</h3>
+          <p class="text-sm text-brand-muted leading-relaxed">
+            Descubra quem são seus clientes mais fiéis, os serviços mais lucrativos e seu faturamento semanal em gráficos claros.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANOS / PREÇOS -->
+  <section id="precos" class="py-20 border-t border-brand-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-3xl font-extrabold text-white">Planos simples e transparentes</h2>
+        <p class="mt-3 text-brand-muted">Escolha o plano ideal para a escala da sua barbearia. Teste grátis por 14 dias.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <!-- Solo -->
+        <div class="p-8 rounded-2xl bg-brand-card border border-brand-border flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-brand-muted uppercase">Para autônomos</span>
+            <h3 class="text-xl font-bold text-white mt-1">Barbeiro Solo</h3>
+            <div class="my-6">
+              <span class="text-4xl font-extrabold text-white">R$ 49</span>
+              <span class="text-brand-muted text-sm">/mês</span>
+            </div>
+            <ul class="space-y-3 text-sm text-brand-muted border-t border-brand-border pt-6">
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> 1 Barbeiro</li>
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> Agendamentos Ilimitados</li>
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> Página pública personalizada</li>
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> Confirmações por E-mail</li>
+            </ul>
+          </div>
+          <button class="mt-8 w-full py-3 rounded-lg border border-brand-border font-bold text-white hover:border-brand-gold transition">Começar Agora</button>
+        </div>
+
+        <!-- Profissional (Destaque) -->
+        <div class="p-8 rounded-2xl bg-brand-card border-2 border-brand-gold relative flex flex-col justify-between shadow-2xl shadow-brand-gold/10">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-brand-gold text-black font-extrabold text-xs rounded-full uppercase">
+            Mais Popular
+          </div>
+          <div>
+            <span class="text-xs font-bold text-brand-gold uppercase">Barbearias Pequenas/Médias</span>
+            <h3 class="text-xl font-bold text-white mt-1">Barbearia Pro</h3>
+            <div class="my-6">
+              <span class="text-4xl font-extrabold text-white">R$ 99</span>
+              <span class="text-brand-muted text-sm">/mês</span>
+            </div>
+            <ul class="space-y-3 text-sm text-slate-300 border-t border-brand-border pt-6">
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> Até 5 Barbeiros</li>
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> Lembretes automáticos via WhatsApp</li>
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> Bloqueio de calote (Sinal Stripe)</li>
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> Relatório de Comissões</li>
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> Suporte prioritário</li>
+            </ul>
+          </div>
+          <button class="mt-8 w-full py-3 rounded-lg bg-brand-gold text-black font-bold hover:bg-brand-goldHover transition">Testar 14 Dias Grátis</button>
+        </div>
+
+        <!-- Multi-Lojas -->
+        <div class="p-8 rounded-2xl bg-brand-card border border-brand-border flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-brand-muted uppercase">Grandes Redes</span>
+            <h3 class="text-xl font-bold text-white mt-1">Franquias & Redes</h3>
+            <div class="my-6">
+              <span class="text-4xl font-extrabold text-white">R$ 199</span>
+              <span class="text-brand-muted text-sm">/mês</span>
+            </div>
+            <ul class="space-y-3 text-sm text-brand-muted border-t border-brand-border pt-6">
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> Barbeiros Ilimitados</li>
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> Multi-unidades / filiais</li>
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> Domínio customizado (.com.br)</li>
+              <li class="flex items-center gap-2"><i class="ph-bold ph-check text-brand-gold"></i> Gestor de conta dedicado</li>
+            </ul>
+          </div>
+          <button class="mt-8 w-full py-3 rounded-lg border border-brand-border font-bold text-white hover:border-brand-gold transition">Falar com Consultor</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="py-20 border-t border-brand-border bg-brand-dark/50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl font-extrabold text-white text-center mb-12">Perguntas Frequentes</h2>
+
+      <div class="space-y-4" id="faq-container">
+        <div class="border border-brand-border rounded-xl bg-brand-card overflow-hidden">
+          <button class="faq-btn w-full p-5 text-left font-semibold text-white flex justify-between items-center">
+            <span>O cliente precisa baixar algum aplicativo para agendar?</span>
+            <i class="ph ph-caret-down text-brand-gold transition-transform"></i>
+          </button>
+          <div class="faq-content hidden px-5 pb-5 text-sm text-brand-muted">
+            Não! O cliente acessa direto pelo navegador do celular através do link que você coloca na bio do Instagram ou envia no WhatsApp. Rápido e sem atrito.
+          </div>
+        </div>
+
+        <div class="border border-brand-border rounded-xl bg-brand-card overflow-hidden">
+          <button class="faq-btn w-full p-5 text-left font-semibold text-white flex justify-between items-center">
+            <span>Como os barbeiros da minha equipe acessam a agenda?</span>
+            <i class="ph ph-caret-down text-brand-gold transition-transform"></i>
+          </button>
+          <div class="faq-content hidden px-5 pb-5 text-sm text-brand-muted">
+            Você cadastra cada barbeiro no seu painel. Eles recebem um link com senha restrita, onde conseguem ver apenas os seus próprios agendamentos e comissões.
+          </div>
+        </div>
+
+        <div class="border border-brand-border rounded-xl bg-brand-card overflow-hidden">
+          <button class="faq-btn w-full p-5 text-left font-semibold text-white flex justify-between items-center">
+            <span>Consigo receber sinal antes do cliente confirmar o horário?</span>
+            <i class="ph ph-caret-down text-brand-gold transition-transform"></i>
+          </button>
+          <div class="faq-content hidden px-5 pb-5 text-sm text-brand-muted">
+            Sim! O sistema integra nativamente com Stripe e Pix. Você escolhe se deseja cobrar sinal (ex: R$ 20) ou deixar o pagamento direto no balcão.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-10 border-t border-brand-border text-center text-xs text-brand-muted">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <i class="ph ph-scissors text-brand-gold text-base"></i>
+        <span>BarberFlow &copy; 2026. Todos os direitos reservados.</span>
+      </div>
+      <div class="flex gap-6">
+        <a href="#" class="hover:text-brand-gold">Termos de Uso</a>
+        <a href="#" class="hover:text-brand-gold">Privacidade</a>
+        <a href="#" class="hover:text-brand-gold">Suporte</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT JS SEPARADO -->
+  <script src="script.js"></script>
+</body>
+</html>
