@@ -1,14 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Paleta Base Solicitada */
   --jet-black: #272D2D;
   --powder-blue: #B8C5D6;
   --alice-blue: #EDF5FC;
   --emerald: #23CE6B;
   --emerald-hover: #1eb85f;
 
-  /* Tema Escuro Padrão */
   --bg-main: #1d2222;
   --bg-card: #272D2D;
   --bg-darker: #161a1a;
@@ -18,7 +16,6 @@
 }
 
 html.light {
-  /* Tema Claro */
   --bg-main: #EDF5FC;
   --bg-card: #ffffff;
   --bg-darker: #e2ecf5;
@@ -27,17 +24,11 @@ html.light {
   --text-muted: #4e5a5a;
 }
 
-*, ::before, ::after {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
-}
-
 body {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   background-color: var(--bg-main);
   color: var(--text-main);
   transition: background-color 0.25s ease, color 0.25s ease;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 .bg-brand-main { background-color: var(--bg-main); }

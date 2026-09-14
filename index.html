@@ -3,94 +3,337 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>agenlits — Sistema Completo de Gestão e Agendamento para Barbearias</title>
+  <title>agenlits — Reserve com os melhores barbeiros perto de você</title>
   <link rel="icon" type="image/png" href="images/fundo transparente fonte clara.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
-  
-<script>
-  function initTheme() {
-    const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
-    if (savedTheme === 'light') {
-      document.documentElement.classList.add('light');
-    } else {
-      document.documentElement.classList.remove('light');
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
     }
-    updateThemeIcons();
-  }
-
-  function toggleTheme() {
-    const isLight = document.documentElement.classList.toggle('light');
-    localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
-    updateThemeIcons();
-  }
-
-  function updateThemeIcons() {
-    const isLight = document.documentElement.classList.contains('light');
-    document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
-      icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
     });
-  }
-
-  initTheme();
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-      btn.addEventListener('click', toggleTheme);
-    });
-    updateThemeIcons();
-  });
-</script>
-
+  </script>
 </head>
-<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between">
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
 
-  <header class="sticky top-0 z-50 backdrop-blur-md bg-brand-card/90 border-b border-brand-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-3">
-        <img src="images/fundo transparente fonte clara.png" alt="Logo agenlits" class="h-10 w-auto object-contain hover:opacity-90 transition" />
+  <!-- HEADER ESTILO BOOKSY -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-brand-card/95 border-b border-brand-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      
+      <!-- Logo da Marca -->
+      <a href="index.html" class="flex items-center gap-3 shrink-0">
+        <img src="images/fundo transparente fonte clara.png" alt="agenlits" class="h-9 w-auto object-contain" />
       </a>
-      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-brand-muted">
-        <a href="#funcionalidades" class="hover:text-brand-emerald transition">Funcionalidades</a>
-        <a href="#como-funciona" class="hover:text-brand-emerald transition">Como Funciona</a>
-        <a href="#precos" class="hover:text-brand-emerald transition">Planos</a>
-      </nav>
-      <div class="flex items-center gap-4">
-        
-<button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema claro/escuro" aria-label="Mudar tema">
-  <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
-</button>
 
-        <a href="login.html" class="btn-secondary-invert text-xs px-4 py-2.5 rounded-xl hidden sm:inline-block">Entrar</a>
-        <a href="cadastro.html" class="btn-emerald-invert text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/10">Criar Minha Conta</a>
+      <!-- Barra de Busca compacta visível em telas médias/grandes -->
+      <div class="hidden md:flex flex-1 max-w-lg mx-6 items-center bg-brand-darker border border-brand-border rounded-full px-4 py-2 shadow-inner focus-within:border-brand-emerald transition">
+        <i class="ph ph-magnifying-glass text-brand-muted mr-2 text-lg"></i>
+        <input type="text" id="header-search" placeholder="Pesquise barbearias ou serviços..." class="bg-transparent border-none text-xs w-full focus:outline-none text-brand-main" />
+      </div>
+
+      <!-- Ações do Header -->
+      <div class="flex items-center gap-3 shrink-0">
+        <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+          <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+        </button>
+
+        <a href="login.html" class="text-xs font-semibold px-3 py-2 text-brand-muted hover:text-brand-emerald transition flex items-center gap-1.5">
+          <i class="ph ph-user text-base"></i> Entrar / Inscrever-se
+        </a>
+
+        <a href="cadastro.html" class="btn-emerald-invert text-xs px-4 py-2.5 rounded-xl shadow-md shadow-emerald-500/10">
+          Cadastre sua empresa
+        </a>
       </div>
     </div>
   </header>
 
-  <section class="relative overflow-hidden pt-16 pb-24 text-center">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-brand-card border border-brand-border text-brand-emerald mb-6">
-        <i class="ph-bold ph-sparkle"></i> Plataforma SaaS para Barbearias Modernas
-      </span>
-      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight">
-        Acabe com a confusão de mensagens e lotes de horários no WhatsApp.
-      </h1>
-      <p class="mt-6 text-base sm:text-lg text-brand-muted max-w-2xl mx-auto">
-        Entregue um link exclusivo com a sua marca para seus clientes escolherem serviços, barbeiros e agendarem 24 horas por dia.
-      </p>
-      <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="cadastro.html" class="btn-emerald-invert px-8 py-4 rounded-2xl text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/20 w-full sm:w-auto">
-          Começar Teste de 14 Dias Grátis <i class="ph-bold ph-arrow-right"></i>
-        </a>
-        <a href="agendar.html" class="btn-secondary-invert px-8 py-4 rounded-2xl text-sm flex items-center justify-center gap-2 w-full sm:w-auto">
-          <i class="ph-bold ph-eye"></i> Ver Página de Agendamento
+  <main class="flex-1">
+
+    <!-- HERO BANNER INSPIRADO NO BOOKSY COM IMAGEM E BUSCA FLUTUANTE -->
+    <section class="relative bg-gradient-to-b from-brand-card to-brand-main border-b border-brand-border py-16 md:py-24 px-4 overflow-hidden">
+      <!-- Fundo decorativo sutil -->
+      <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#23CE6B_1px,transparent_1px)] [background-size:20px_20px]"></div>
+
+      <div class="max-w-4xl mx-auto text-center relative z-10 space-y-6">
+        <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-brand-darker border border-brand-border text-brand-emerald">
+          <i class="ph-bold ph-scissors"></i> O maior marketplace de barbearias
+        </span>
+
+        <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
+          Agende com os melhores <span class="text-brand-emerald">barbeiros</span> perto de você
+        </h1>
+        
+        <p class="text-xs sm:text-sm text-brand-muted max-w-xl mx-auto">
+          Descubra e reserve horários de corte, barba e cuidados masculinos em instantes, 24 horas por dia.
+        </p>
+
+        <!-- BARRA DE BUSCA COMPLETA ESTILO BOOKSY -->
+        <div class="mt-8 bg-brand-card border border-brand-border rounded-2xl md:rounded-full p-2 sm:p-2.5 shadow-2xl flex flex-col md:flex-row items-center gap-2">
+          
+          <div class="flex items-center w-full md:w-1/3 px-4 py-2.5 bg-brand-darker md:bg-transparent rounded-xl md:rounded-none border-b md:border-b-0 md:border-r border-brand-border">
+            <i class="ph ph-magnifying-glass text-brand-emerald text-lg mr-3 shrink-0"></i>
+            <input type="text" placeholder="Pesquise serviços ou empresas" class="bg-transparent border-none text-xs w-full focus:outline-none text-brand-main" />
+          </div>
+
+          <div class="flex items-center w-full md:w-1/3 px-4 py-2.5 bg-brand-darker md:bg-transparent rounded-xl md:rounded-none border-b md:border-b-0 md:border-r border-brand-border">
+            <i class="ph ph-map-pin text-brand-emerald text-lg mr-3 shrink-0"></i>
+            <input type="text" placeholder="Onde? Cidade ou bairro" class="bg-transparent border-none text-xs w-full focus:outline-none text-brand-main" />
+          </div>
+
+          <div class="flex items-center w-full md:w-1/4 px-4 py-2.5 bg-brand-darker md:bg-transparent rounded-xl md:rounded-none">
+            <i class="ph ph-calendar text-brand-emerald text-lg mr-3 shrink-0"></i>
+            <input type="date" class="bg-transparent border-none text-xs w-full focus:outline-none text-brand-main cursor-pointer" />
+          </div>
+
+          <button type="button" class="btn-emerald-invert w-full md:w-auto px-8 py-3.5 rounded-xl md:rounded-full text-xs flex items-center justify-center gap-2 shrink-0">
+            Buscar
+          </button>
+        </div>
+
+        <!-- CATEGORIAS RÁPIDAS (ÍCONES ESTILO BOOKSY) -->
+        <div class="pt-8 flex items-center justify-center gap-4 sm:gap-6 overflow-x-auto py-2 scrollbar-none">
+          <a href="#recomendados" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0">
+            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
+              <i class="ph ph-scissors text-brand-emerald"></i>
+            </div>
+            <span class="text-[11px] font-medium">Corte de Cabelo</span>
+          </a>
+
+          <a href="#recomendados" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0">
+            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
+              <i class="ph ph-sparkle text-brand-emerald"></i>
+            </div>
+            <span class="text-[11px] font-medium">Barba & Toalha</span>
+          </a>
+
+          <a href="#recomendados" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0">
+            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
+              <i class="ph ph-lightning text-brand-emerald"></i>
+            </div>
+            <span class="text-[11px] font-medium">Combo Cabelo+Barba</span>
+          </a>
+
+          <a href="#recomendados" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0">
+            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
+              <i class="ph ph-drop text-brand-emerald"></i>
+            </div>
+            <span class="text-[11px] font-medium">Tratamentos</span>
+          </a>
+
+          <a href="#recomendados" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0">
+            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
+              <i class="ph ph-dots-three-outline text-brand-emerald"></i>
+            </div>
+            <span class="text-[11px] font-medium">Mais</span>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SEÇÃO RECOMENDADOS (VITRINE DE BARBEARIAS) -->
+    <section id="recomendados" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <span class="text-[11px] uppercase font-bold text-brand-emerald tracking-wider">Explorar</span>
+          <h2 class="text-2xl font-extrabold tracking-tight">Recomendado para você</h2>
+        </div>
+        <a href="agendar.html?b=barbearia-do-valerio" class="text-xs font-semibold text-brand-emerald hover:underline flex items-center gap-1">
+          Ver todas <i class="ph-bold ph-arrow-right"></i>
         </a>
       </div>
-    </div>
-  </section>
 
-  <footer class="py-10 border-t border-brand-border text-center text-xs text-brand-muted">
-    &copy; 2026 agenlits. Todos os direitos reservados.
+      <!-- CARDS DAS BARBEARIAS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- Card Barbearia 1 -->
+        <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl hover:border-brand-emerald transition flex flex-col justify-between group">
+          <div class="relative h-44 bg-brand-darker overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=600&q=80" alt="Barbearia" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+            <span class="absolute top-3 left-3 bg-brand-darker/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-brand-emerald border border-brand-border">
+              Destaque
+            </span>
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between">
+                <h3 class="font-extrabold text-sm text-brand-main">Barbearia do Valério</h3>
+                <span class="flex items-center text-xs text-amber-400 font-bold gap-1">
+                  <i class="ph-fill ph-star"></i> 5.0
+                </span>
+              </div>
+              <p class="text-[11px] text-brand-muted mt-1 flex items-center gap-1">
+                <i class="ph ph-map-pin text-brand-emerald"></i> Aguanambi, Fortaleza - CE
+              </p>
+            </div>
+            <a href="agendar.html?b=barbearia-do-valerio" class="btn-emerald-invert w-full py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 text-center">
+              Agendar Horário <i class="ph-bold ph-calendar"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Card Barbearia 2 -->
+        <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl hover:border-brand-emerald transition flex flex-col justify-between group">
+          <div class="relative h-44 bg-brand-darker overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=600&q=80" alt="Barbearia" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between">
+                <h3 class="font-extrabold text-sm text-brand-main">Studio Vintage Barber</h3>
+                <span class="flex items-center text-xs text-amber-400 font-bold gap-1">
+                  <i class="ph-fill ph-star"></i> 4.9
+                </span>
+              </div>
+              <p class="text-[11px] text-brand-muted mt-1 flex items-center gap-1">
+                <i class="ph ph-map-pin text-brand-emerald"></i> Aldeota, Fortaleza - CE
+              </p>
+            </div>
+            <a href="agendar.html?b=barbearia-do-valerio" class="btn-emerald-invert w-full py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 text-center">
+              Agendar Horário <i class="ph-bold ph-calendar"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Card Barbearia 3 -->
+        <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl hover:border-brand-emerald transition flex flex-col justify-between group">
+          <div class="relative h-44 bg-brand-darker overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=600&q=80" alt="Barbearia" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between">
+                <h3 class="font-extrabold text-sm text-brand-main">Barbearia Fenícia Club</h3>
+                <span class="flex items-center text-xs text-amber-400 font-bold gap-1">
+                  <i class="ph-fill ph-star"></i> 4.8
+                </span>
+              </div>
+              <p class="text-[11px] text-brand-muted mt-1 flex items-center gap-1">
+                <i class="ph ph-map-pin text-brand-emerald"></i> Meireles, Fortaleza - CE
+              </p>
+            </div>
+            <a href="agendar.html?b=barbearia-do-valerio" class="btn-emerald-invert w-full py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 text-center">
+              Agendar Horário <i class="ph-bold ph-calendar"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Card Barbearia 4 -->
+        <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl hover:border-brand-emerald transition flex flex-col justify-between group">
+          <div class="relative h-44 bg-brand-darker overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=600&q=80" alt="Barbearia" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between">
+                <h3 class="font-extrabold text-sm text-brand-main">Barbearia Batuta Prime</h3>
+                <span class="flex items-center text-xs text-amber-400 font-bold gap-1">
+                  <i class="ph-fill ph-star"></i> 4.9
+                </span>
+              </div>
+              <p class="text-[11px] text-brand-muted mt-1 flex items-center gap-1">
+                <i class="ph ph-map-pin text-brand-emerald"></i> Centro, Fortaleza - CE
+              </p>
+            </div>
+            <a href="agendar.html?b=barbearia-do-valerio" class="btn-emerald-invert w-full py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 text-center">
+              Agendar Horário <i class="ph-bold ph-calendar"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SEÇÃO DUPLA (ESTILO BOOKSY): CLIENTE vs DONO DA BARBEARIA -->
+    <section class="border-t border-brand-border bg-brand-darker py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          <!-- Bloco do Cliente -->
+          <div class="bg-brand-card border border-brand-border rounded-3xl p-8 sm:p-10 flex flex-col justify-between shadow-xl">
+            <div class="space-y-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold bg-brand-darker text-brand-emerald border border-brand-border">
+                <i class="ph-bold ph-device-mobile"></i> Para Clientes
+              </span>
+              <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Encontre profissionais perto de você!
+              </h3>
+              <p class="text-xs text-brand-muted leading-relaxed">
+                Agende seu próximo corte ou barba instantaneamente, a qualquer hora e onde estiver. Receba lembretes e nunca mais perca seu horário.
+              </p>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-brand-border flex flex-col sm:flex-row items-center gap-3">
+              <a href="#recomendados" class="btn-emerald-invert w-full sm:w-auto px-6 py-3 rounded-xl text-xs flex items-center justify-center gap-2">
+                Buscar Barbearias <i class="ph-bold ph-magnifying-glass"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Bloco do Dono da Barbearia (SaaS) -->
+          <div class="bg-brand-card border border-brand-border rounded-3xl p-8 sm:p-10 flex flex-col justify-between shadow-xl">
+            <div class="space-y-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold bg-brand-darker text-brand-emerald border border-brand-border">
+                <i class="ph-bold ph-briefcase"></i> Para Barbearias
+              </span>
+              <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Transforme seu negócio com o agenlits
+              </h3>
+              <p class="text-xs text-brand-muted leading-relaxed">
+                Simplifique sua rotina com agenda inteligente, gestão de equipe, comissões e catálogo de serviços em um só lugar. Tenha seu link exclusivo.
+              </p>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-brand-border flex flex-col sm:flex-row items-center gap-3">
+              <a href="cadastro.html" class="btn-emerald-invert w-full sm:w-auto px-6 py-3 rounded-xl text-xs flex items-center justify-center gap-2">
+                Cadastrar Minha Barbearia <i class="ph-bold ph-arrow-right"></i>
+              </a>
+              <a href="login.html" class="btn-secondary-invert w-full sm:w-auto px-6 py-3 rounded-xl text-xs flex items-center justify-center">
+                Acessar Painel
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RODAPÉ COMPLETO -->
+  <footer class="border-t border-brand-border py-10 bg-brand-card text-xs text-brand-muted">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <img src="images/fundo transparente fonte clara.png" alt="agenlits" class="h-6 w-auto object-contain opacity-80" />
+        <span>&copy; 2026 agenlits. Todos os direitos reservados.</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <a href="login.html" class="hover:text-brand-emerald transition">Área do Barbeiro</a>
+        <a href="cadastro.html" class="hover:text-brand-emerald transition">Cadastre sua Empresa</a>
+      </div>
+    </div>
   </footer>
+
 </body>
 </html>
