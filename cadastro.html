@@ -2,71 +2,70 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cadastre sua Barbearia — agenlits</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Cadastrar — agenlits</title>
   <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
-  
-<script>
-  function initTheme() {
-    const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
-    if (savedTheme === 'light') {
-      document.documentElement.classList.add('light');
-    } else {
-      document.documentElement.classList.remove('light');
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
     }
-    updateThemeIcons();
-  }
-
-  function toggleTheme() {
-    const isLight = document.documentElement.classList.toggle('light');
-    localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
-    updateThemeIcons();
-  }
-
-  function updateThemeIcons() {
-    const isLight = document.documentElement.classList.contains('light');
-    document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
-      icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
     });
-  }
-
-  initTheme();
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-      btn.addEventListener('click', toggleTheme);
-    });
-    updateThemeIcons();
-  });
-</script>
-
+  </script>
 </head>
-<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between">
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
 
-  <header class="border-b border-brand-border py-4 px-6 flex items-center justify-between bg-brand-card/90 backdrop-blur-md">
+  <header class="border-b border-brand-border py-3.5 px-4 sm:px-6 flex items-center justify-between bg-brand-card/90 backdrop-blur-md">
     <a href="index.html" class="flex items-center gap-2">
-      <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-8 w-auto object-contain" />
+      <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
     </a>
     <div class="flex items-center gap-3">
       <div class="text-xs text-brand-muted hidden sm:block">
         Já tem cadastro? <a href="login.html" class="text-brand-emerald font-semibold hover:underline">Fazer login</a>
       </div>
-      
-<button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema claro/escuro" aria-label="Mudar tema">
-  <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
-</button>
-
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
     </div>
   </header>
 
   <main class="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
     <div class="w-full max-w-xl bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-10 shadow-2xl relative">
+      
+      <!-- SELETOR DE PERFIL NO CADASTRO -->
+      <div class="flex p-1 bg-brand-darker border border-brand-border rounded-2xl mb-6">
+        <button type="button" id="reg-tab-client" onclick="window.switchRegTab('client')" class="flex-1 py-2.5 rounded-xl text-xs font-semibold text-brand-muted transition flex items-center justify-center gap-1.5 hover:text-brand-main">
+          <i class="ph-bold ph-user"></i> Sou Cliente
+        </button>
+        <button type="button" id="reg-tab-owner" onclick="window.switchRegTab('owner')" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-brand-emerald text-[#272D2D] shadow-sm">
+          <i class="ph-bold ph-storefront"></i> Cadastrar Estabelecimento
+        </button>
+      </div>
+
       <div class="mb-6">
-        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Cadastre sua Barbearia</h1>
-        <p class="text-xs text-brand-muted mt-1">Preencha os dados abaixo para criar sua plataforma e link exclusivo.</p>
+        <h1 id="reg-title" class="text-2xl sm:text-3xl font-extrabold tracking-tight">Cadastre seu Negócio</h1>
+        <p id="reg-subtitle" class="text-xs text-brand-muted mt-1">Crie sua conta para gerenciar horários, equipe e receber agendamentos.</p>
       </div>
 
       <div id="error-alert" class="hidden mb-4 p-4 rounded-xl bg-red-950/80 border border-red-500 text-red-200 text-xs flex items-start gap-3">
@@ -75,48 +74,49 @@
       </div>
 
       <form id="signup-form" onsubmit="return false;" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-brand-muted mb-1.5">Nome da Barbearia</label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted"><i class="ph ph-storefront text-lg"></i></span>
-            <input type="text" id="barbershop-name" placeholder="Ex: Barbearia do Silva" class="w-full pl-11 pr-4 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-          <div class="sm:col-span-6">
-            <label class="block text-xs font-semibold text-brand-muted mb-1.5">WhatsApp</label>
+        
+        <div id="owner-specific-fields" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-brand-muted mb-1.5">Nome da Barbearia</label>
             <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted"><i class="ph ph-phone text-lg"></i></span>
-              <input type="tel" id="owner-phone" placeholder="(11) 99999-9999" maxlength="15" class="w-full pl-11 pr-3 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted"><i class="ph ph-storefront text-lg"></i></span>
+              <input type="text" id="barbershop-name" placeholder="Ex: Barbearia do Silva" class="w-full pl-11 pr-4 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
             </div>
           </div>
-          <div class="sm:col-span-2">
-            <label class="block text-xs font-semibold text-brand-muted mb-1.5">Tipo</label>
-            <select id="doc-type" class="w-full px-2 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition text-center cursor-pointer">
-              <option value="CPF" selected>CPF</option>
-              <option value="CNPJ">CNPJ</option>
-            </select>
-          </div>
-          <div class="sm:col-span-4">
-            <label class="block text-xs font-semibold text-brand-muted mb-1.5">Documento</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted"><i class="ph ph-fingerprint text-lg"></i></span>
-              <input type="text" id="doc-number" placeholder="000.000.000-00" maxlength="18" class="w-full pl-10 pr-3 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
+
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            <div class="sm:col-span-4">
+              <label class="block text-xs font-semibold text-brand-muted mb-1.5">Documento</label>
+              <select id="doc-type" class="w-full px-3 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition cursor-pointer">
+                <option value="CPF" selected>CPF</option>
+                <option value="CNPJ">CNPJ</option>
+              </select>
+            </div>
+            <div class="sm:col-span-8">
+              <label class="block text-xs font-semibold text-brand-muted mb-1.5">Número</label>
+              <input type="text" id="doc-number" placeholder="000.000.000-00" maxlength="18" class="w-full px-4 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
             </div>
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-brand-muted mb-1.5">Nome Responsável</label>
+          <label id="lbl-name" class="block text-xs font-semibold text-brand-muted mb-1.5">Nome do Responsável</label>
           <div class="relative">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted"><i class="ph ph-user text-lg"></i></span>
-            <input type="text" id="owner-name" placeholder="Nome do administrador" class="w-full pl-11 pr-4 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
+            <input type="text" id="owner-name" placeholder="Seu nome completo" class="w-full pl-11 pr-4 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-brand-muted mb-1.5">Seu melhor e-mail</label>
+          <label class="block text-xs font-semibold text-brand-muted mb-1.5">WhatsApp / Telefone</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted"><i class="ph ph-phone text-lg"></i></span>
+            <input type="tel" id="owner-phone" placeholder="(11) 99999-9999" maxlength="15" class="w-full pl-11 pr-3 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-brand-muted mb-1.5">Seu E-mail</label>
           <div class="relative">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted"><i class="ph ph-envelope-simple text-lg"></i></span>
             <input type="email" id="owner-email" placeholder="seu@email.com" class="w-full pl-11 pr-4 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
@@ -128,7 +128,7 @@
             <label class="block text-xs font-semibold text-brand-muted mb-1.5">Senha</label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted"><i class="ph ph-lock text-lg"></i></span>
-              <input type="password" id="owner-password" minlength="6" placeholder="Mínimo 6 caracteres" class="w-full pl-11 pr-10 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
+              <input type="password" id="owner-password" minlength="6" placeholder="Mínimo 6 dígitos" class="w-full pl-11 pr-10 py-3 bg-brand-darker border border-brand-border rounded-xl text-sm focus:outline-none focus:border-brand-emerald transition" />
               <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-brand-muted hover:text-brand-main"><i class="ph ph-eye text-base"></i></button>
             </div>
           </div>
@@ -142,7 +142,7 @@
           </div>
         </div>
 
-        <div class="pt-1">
+        <div id="slug-container" class="pt-1">
           <label class="block text-xs font-semibold text-brand-muted mb-1.5">Link exclusivo da sua Barbearia</label>
           <div class="flex items-center rounded-xl bg-brand-darker border border-brand-border overflow-hidden focus-within:border-brand-emerald transition">
             <span class="px-3.5 py-3 text-xs text-brand-muted border-r border-brand-border font-mono select-none">agenlits.com/</span>
@@ -151,7 +151,7 @@
         </div>
 
         <button type="button" id="btn-submit" class="btn-emerald-invert w-full py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 mt-4 shadow-lg shadow-emerald-500/10">
-          Cadastrar Barbearia <i class="ph-bold ph-check"></i>
+          <span id="btn-submit-text">Cadastrar Barbearia</span> <i class="ph-bold ph-check"></i>
         </button>
       </form>
 
@@ -159,12 +159,13 @@
         <div class="w-16 h-16 rounded-2xl bg-brand-emerald/20 border border-brand-emerald text-brand-emerald flex items-center justify-center text-3xl mb-4">
           <i class="ph-bold ph-check-circle"></i>
         </div>
-        <h3 class="text-xl font-bold">Barbearia cadastrada com sucesso!</h3>
-        <p class="text-xs text-brand-muted mt-2 max-w-sm" id="success-msg">Cadastro finalizado com sucesso.</p>
+        <h3 class="text-xl font-bold">Cadastro realizado com sucesso!</h3>
+        <p class="text-xs text-brand-muted mt-2 max-w-sm" id="success-msg">Conta criada. Você já pode fazer login.</p>
         <div class="mt-6 flex flex-col gap-2 w-full max-w-xs">
-          <a href="login.html" class="btn-emerald-invert w-full py-3 rounded-xl text-xs flex items-center justify-center">Ir para Login</a>
+          <a id="modal-login-btn" href="login.html" class="btn-emerald-invert w-full py-3 rounded-xl text-xs flex items-center justify-center">Fazer Login</a>
         </div>
       </div>
+
     </div>
   </main>
 
@@ -173,5 +174,52 @@
   </footer>
 
   <script src="cadastro.js"></script>
+  <script>
+    (() => {
+      let regType = 'owner';
+
+      const tabClient = document.getElementById('reg-tab-client');
+      const tabOwner = document.getElementById('reg-tab-owner');
+      const regTitle = document.getElementById('reg-title');
+      const regSubtitle = document.getElementById('reg-subtitle');
+      const ownerSpecificFields = document.getElementById('owner-specific-fields');
+      const slugContainer = document.getElementById('slug-container');
+      const lblName = document.getElementById('lbl-name');
+      const btnSubmitText = document.getElementById('btn-submit-text');
+      const modalLoginBtn = document.getElementById('modal-login-btn');
+
+      window.switchRegTab = (type) => {
+        regType = type;
+        if (type === 'client') {
+          tabClient.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-brand-emerald text-[#272D2D] shadow-sm';
+          tabOwner.className = 'flex-1 py-2.5 rounded-xl text-xs font-semibold text-brand-muted transition flex items-center justify-center gap-1.5 hover:text-brand-main';
+          regTitle.textContent = 'Crie sua Conta de Cliente';
+          regSubtitle.textContent = 'Agende serviços mais rápido e gerencie seus cortes em poucos cliques.';
+          ownerSpecificFields.classList.add('hidden');
+          slugContainer.classList.add('hidden');
+          lblName.textContent = 'Seu Nome Completo';
+          btnSubmitText.textContent = 'Criar Conta de Cliente';
+          modalLoginBtn.href = 'login.html?type=client';
+        } else {
+          tabOwner.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 bg-brand-emerald text-[#272D2D] shadow-sm';
+          tabClient.className = 'flex-1 py-2.5 rounded-xl text-xs font-semibold text-brand-muted transition flex items-center justify-center gap-1.5 hover:text-brand-main';
+          regTitle.textContent = 'Cadastre seu Negócio';
+          regSubtitle.textContent = 'Crie sua conta para gerenciar horários, equipe e receber agendamentos.';
+          ownerSpecificFields.classList.remove('hidden');
+          slugContainer.classList.remove('hidden');
+          lblName.textContent = 'Nome do Responsável';
+          btnSubmitText.textContent = 'Cadastrar Barbearia';
+          modalLoginBtn.href = 'login.html?type=owner';
+        }
+      };
+
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('type') === 'client') {
+        window.switchRegTab('client');
+      } else {
+        window.switchRegTab('owner');
+      }
+    })();
+  </script>
 </body>
 </html>
