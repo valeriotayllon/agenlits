@@ -193,6 +193,20 @@
         errorBox.classList.add('hidden');
       }
 
+      function getFriendlyErrorMessage(err) {
+        const msg = (err.message || '').toLowerCase();
+        if (msg.includes('invalid login credentials') || msg.includes('user not found')) {
+          return 'Usuário não encontrado ou dados incorretos. Verifique o e-mail e a senha digitados ou faça seu cadastro.';
+        }
+        if (msg.includes('email not confirmed')) {
+          return 'Este e-mail ainda não foi confirmado. Verifique sua caixa de entrada.';
+        }
+        if (msg.includes('too many requests') || msg.includes('rate limit')) {
+          return 'Muitas tentativas consecutivas. Aguarde alguns instantes antes de tentar novamente.';
+        }
+        return err.message || 'Não foi possível entrar. Verifique os dados e tente novamente.';
+      }
+
       async function handleLogin() {
         hideError();
         const email = emailInput.value.trim();
@@ -214,7 +228,7 @@
             window.location.href = 'index.html';
           }
         } catch (err) {
-          showError(err.message || 'Erro ao realizar login.');
+          showError(getFriendlyErrorMessage(err));
           btnLogin.disabled = false;
           btnLogin.innerHTML = `<span id="btn-login-text">${btnLoginText.textContent}</span> <i class="ph-bold ph-sign-in"></i>`;
         }
