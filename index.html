@@ -45,10 +45,10 @@
         <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-9 w-auto object-contain" />
       </a>
 
-      <!-- Barra de Busca compacta visível em telas médias/grandes -->
+      <!-- Barra de Busca do Header -->
       <div class="hidden md:flex flex-1 max-w-lg mx-6 items-center bg-brand-darker border border-brand-border rounded-full px-4 py-2 shadow-inner focus-within:border-brand-emerald transition">
         <i class="ph ph-magnifying-glass text-brand-muted mr-2 text-lg"></i>
-        <input type="text" id="header-search" placeholder="Pesquise barbearias ou serviços..." class="bg-transparent border-none text-xs w-full focus:outline-none text-brand-main" />
+        <input type="text" id="header-search-input" placeholder="Pesquise barbearias ou serviços..." class="bg-transparent border-none text-xs w-full focus:outline-none text-brand-main" />
       </div>
 
       <!-- Ações do Header -->
@@ -70,9 +70,8 @@
 
   <main class="flex-1">
 
-    <!-- HERO BANNER INSPIRADO NO BOOKSY COM IMAGEM E BUSCA FLUTUANTE -->
+    <!-- HERO BANNER COM BUSCA INTEGRADA -->
     <section class="relative bg-gradient-to-b from-brand-card to-brand-main border-b border-brand-border py-16 md:py-24 px-4 overflow-hidden">
-      <!-- Fundo decorativo sutil -->
       <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#23CE6B_1px,transparent_1px)] [background-size:20px_20px]"></div>
 
       <div class="max-w-4xl mx-auto text-center relative z-10 space-y-6">
@@ -88,189 +87,108 @@
           Descubra e reserve horários de corte, barba e cuidados masculinos em instantes, 24 horas por dia.
         </p>
 
-        <!-- BARRA DE BUSCA COMPLETA ESTILO BOOKSY -->
-        <div class="mt-8 bg-brand-card border border-brand-border rounded-2xl md:rounded-full p-2 sm:p-2.5 shadow-2xl flex flex-col md:flex-row items-center gap-2">
+        <!-- FORMULÁRIO DE BUSCA DINÂMICO -->
+        <form id="search-form" onsubmit="return false;" class="mt-8 bg-brand-card border border-brand-border rounded-2xl md:rounded-full p-2 sm:p-2.5 shadow-2xl flex flex-col md:flex-row items-center gap-2">
           
           <div class="flex items-center w-full md:w-1/3 px-4 py-2.5 bg-brand-darker md:bg-transparent rounded-xl md:rounded-none border-b md:border-b-0 md:border-r border-brand-border">
             <i class="ph ph-magnifying-glass text-brand-emerald text-lg mr-3 shrink-0"></i>
-            <input type="text" placeholder="Pesquise serviços ou empresas" class="bg-transparent border-none text-xs w-full focus:outline-none text-brand-main" />
+            <input type="text" id="input-query" placeholder="Pesquise serviços ou barbearias" class="bg-transparent border-none text-xs w-full focus:outline-none text-brand-main" />
           </div>
 
           <div class="flex items-center w-full md:w-1/3 px-4 py-2.5 bg-brand-darker md:bg-transparent rounded-xl md:rounded-none border-b md:border-b-0 md:border-r border-brand-border">
             <i class="ph ph-map-pin text-brand-emerald text-lg mr-3 shrink-0"></i>
-            <input type="text" placeholder="Onde? Cidade ou bairro" class="bg-transparent border-none text-xs w-full focus:outline-none text-brand-main" />
+            <input type="text" id="input-location" placeholder="Onde? Cidade ou bairro" class="bg-transparent border-none text-xs w-full focus:outline-none text-brand-main" />
           </div>
 
           <div class="flex items-center w-full md:w-1/4 px-4 py-2.5 bg-brand-darker md:bg-transparent rounded-xl md:rounded-none">
             <i class="ph ph-calendar text-brand-emerald text-lg mr-3 shrink-0"></i>
-            <input type="date" class="bg-transparent border-none text-xs w-full focus:outline-none text-brand-main cursor-pointer" />
+            <input type="date" id="input-date" class="bg-transparent border-none text-xs w-full focus:outline-none text-brand-main cursor-pointer" />
           </div>
 
-          <button type="button" class="btn-emerald-invert w-full md:w-auto px-8 py-3.5 rounded-xl md:rounded-full text-xs flex items-center justify-center gap-2 shrink-0">
-            Buscar
+          <button type="submit" id="btn-search" class="btn-emerald-invert w-full md:w-auto px-8 py-3.5 rounded-xl md:rounded-full text-xs flex items-center justify-center gap-2 shrink-0">
+            Buscar <i class="ph-bold ph-arrow-right"></i>
           </button>
-        </div>
+        </form>
 
-        <!-- CATEGORIAS RÁPIDAS (ÍCONES ESTILO BOOKSY) -->
+        <!-- CATEGORIAS RÁPIDAS QUE EXECUTAM BUSCA AO CLICAR -->
         <div class="pt-8 flex items-center justify-center gap-4 sm:gap-6 overflow-x-auto py-2 scrollbar-none">
-          <a href="#recomendados" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0">
+          <button type="button" onclick="window.filterByCategory('Corte')" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
             <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
               <i class="ph ph-scissors text-brand-emerald"></i>
             </div>
             <span class="text-[11px] font-medium">Corte de Cabelo</span>
-          </a>
+          </button>
 
-          <a href="#recomendados" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0">
+          <button type="button" onclick="window.filterByCategory('Barba')" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
             <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
               <i class="ph ph-sparkle text-brand-emerald"></i>
             </div>
             <span class="text-[11px] font-medium">Barba & Toalha</span>
-          </a>
+          </button>
 
-          <a href="#recomendados" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0">
+          <button type="button" onclick="window.filterByCategory('Combo')" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
             <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
               <i class="ph ph-lightning text-brand-emerald"></i>
             </div>
             <span class="text-[11px] font-medium">Combo Cabelo+Barba</span>
-          </a>
+          </button>
 
-          <a href="#recomendados" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0">
+          <button type="button" onclick="window.filterByCategory('Tratamento')" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
             <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
               <i class="ph ph-drop text-brand-emerald"></i>
             </div>
             <span class="text-[11px] font-medium">Tratamentos</span>
-          </a>
+          </button>
 
-          <a href="#recomendados" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0">
+          <button type="button" onclick="window.resetSearch()" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
             <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
-              <i class="ph ph-dots-three-outline text-brand-emerald"></i>
+              <i class="ph ph-arrow-counter-clockwise text-brand-emerald"></i>
             </div>
-            <span class="text-[11px] font-medium">Mais</span>
-          </a>
+            <span class="text-[11px] font-medium">Ver Todas</span>
+          </button>
         </div>
 
       </div>
     </section>
 
-    <!-- SEÇÃO RECOMENDADOS (VITRINE DE BARBEARIAS) -->
+    <!-- SEÇÃO DE RESULTADOS DA BUSCA -->
     <section id="recomendados" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div class="flex items-center justify-between mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <span class="text-[11px] uppercase font-bold text-brand-emerald tracking-wider">Explorar</span>
-          <h2 class="text-2xl font-extrabold tracking-tight">Recomendado para você</h2>
+          <h2 id="search-title" class="text-2xl font-extrabold tracking-tight">Recomendado para você</h2>
+          <p id="search-subtitle" class="text-xs text-brand-muted mt-1">Descubra os melhores estabelecimentos perto da sua região</p>
         </div>
-        <a href="agendar.html?b=barbearia-do-valerio" class="text-xs font-semibold text-brand-emerald hover:underline flex items-center gap-1">
-          Ver todas <i class="ph-bold ph-arrow-right"></i>
-        </a>
+        <button type="button" id="btn-clear-filter" onclick="window.resetSearch()" class="hidden text-xs font-semibold text-brand-emerald hover:underline flex items-center gap-1 cursor-pointer">
+          <i class="ph ph-x-circle text-base"></i> Limpar filtros e ver todas
+        </button>
       </div>
 
-      <!-- CARDS DAS BARBEARIAS -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-        <!-- Card Barbearia 1 -->
-        <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl hover:border-brand-emerald transition flex flex-col justify-between group">
-          <div class="relative h-44 bg-brand-darker overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=600&q=80" alt="Barbearia" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-            <span class="absolute top-3 left-3 bg-brand-darker/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-brand-emerald border border-brand-border">
-              Destaque
-            </span>
-          </div>
-          <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
-            <div>
-              <div class="flex items-center justify-between">
-                <h3 class="font-extrabold text-sm text-brand-main">Barbearia do Valério</h3>
-                <span class="flex items-center text-xs text-amber-400 font-bold gap-1">
-                  <i class="ph-fill ph-star"></i> 5.0
-                </span>
-              </div>
-              <p class="text-[11px] text-brand-muted mt-1 flex items-center gap-1">
-                <i class="ph ph-map-pin text-brand-emerald"></i> Aguanambi, Fortaleza - CE
-              </p>
-            </div>
-            <a href="agendar.html?b=barbearia-do-valerio" class="btn-emerald-invert w-full py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 text-center">
-              Agendar Horário <i class="ph-bold ph-calendar"></i>
-            </a>
-          </div>
+      <!-- FEEDBACK VISUAL DE NENHUM RESULTADO -->
+      <div id="no-results" class="hidden py-16 text-center bg-brand-card border border-brand-border rounded-3xl p-8 space-y-4">
+        <div class="w-14 h-14 rounded-2xl bg-brand-darker border border-brand-border flex items-center justify-center mx-auto text-2xl text-brand-emerald">
+          <i class="ph ph-magnifying-glass"></i>
         </div>
+        <h3 class="text-lg font-bold">Nenhuma barbearia encontrada para sua busca</h3>
+        <p class="text-xs text-brand-muted max-w-md mx-auto">
+          Tente buscar por termos mais simples como "corte", "barba", "Fortaleza" ou limpe os termos de busca.
+        </p>
+        <button type="button" onclick="window.resetSearch()" class="btn-emerald-invert px-5 py-2.5 rounded-xl text-xs inline-flex items-center gap-1.5">
+          <i class="ph-bold ph-arrow-clockwise"></i> Mostrar Todas as Barbearias
+        </button>
+      </div>
 
-        <!-- Card Barbearia 2 -->
-        <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl hover:border-brand-emerald transition flex flex-col justify-between group">
-          <div class="relative h-44 bg-brand-darker overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=600&q=80" alt="Barbearia" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-          </div>
-          <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
-            <div>
-              <div class="flex items-center justify-between">
-                <h3 class="font-extrabold text-sm text-brand-main">Studio Vintage Barber</h3>
-                <span class="flex items-center text-xs text-amber-400 font-bold gap-1">
-                  <i class="ph-fill ph-star"></i> 4.9
-                </span>
-              </div>
-              <p class="text-[11px] text-brand-muted mt-1 flex items-center gap-1">
-                <i class="ph ph-map-pin text-brand-emerald"></i> Aldeota, Fortaleza - CE
-              </p>
-            </div>
-            <a href="agendar.html?b=barbearia-do-valerio" class="btn-emerald-invert w-full py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 text-center">
-              Agendar Horário <i class="ph-bold ph-calendar"></i>
-            </a>
-          </div>
-        </div>
-
-        <!-- Card Barbearia 3 -->
-        <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl hover:border-brand-emerald transition flex flex-col justify-between group">
-          <div class="relative h-44 bg-brand-darker overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=600&q=80" alt="Barbearia" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-          </div>
-          <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
-            <div>
-              <div class="flex items-center justify-between">
-                <h3 class="font-extrabold text-sm text-brand-main">Barbearia Fenícia Club</h3>
-                <span class="flex items-center text-xs text-amber-400 font-bold gap-1">
-                  <i class="ph-fill ph-star"></i> 4.8
-                </span>
-              </div>
-              <p class="text-[11px] text-brand-muted mt-1 flex items-center gap-1">
-                <i class="ph ph-map-pin text-brand-emerald"></i> Meireles, Fortaleza - CE
-              </p>
-            </div>
-            <a href="agendar.html?b=barbearia-do-valerio" class="btn-emerald-invert w-full py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 text-center">
-              Agendar Horário <i class="ph-bold ph-calendar"></i>
-            </a>
-          </div>
-        </div>
-
-        <!-- Card Barbearia 4 -->
-        <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl hover:border-brand-emerald transition flex flex-col justify-between group">
-          <div class="relative h-44 bg-brand-darker overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=600&q=80" alt="Barbearia" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-          </div>
-          <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
-            <div>
-              <div class="flex items-center justify-between">
-                <h3 class="font-extrabold text-sm text-brand-main">Barbearia Batuta Prime</h3>
-                <span class="flex items-center text-xs text-amber-400 font-bold gap-1">
-                  <i class="ph-fill ph-star"></i> 4.9
-                </span>
-              </div>
-              <p class="text-[11px] text-brand-muted mt-1 flex items-center gap-1">
-                <i class="ph ph-map-pin text-brand-emerald"></i> Centro, Fortaleza - CE
-              </p>
-            </div>
-            <a href="agendar.html?b=barbearia-do-valerio" class="btn-emerald-invert w-full py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 text-center">
-              Agendar Horário <i class="ph-bold ph-calendar"></i>
-            </a>
-          </div>
-        </div>
-
+      <!-- GRADE DE BARBEARIAS (RENDERIZADA DINAMICAMENTE) -->
+      <div id="barbershop-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Renderizado dinamicamente via JS com dados do Supabase e locais -->
       </div>
     </section>
 
-    <!-- SEÇÃO DUPLA (ESTILO BOOKSY): CLIENTE vs DONO DA BARBEARIA -->
+    <!-- SEÇÃO DUPLA ESTILO BOOKSY -->
     <section class="border-t border-brand-border bg-brand-darker py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           
-          <!-- Bloco do Cliente -->
           <div class="bg-brand-card border border-brand-border rounded-3xl p-8 sm:p-10 flex flex-col justify-between shadow-xl">
             <div class="space-y-4">
               <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold bg-brand-darker text-brand-emerald border border-brand-border">
@@ -291,7 +209,6 @@
             </div>
           </div>
 
-          <!-- Bloco do Dono da Barbearia (SaaS) -->
           <div class="bg-brand-card border border-brand-border rounded-3xl p-8 sm:p-10 flex flex-col justify-between shadow-xl">
             <div class="space-y-4">
               <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold bg-brand-darker text-brand-emerald border border-brand-border">
@@ -321,7 +238,6 @@
 
   </main>
 
-  <!-- RODAPÉ COMPLETO -->
   <footer class="border-t border-brand-border py-10 bg-brand-card text-xs text-brand-muted">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3">
@@ -335,5 +251,206 @@
     </div>
   </footer>
 
+  <!-- SCRIPT DE BUSCA COMPLETO E DINÂMICO -->
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // Base padrão de barbearias para visualização imediata
+      const defaultShops = [
+        {
+          name: 'Barbearia do Valério',
+          slug: 'barbearia-do-valerio',
+          location: 'Aguanambi, Fortaleza - CE',
+          rating: '5.0',
+          image: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=600&q=80',
+          badge: 'Destaque',
+          tags: ['corte', 'barba', 'combo', 'fortaleza', 'valerio']
+        },
+        {
+          name: 'Studio Vintage Barber',
+          slug: 'barbearia-do-valerio',
+          location: 'Aldeota, Fortaleza - CE',
+          rating: '4.9',
+          image: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=600&q=80',
+          badge: 'Popular',
+          tags: ['corte', 'tratamento', 'barba', 'aldeota']
+        },
+        {
+          name: 'Barbearia Fenícia Club',
+          slug: 'barbearia-do-valerio',
+          location: 'Meireles, Fortaleza - CE',
+          rating: '4.8',
+          image: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=600&q=80',
+          badge: '',
+          tags: ['corte', 'barba', 'meireles']
+        },
+        {
+          name: 'Barbearia Batuta Prime',
+          slug: 'barbearia-do-valerio',
+          location: 'Centro, Fortaleza - CE',
+          rating: '4.9',
+          image: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=600&q=80',
+          badge: 'Novo',
+          tags: ['corte', 'combo', 'centro']
+        }
+      ];
+
+      let allShops = [...defaultShops];
+
+      const gridEl = document.getElementById('barbershop-grid');
+      const noResultsEl = document.getElementById('no-results');
+      const searchTitle = document.getElementById('search-title');
+      const searchSubtitle = document.getElementById('search-subtitle');
+      const btnClear = document.getElementById('btn-clear-filter');
+      const inputQuery = document.getElementById('input-query');
+      const inputLocation = document.getElementById('input-location');
+      const headerSearchInput = document.getElementById('header-search-input');
+      const btnSearch = document.getElementById('btn-search');
+      const searchForm = document.getElementById('search-form');
+
+      // 1. Carrega barbearias do Supabase e mescla com as existentes
+      async function loadDatabaseShops() {
+        try {
+          const { data: shops } = await client.from('barbershops').select('*').limit(8);
+          if (shops && shops.length > 0) {
+            shops.forEach(dbShop => {
+              // Se já não estiver na lista pelo slug
+              if (!allShops.find(s => s.slug === dbShop.slug)) {
+                allShops.unshift({
+                  name: dbShop.name,
+                  slug: dbShop.slug,
+                  location: 'Fortaleza - CE',
+                  rating: '5.0',
+                  image: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=600&q=80',
+                  badge: 'Cadastrada',
+                  tags: [dbShop.name.toLowerCase(), dbShop.slug.toLowerCase(), 'corte', 'barba']
+                });
+              }
+            });
+          }
+        } catch (e) {
+          console.log('Modo offline/fallback ativo');
+        }
+        renderShops(allShops);
+      }
+
+      function renderShops(list) {
+        if (!list || list.length === 0) {
+          gridEl.innerHTML = '';
+          noResultsEl.classList.remove('hidden');
+          return;
+        }
+
+        noResultsEl.classList.add('hidden');
+        gridEl.innerHTML = list.map(shop => `
+          <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl hover:border-brand-emerald transition flex flex-col justify-between group">
+            <div class="relative h-44 bg-brand-darker overflow-hidden">
+              <img src="${shop.image}" alt="${shop.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+              ${shop.badge ? `
+                <span class="absolute top-3 left-3 bg-brand-darker/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-brand-emerald border border-brand-border">
+                  ${shop.badge}
+                </span>
+              ` : ''}
+            </div>
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <div>
+                <div class="flex items-center justify-between">
+                  <h3 class="font-extrabold text-sm text-brand-main">${shop.name}</h3>
+                  <span class="flex items-center text-xs text-amber-400 font-bold gap-1">
+                    <i class="ph-fill ph-star"></i> ${shop.rating}
+                  </span>
+                </div>
+                <p class="text-[11px] text-brand-muted mt-1 flex items-center gap-1">
+                  <i class="ph ph-map-pin text-brand-emerald"></i> ${shop.location}
+                </p>
+              </div>
+              <a href="agendar.html?b=${shop.slug}" class="btn-emerald-invert w-full py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 text-center">
+                Agendar Horário <i class="ph-bold ph-calendar"></i>
+              </a>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Executa a busca real com base nos campos
+      function executeSearch(queryTerm, locationTerm) {
+        const q = (queryTerm || inputQuery.value || headerSearchInput.value || '').trim().toLowerCase();
+        const loc = (locationTerm || inputLocation.value || '').trim().toLowerCase();
+
+        btnSearch.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Buscando...';
+
+        setTimeout(() => {
+          btnSearch.innerHTML = 'Buscar <i class="ph-bold ph-arrow-right"></i>';
+
+          const filtered = allShops.filter(shop => {
+            const matchName = shop.name.toLowerCase().includes(q);
+            const matchTag = shop.tags.some(t => t.includes(q));
+            const matchQuery = !q || matchName || matchTag;
+            const matchLoc = !loc || shop.location.toLowerCase().includes(loc);
+            return matchQuery && matchLoc;
+          });
+
+          renderShops(filtered);
+
+          // Atualiza cabeçalho dos resultados
+          if (q || loc) {
+            searchTitle.textContent = `Resultados da busca (${filtered.length})`;
+            searchSubtitle.textContent = `Filtros: ${q ? `"${q}"` : ''} ${loc ? `em "${loc}"` : ''}`;
+            btnClear.classList.remove('hidden');
+          } else {
+            searchTitle.textContent = 'Recomendado para você';
+            searchSubtitle.textContent = 'Descubra os melhores estabelecimentos perto da sua região';
+            btnClear.classList.add('hidden');
+          }
+
+          // Rola até a grade com animação suave
+          document.getElementById('recomendados').scrollIntoView({ behavior: 'smooth' });
+        }, 200);
+      }
+
+      // Atalho de categorias rápidas
+      window.filterByCategory = (category) => {
+        inputQuery.value = category;
+        headerSearchInput.value = category;
+        executeSearch(category, '');
+      };
+
+      // Resetar busca
+      window.resetSearch = () => {
+        inputQuery.value = '';
+        inputLocation.value = '';
+        headerSearchInput.value = '';
+        searchTitle.textContent = 'Recomendado para você';
+        searchSubtitle.textContent = 'Descubra os melhores estabelecimentos perto da sua região';
+        btnClear.classList.add('hidden');
+        renderShops(allShops);
+      };
+
+      // Event Listeners
+      searchForm.addEventListener('submit', () => executeSearch());
+      btnSearch.addEventListener('click', () => executeSearch());
+
+      headerSearchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          inputQuery.value = headerSearchInput.value;
+          executeSearch();
+        }
+      });
+
+      inputQuery.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') executeSearch();
+      });
+
+      inputLocation.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') executeSearch();
+      });
+
+      // Inicia renderização
+      document.addEventListener('DOMContentLoaded', loadDatabaseShops);
+    })();
+  </script>
 </body>
 </html>
