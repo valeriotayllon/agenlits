@@ -69,17 +69,17 @@
           <span class="text-xs font-semibold uppercase">Barbeiros Ativos</span>
           <i class="ph ph-users-three text-xl text-brand-gold"></i>
         </div>
-        <div class="text-2xl font-extrabold text-white">1</div>
-        <span class="text-[11px] text-emerald-400">Equipe pronta para atender</span>
+        <div id="metric-barbers" class="text-2xl font-extrabold text-white">0</div>
+        <span class="text-[11px] text-emerald-400">Equipe cadastrada</span>
       </div>
 
       <div class="bg-brand-card border border-brand-border rounded-xl p-5">
         <div class="flex items-center justify-between text-brand-muted mb-2">
-          <span class="text-xs font-semibold uppercase">Faturamento (Mês)</span>
-          <i class="ph ph-currency-circle-dollar text-xl text-brand-gold"></i>
+          <span class="text-xs font-semibold uppercase">Serviços Ativos</span>
+          <i class="ph ph-scissors text-xl text-brand-gold"></i>
         </div>
-        <div class="text-2xl font-extrabold text-white">R$ 0,00</div>
-        <span class="text-[11px] text-brand-muted">Período de teste ativo</span>
+        <div id="metric-services" class="text-2xl font-extrabold text-white">0</div>
+        <span class="text-[11px] text-slate-300">Catálogo pronto</span>
       </div>
 
       <div class="bg-brand-card border border-brand-border rounded-xl p-5">
@@ -112,43 +112,44 @@
         </div>
       </div>
 
+      <!-- Configurações Rápidas com links ativos -->
       <div class="bg-brand-card border border-brand-border rounded-2xl p-6 space-y-4">
         <h2 class="text-base font-bold text-white pb-3 border-b border-brand-border flex items-center gap-2">
           <i class="ph-bold ph-gear text-brand-gold"></i> Configurações Rápidas
         </h2>
 
         <div class="space-y-3 text-sm">
-          <a href="#" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
+          <a href="servicos.html" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
             <div class="flex items-center gap-3">
               <i class="ph ph-scissors text-lg text-brand-gold"></i>
-              <span>Serviços & Preços</span>
+              <span class="font-medium text-slate-200 group-hover:text-white">Serviços & Preços</span>
             </div>
             <i class="ph-bold ph-caret-right text-xs text-brand-muted group-hover:text-brand-gold transition"></i>
           </a>
 
-          <a href="#" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
+          <a href="horarios.html" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
             <div class="flex items-center gap-3">
               <i class="ph ph-clock text-lg text-brand-gold"></i>
-              <span>Horários de Atendimento</span>
+              <span class="font-medium text-slate-200 group-hover:text-white">Horários de Atendimento</span>
             </div>
             <i class="ph-bold ph-caret-right text-xs text-brand-muted group-hover:text-brand-gold transition"></i>
           </a>
 
-          <a href="#" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
+          <a href="barbeiros.html" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
             <div class="flex items-center gap-3">
               <i class="ph ph-user-plus text-lg text-brand-gold"></i>
-              <span>Cadastrar Barbeiros</span>
+              <span class="font-medium text-slate-200 group-hover:text-white">Cadastrar Barbeiros</span>
             </div>
             <i class="ph-bold ph-caret-right text-xs text-brand-muted group-hover:text-brand-gold transition"></i>
           </a>
 
-          <a href="#" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
+          <div class="p-3 rounded-xl bg-brand-dark/50 border border-brand-border/60 opacity-60 flex items-center justify-between cursor-not-allowed">
             <div class="flex items-center gap-3">
               <i class="ph ph-whatsapp-logo text-lg text-brand-gold"></i>
-              <span>Lembretes por WhatsApp</span>
+              <span class="text-brand-muted text-xs">Lembretes WhatsApp (Em breve)</span>
             </div>
-            <i class="ph-bold ph-caret-right text-xs text-brand-muted group-hover:text-brand-gold transition"></i>
-          </a>
+            <span class="text-[10px] bg-brand-card px-2 py-0.5 rounded text-brand-gold font-mono">PRO</span>
+          </div>
         </div>
       </div>
     </div>
@@ -172,11 +173,12 @@
         const publicLinkText = document.getElementById('public-link-text');
         const btnCopyLink = document.getElementById('btn-copy-link');
         const btnLogout = document.getElementById('btn-logout');
+        const metricBarbers = document.getElementById('metric-barbers');
+        const metricServices = document.getElementById('metric-services');
 
         const { data: { session } } = await supabasePanelClient.auth.getSession();
 
         if (!session) {
-          alert('Faça login para entrar no painel.');
           window.location.href = 'login.html';
           return;
         }
@@ -204,6 +206,13 @@
                 btnCopyLink.innerHTML = '<i class="ph-bold ph-copy"></i> Copiar Link';
               }, 2500);
             });
+
+            // Contadores reais das novas telas
+            const { count: sCount } = await supabasePanelClient.from('services').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershop.id);
+            const { count: bCount } = await supabasePanelClient.from('barbers').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershop.id);
+
+            if (metricServices) metricServices.textContent = sCount || 0;
+            if (metricBarbers) metricBarbers.textContent = bCount || 0;
           }
         } catch (err) {
           console.error(err);

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serviços & Preços — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte clara.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-brand-dark text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-brand-gold selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-dark/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a href="painel.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte clara.png" alt="agenlits" class="h-8 w-auto object-contain" />
+      </a>
+      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-card border border-brand-border text-brand-gold">
+        Serviços & Preços
+      </span>
+    </div>
+    <a href="painel.html" class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-brand-card border border-brand-border hover:border-brand-gold transition">
+      <i class="ph-bold ph-arrow-left"></i> Voltar ao Painel
+    </a>
+  </header>
+
+  <main class="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-8 py-8 space-y-8">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-extrabold text-white flex items-center gap-2">
+          <i class="ph-bold ph-scissors text-brand-gold"></i> Catálogo de Serviços
+        </h1>
+        <p class="text-xs text-brand-muted mt-1">Defina os serviços oferecidos, valores e duração aproximada de cada atendimento.</p>
+      </div>
+    </div>
+
+    <!-- Alerta de Notificação -->
+    <div id="status-msg" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Formulário de Adicionar Serviço -->
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-6 h-fit shadow-xl">
+        <h2 class="text-sm font-bold text-white mb-4 pb-2 border-b border-brand-border flex items-center gap-2">
+          <i class="ph-bold ph-plus-circle text-brand-gold"></i> Novo Serviço
+        </h2>
+
+        <form id="service-form" onsubmit="return false;" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nome do Serviço</label>
+            <input type="text" id="service-name" placeholder="Ex: Corte Degrade, Barba Terapia" class="w-full px-3 py-2.5 bg-brand-dark border border-brand-border rounded-xl text-xs text-white focus:outline-none focus:border-brand-gold" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Preço (R$)</label>
+              <input type="number" step="0.50" id="service-price" placeholder="40.00" class="w-full px-3 py-2.5 bg-brand-dark border border-brand-border rounded-xl text-xs text-white focus:outline-none focus:border-brand-gold" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Duração (min)</label>
+              <input type="number" step="5" id="service-duration" value="30" class="w-full px-3 py-2.5 bg-brand-dark border border-brand-border rounded-xl text-xs text-white focus:outline-none focus:border-brand-gold" />
+            </div>
+          </div>
+
+          <button type="button" id="btn-save-service" class="w-full py-3 bg-brand-gold text-black font-bold text-xs rounded-xl hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10 flex items-center justify-center gap-1.5 mt-2">
+            Adicionar Serviço <i class="ph-bold ph-plus"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- Lista de Serviços Cadastrados -->
+      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-2xl p-6 shadow-xl">
+        <h2 class="text-sm font-bold text-white mb-4 pb-2 border-b border-brand-border flex items-center justify-between">
+          <span>Serviços Ativos</span>
+          <span id="services-count" class="text-xs font-normal text-brand-muted">0 serviços</span>
+        </h2>
+
+        <div id="services-list" class="space-y-3">
+          <div class="text-center py-10 text-brand-muted text-xs">
+            <i class="ph ph-circle-notch animate-spin text-xl mb-2 text-brand-gold"></i>
+            <p>Carregando serviços...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      let currentShopId = null;
+
+      const nameInput = document.getElementById('service-name');
+      const priceInput = document.getElementById('service-price');
+      const durationInput = document.getElementById('service-duration');
+      const btnSave = document.getElementById('btn-save-service');
+      const listContainer = document.getElementById('services-list');
+      const countEl = document.getElementById('services-count');
+      const statusMsg = document.getElementById('status-msg');
+
+      function showNotice(text, isError = false) {
+        statusMsg.textContent = text;
+        statusMsg.className = isError 
+          ? 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-red-950/80 border border-red-500 text-red-200'
+          : 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-emerald-950/80 border border-emerald-500 text-emerald-200';
+        statusMsg.classList.remove('hidden');
+        setTimeout(() => statusMsg.classList.add('hidden'), 4000);
+      }
+
+      async function loadServices() {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = 'login.html';
+
+        const { data: shop } = await client.from('barbershops').select('id').eq('owner_id', session.user.id).single();
+        if (!shop) return;
+        currentShopId = shop.id;
+
+        const { data: services, error } = await client.from('services').select('*').eq('barbershop_id', currentShopId).order('created_at', { ascending: false });
+        if (error) return showNotice('Erro ao buscar serviços: ' + error.message, true);
+
+        countEl.textContent = `${services.length} ${services.length === 1 ? 'serviço' : 'serviços'}`;
+
+        if (!services.length) {
+          listContainer.innerHTML = '<div class="py-12 text-center text-brand-muted text-xs">Nenhum serviço cadastrado ainda. Preencha o formulário ao lado para começar.</div>';
+          return;
+        }
+
+        listContainer.innerHTML = services.map(s => `
+          <div class="flex items-center justify-between p-3.5 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold/40 transition">
+            <div>
+              <div class="text-sm font-bold text-white">${s.name}</div>
+              <div class="text-[11px] text-brand-muted mt-0.5">Duração média: <span class="text-slate-300 font-semibold">${s.duration_minutes} min</span></div>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-sm font-extrabold text-brand-gold">R$ ${parseFloat(s.price).toFixed(2).replace('.', ',')}</span>
+              <button onclick="window.removeService('${s.id}')" class="text-brand-muted hover:text-red-400 text-base p-1.5 rounded-lg hover:bg-red-950/30 transition" title="Excluir">
+                <i class="ph ph-trash"></i>
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      window.removeService = async (id) => {
+        if (!confirm('Deseja excluir este serviço?')) return;
+        const { error } = await client.from('services').delete().eq('id', id);
+        if (error) return showNotice('Erro ao excluir serviço: ' + error.message, true);
+        showNotice('Serviço removido com sucesso!');
+        loadServices();
+      };
+
+      btnSave.addEventListener('click', async () => {
+        const name = nameInput.value.trim();
+        const price = parseFloat(priceInput.value);
+        const duration = parseInt(durationInput.value);
+
+        if (!name) return showNotice('Informe o nome do serviço.', true);
+        if (isNaN(price) || price <= 0) return showNotice('Informe um preço válido.', true);
+        if (isNaN(duration) || duration <= 0) return showNotice('Informe uma duração válida.', true);
+
+        btnSave.disabled = true;
+        btnSave.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Salvando...';
+
+        const { error } = await client.from('services').insert([
+          { barbershop_id: currentShopId, name, price, duration_minutes: duration }
+        ]);
+
+        btnSave.disabled = false;
+        btnSave.innerHTML = 'Adicionar Serviço <i class="ph-bold ph-plus"></i>';
+
+        if (error) return showNotice('Erro ao cadastrar serviço: ' + error.message, true);
+
+        nameInput.value = '';
+        priceInput.value = '';
+        showNotice('Serviço cadastrado com sucesso!');
+        loadServices();
+      });
+
+      document.addEventListener('DOMContentLoaded', loadServices);
+    })();
+  </script>
+</body>
+</html>

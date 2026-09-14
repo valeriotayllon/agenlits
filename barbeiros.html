@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastrar Barbeiros — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte clara.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-brand-dark text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-brand-gold selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-dark/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a href="painel.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte clara.png" alt="agenlits" class="h-8 w-auto object-contain" />
+      </a>
+      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-card border border-brand-border text-brand-gold">
+        Equipe de Barbeiros
+      </span>
+    </div>
+    <a href="painel.html" class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-brand-card border border-brand-border hover:border-brand-gold transition">
+      <i class="ph-bold ph-arrow-left"></i> Voltar ao Painel
+    </a>
+  </header>
+
+  <main class="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-8 py-8 space-y-8">
+    <div>
+      <h1 class="text-2xl font-extrabold text-white flex items-center gap-2">
+        <i class="ph-bold ph-user-plus text-brand-gold"></i> Barbeiros & Profissionais
+      </h1>
+      <p class="text-xs text-brand-muted mt-1">Cadastre os profissionais da sua barbearia para que os clientes possam escolher quem irá atendê-los.</p>
+    </div>
+
+    <div id="status-msg" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Formulário de Barbeiro -->
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-6 h-fit shadow-xl">
+        <h2 class="text-sm font-bold text-white mb-4 pb-2 border-b border-brand-border flex items-center gap-2">
+          <i class="ph-bold ph-user-circle-plus text-brand-gold"></i> Novo Barbeiro
+        </h2>
+
+        <form id="barber-form" onsubmit="return false;" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nome do Barbeiro</label>
+            <input type="text" id="barber-name" placeholder="Ex: Lucas Silva" class="w-full px-3 py-2.5 bg-brand-dark border border-brand-border rounded-xl text-xs text-white focus:outline-none focus:border-brand-gold" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">WhatsApp / Telefone</label>
+            <input type="tel" id="barber-phone" placeholder="(11) 99999-9999" maxlength="15" class="w-full px-3 py-2.5 bg-brand-dark border border-brand-border rounded-xl text-xs text-white focus:outline-none focus:border-brand-gold" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Comissão (%)</label>
+            <input type="number" id="barber-commission" value="50" min="0" max="100" class="w-full px-3 py-2.5 bg-brand-dark border border-brand-border rounded-xl text-xs text-white focus:outline-none focus:border-brand-gold" />
+          </div>
+
+          <button type="button" id="btn-save-barber" class="w-full py-3 bg-brand-gold text-black font-bold text-xs rounded-xl hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10 flex items-center justify-center gap-1.5 mt-2">
+            Cadastrar Barbeiro <i class="ph-bold ph-plus"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- Lista de Barbeiros -->
+      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-2xl p-6 shadow-xl">
+        <h2 class="text-sm font-bold text-white mb-4 pb-2 border-b border-brand-border flex items-center justify-between">
+          <span>Profissionais Cadastrados</span>
+          <span id="barbers-count" class="text-xs font-normal text-brand-muted">0 barbeiros</span>
+        </h2>
+
+        <div id="barbers-list" class="space-y-3">
+          <div class="text-center py-10 text-brand-muted text-xs">
+            <i class="ph ph-circle-notch animate-spin text-xl mb-2 text-brand-gold"></i>
+            <p>Carregando equipe...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      let currentShopId = null;
+      const nameInput = document.getElementById('barber-name');
+      const phoneInput = document.getElementById('barber-phone');
+      const commissionInput = document.getElementById('barber-commission');
+      const btnSave = document.getElementById('btn-save-barber');
+      const listContainer = document.getElementById('barbers-list');
+      const countEl = document.getElementById('barbers-count');
+      const statusMsg = document.getElementById('status-msg');
+
+      phoneInput.addEventListener('input', (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 10) e.target.value = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+        else if (v.length > 6) e.target.value = `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
+        else if (v.length > 2) e.target.value = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+        else e.target.value = v;
+      });
+
+      function showNotice(text, isError = false) {
+        statusMsg.textContent = text;
+        statusMsg.className = isError 
+          ? 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-red-950/80 border border-red-500 text-red-200'
+          : 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-emerald-950/80 border border-emerald-500 text-emerald-200';
+        statusMsg.classList.remove('hidden');
+        setTimeout(() => statusMsg.classList.add('hidden'), 4000);
+      }
+
+      async function loadBarbers() {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = 'login.html';
+
+        const { data: shop } = await client.from('barbershops').select('id').eq('owner_id', session.user.id).single();
+        if (!shop) return;
+        currentShopId = shop.id;
+
+        const { data: barbers, error } = await client.from('barbers').select('*').eq('barbershop_id', currentShopId).order('created_at', { ascending: false });
+        if (error) return showNotice('Erro ao carregar equipe: ' + error.message, true);
+
+        countEl.textContent = `${barbers.length} ${barbers.length === 1 ? 'barbeiro' : 'barbeiros'}`;
+
+        if (!barbers.length) {
+          listContainer.innerHTML = '<div class="py-12 text-center text-brand-muted text-xs">Nenhum barbeiro cadastrado. Cadastre o primeiro profissional ao lado.</div>';
+          return;
+        }
+
+        listContainer.innerHTML = barbers.map(b => `
+          <div class="flex items-center justify-between p-3.5 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold/40 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-brand-card border border-brand-border flex items-center justify-center text-brand-gold font-bold text-sm">
+                ${b.name.slice(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <div class="text-sm font-bold text-white">${b.name}</div>
+                <div class="text-[11px] text-brand-muted">${b.phone || 'Sem WhatsApp'} • Comissão: <span class="text-slate-200">${b.commission_percentage}%</span></div>
+              </div>
+            </div>
+            <button onclick="window.removeBarber('${b.id}')" class="text-brand-muted hover:text-red-400 text-base p-1.5 rounded-lg hover:bg-red-950/30 transition" title="Excluir">
+              <i class="ph ph-trash"></i>
+            </button>
+          </div>
+        `).join('');
+      }
+
+      window.removeBarber = async (id) => {
+        if (!confirm('Deseja remover este profissional?')) return;
+        const { error } = await client.from('barbers').delete().eq('id', id);
+        if (error) return showNotice('Erro ao excluir: ' + error.message, true);
+        showNotice('Barbeiro removido!');
+        loadBarbers();
+      };
+
+      btnSave.addEventListener('click', async () => {
+        const name = nameInput.value.trim();
+        const phone = phoneInput.value.trim();
+        const commission = parseFloat(commissionInput.value) || 0;
+
+        if (!name) return showNotice('Informe o nome do barbeiro.', true);
+
+        btnSave.disabled = true;
+        btnSave.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Cadastrando...';
+
+        const { error } = await client.from('barbers').insert([
+          { barbershop_id: currentShopId, name, phone, commission_percentage: commission }
+        ]);
+
+        btnSave.disabled = false;
+        btnSave.innerHTML = 'Cadastrar Barbeiro <i class="ph-bold ph-plus"></i>';
+
+        if (error) return showNotice('Erro ao salvar: ' + error.message, true);
+
+        nameInput.value = '';
+        phoneInput.value = '';
+        showNotice('Barbeiro cadastrado com sucesso!');
+        loadBarbers();
+      });
+
+      document.addEventListener('DOMContentLoaded', loadBarbers);
+    })();
+  </script>
+</body>
+</html>
