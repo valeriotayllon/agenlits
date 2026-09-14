@@ -12,7 +12,6 @@
 </head>
 <body class="bg-brand-dark text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-brand-gold selection:text-black">
 
-  <!-- BARRA DE NAVEGAÇÃO PRINCIPAL DO PAINEL -->
   <header class="sticky top-0 z-40 bg-brand-dark/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
     <div class="flex items-center gap-4">
       <a href="painel.html" class="flex items-center gap-2">
@@ -23,14 +22,12 @@
       </span>
     </div>
 
-    <!-- Identificação do Usuário + Botão de Saída -->
     <div class="flex items-center gap-3 sm:gap-5">
       <div class="text-right hidden sm:block">
         <div id="user-display-name" class="text-xs font-bold text-white">Carregando...</div>
         <div id="user-display-email" class="text-[11px] text-brand-muted">...</div>
       </div>
 
-      <!-- Botão de Deslogar / Sair -->
       <button id="btn-logout" class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition">
         <i class="ph-bold ph-sign-out text-base"></i>
         <span>Sair</span>
@@ -38,10 +35,7 @@
     </div>
   </header>
 
-  <!-- CONTEÚDO PRINCIPAL DO PAINEL -->
   <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-8 py-8 space-y-8">
-
-    <!-- CABEÇALHO BOAS-VINDAS + LINK DA BARBEARIA -->
     <div class="bg-gradient-to-r from-brand-card to-brand-card/70 border border-brand-border rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
       <div>
         <span class="text-xs font-bold uppercase tracking-wider text-brand-gold">Visão Geral</span>
@@ -49,7 +43,6 @@
         <p class="text-xs text-brand-muted mt-1">Gerencie sua equipe, horários e acompanhe os agendamentos em tempo real.</p>
       </div>
 
-      <!-- Cartão com o link público da barbearia -->
       <div class="w-full md:w-auto bg-brand-dark/90 border border-brand-border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div>
           <div class="text-[11px] uppercase font-bold text-brand-muted">Página pública de agendamento</div>
@@ -61,7 +54,6 @@
       </div>
     </div>
 
-    <!-- CARTÕES DE MÉTRICAS RÁPIDAS -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-brand-card border border-brand-border rounded-xl p-5">
         <div class="flex items-center justify-between text-brand-muted mb-2">
@@ -100,10 +92,7 @@
       </div>
     </div>
 
-    <!-- SEÇÃO PRINCIPAL: TABELA DE AGENDAMENTOS E ATALHOS -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      <!-- Agenda do Dia -->
       <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-2xl p-6">
         <div class="flex items-center justify-between pb-4 border-b border-brand-border mb-4">
           <h2 class="text-base font-bold text-white flex items-center gap-2">
@@ -112,7 +101,6 @@
           <button class="text-xs text-brand-gold hover:underline font-semibold">Novo Agendamento Manual</button>
         </div>
 
-        <!-- Estado Vazio (Sem agendamentos no momento) -->
         <div class="py-12 text-center text-brand-muted space-y-3">
           <div class="w-12 h-12 rounded-full bg-brand-dark border border-brand-border flex items-center justify-center mx-auto text-xl text-brand-gold">
             <i class="ph ph-scissors"></i>
@@ -124,7 +112,6 @@
         </div>
       </div>
 
-      <!-- Atalhos de Configuração Rápida -->
       <div class="bg-brand-card border border-brand-border rounded-2xl p-6 space-y-4">
         <h2 class="text-base font-bold text-white pb-3 border-b border-brand-border flex items-center gap-2">
           <i class="ph-bold ph-gear text-brand-gold"></i> Configurações Rápidas
@@ -164,16 +151,75 @@
           </a>
         </div>
       </div>
-
     </div>
-
   </main>
 
-  <!-- RODAPÉ DO PAINEL -->
   <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
     &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
   </footer>
 
-  <script src="painel.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const userNameEl = document.getElementById('user-display-name');
+      const userEmailEl = document.getElementById('user-display-email');
+      const shopNameTitle = document.getElementById('shop-name-title');
+      const publicLinkText = document.getElementById('public-link-text');
+      const btnCopyLink = document.getElementById('btn-copy-link');
+      const btnLogout = document.getElementById('btn-logout');
+
+      // 1. Checar sessão
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        alert('Faça login para entrar no painel.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const user = session.user;
+      userEmailEl.textContent = user.email;
+      userNameEl.textContent = user.user_metadata?.full_name || 'Administrador';
+
+      // 2. Buscar barbearia
+      try {
+        const { data: barbershop } = await supabase
+          .from('barbershops')
+          .select('*')
+          .eq('owner_id', user.id)
+          .maybeSingle();
+
+        if (barbershop) {
+          shopNameTitle.textContent = barbershop.name;
+          const fullUrl = `agenlits.com/${barbershop.slug}`;
+          publicLinkText.textContent = fullUrl;
+
+          btnCopyLink.addEventListener('click', () => {
+            navigator.clipboard.writeText(`https://${fullUrl}`);
+            btnCopyLink.innerHTML = '<i class="ph-bold ph-check"></i> Copiado!';
+            setTimeout(() => {
+              btnCopyLink.innerHTML = '<i class="ph-bold ph-copy"></i> Copiar Link';
+            }, 2500);
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+
+      // 3. Logout
+      btnLogout.addEventListener('click', async () => {
+        if (confirm('Deseja realmente sair da sua conta?')) {
+          btnLogout.disabled = true;
+          btnLogout.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Saindo...';
+          await supabase.auth.signOut();
+          window.location.href = 'login.html';
+        }
+      });
+    });
+  </script>
 </body>
 </html>

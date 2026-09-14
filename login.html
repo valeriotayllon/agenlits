@@ -7,6 +7,7 @@
   <link rel="icon" type="image/png" href="images/fundo transparente fonte clara.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Supabase CDN Oficial -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -22,19 +23,26 @@
   </header>
 
   <main class="flex-1 flex items-center justify-center p-4 sm:p-6">
-    <div class="w-full max-w-md bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 shadow-2xl">
+    <div class="w-full max-w-md bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 shadow-2xl relative">
       <div class="text-center mb-8">
         <h2 class="text-2xl font-bold text-white tracking-tight">Entrar na sua Barbearia</h2>
         <p class="text-xs text-brand-muted mt-1">Acesse a gestão, agenda e métricas</p>
       </div>
 
-      <div id="login-error" class="hidden mb-4 p-3 rounded-xl bg-red-950/80 border border-red-500 text-red-200 text-xs"></div>
+      <!-- Alerta de Erro Visual Fixo -->
+      <div id="login-error" class="hidden mb-4 p-3.5 rounded-xl bg-red-950/80 border border-red-500 text-red-200 text-xs flex items-start gap-2.5">
+        <i class="ph-bold ph-warning-circle text-base text-red-400 shrink-0 mt-0.5"></i>
+        <div id="login-error-text"></div>
+      </div>
 
-      <form id="login-form" class="space-y-4">
+      <!-- Formulário com onsubmit="return false;" para bloquear recarregamento -->
+      <form id="login-form" onsubmit="return false;" class="space-y-4" autocomplete="on">
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">E-mail</label>
           <div class="relative">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted"><i class="ph ph-envelope-simple text-base"></i></span>
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted">
+              <i class="ph ph-envelope-simple text-base"></i>
+            </span>
             <input type="email" id="login-email" required placeholder="seu@email.com" class="w-full pl-10 pr-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
           </div>
         </div>
@@ -42,12 +50,18 @@
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">Senha</label>
           <div class="relative">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted"><i class="ph ph-lock text-base"></i></span>
-            <input type="password" id="login-password" required placeholder="••••••••" class="w-full pl-10 pr-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted">
+              <i class="ph ph-lock text-base"></i>
+            </span>
+            <input type="password" id="login-password" required placeholder="••••••••" class="w-full pl-10 pr-10 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
+            <button type="button" id="toggle-login-pass" class="absolute inset-y-0 right-0 flex items-center pr-3 text-brand-muted hover:text-white">
+              <i class="ph ph-eye text-base"></i>
+            </button>
           </div>
         </div>
 
-        <button type="submit" id="btn-login" class="w-full py-3.5 bg-brand-gold text-black font-bold text-sm rounded-xl hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10 flex items-center justify-center gap-2 mt-2">
+        <!-- Botão seguro com type="button" -->
+        <button type="button" id="btn-login" class="w-full py-3.5 bg-brand-gold text-black font-bold text-sm rounded-xl hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10 flex items-center justify-center gap-2 mt-2">
           Entrar na Minha Barbearia <i class="ph-bold ph-sign-in"></i>
         </button>
       </form>
@@ -58,6 +72,95 @@
     &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
   </footer>
 
-  <script src="login.js"></script>
+  <!-- SCRIPT DIRETO NO HTML (Elimina qualquer problema de cache de arquivo js externo) -->
+  <script>
+    const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+
+    let supabase;
+    try {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (e) {
+      console.error("Erro ao iniciar Supabase:", e);
+    }
+
+    const emailInput = document.getElementById('login-email');
+    const passwordInput = document.getElementById('login-password');
+    const btnLogin = document.getElementById('btn-login');
+    const errorBox = document.getElementById('login-error');
+    const errorText = document.getElementById('login-error-text');
+    const togglePass = document.getElementById('toggle-login-pass');
+
+    // Visualizar senha
+    if (togglePass) {
+      togglePass.addEventListener('click', () => {
+        const isPass = passwordInput.type === 'password';
+        passwordInput.type = isPass ? 'text' : 'password';
+        togglePass.querySelector('i').className = isPass ? 'ph ph-eye-slash text-base' : 'ph ph-eye text-base';
+      });
+    }
+
+    function showError(msg) {
+      errorText.textContent = msg;
+      errorBox.classList.remove('hidden');
+    }
+
+    function hideError() {
+      errorBox.classList.add('hidden');
+    }
+
+    async function handleLogin() {
+      hideError();
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!email) return showError('Por favor, informe seu e-mail.');
+      if (!password) return showError('Por favor, digite sua senha.');
+
+      if (!supabase) {
+        return showError('Erro ao conectar com o banco. Verifique sua conexão com a internet.');
+      }
+
+      btnLogin.disabled = true;
+      btnLogin.innerHTML = '<i class="ph-bold ph-spinner animate-spin text-lg"></i> Validando acesso...';
+
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
+
+        if (error) {
+          if (error.message.includes('Invalid login credentials')) {
+            throw new Error('E-mail ou senha incorretos. Verifique e tente novamente.');
+          }
+          if (error.message.includes('Email not confirmed')) {
+            throw new Error('E-mail ainda não confirmado no sistema.');
+          }
+          throw error;
+        }
+
+        // Login autorizado com sucesso! Redireciona imediatamente para o painel
+        window.location.href = 'painel.html';
+
+      } catch (err) {
+        console.error('Falha no login:', err);
+        showError(err.message || 'Erro ao realizar login.');
+        btnLogin.disabled = false;
+        btnLogin.innerHTML = 'Entrar na Minha Barbearia <i class="ph-bold ph-sign-in"></i>';
+      }
+    }
+
+    btnLogin.addEventListener('click', handleLogin);
+
+    // Permite pressionar Enter dentro dos campos para entrar
+    passwordInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+    emailInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+  </script>
 </body>
 </html>
