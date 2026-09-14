@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar no Painel — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte clara.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-brand-dark text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-brand-gold selection:text-black">
+
+  <header class="border-b border-brand-border py-4 px-6 flex items-center justify-between bg-brand-dark/80 backdrop-blur-md">
+    <a href="index.html" class="flex items-center gap-2 hover:opacity-85 transition">
+      <img src="images/fundo transparente fonte clara.png" alt="agenlits" class="h-8 w-auto object-contain" />
+    </a>
+    <div class="text-xs text-brand-muted">
+      Ainda não tem conta? <a href="cadastro.html" class="text-brand-gold font-semibold hover:underline">Cadastre-se grátis</a>
+    </div>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center p-4 sm:p-6">
+    <div class="w-full max-w-md bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 shadow-2xl">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-bold text-white tracking-tight">Bem-vindo de volta</h2>
+        <p class="text-xs text-brand-muted mt-1">Acesse a gestão e agenda da sua barbearia</p>
+      </div>
+
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">E-mail</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted"><i class="ph ph-envelope-simple"></i></span>
+            <input type="email" id="login-email" required placeholder="seu@email.com" class="w-full pl-10 pr-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="block text-xs font-semibold text-slate-300 uppercase">Senha</label>
+            <a href="#" class="text-xs text-brand-gold hover:underline">Esqueceu?</a>
+          </div>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted"><i class="ph ph-lock-key"></i></span>
+            <input type="password" id="login-password" required placeholder="••••••••" class="w-full pl-10 pr-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
+          </div>
+        </div>
+
+        <button type="submit" id="btn-login" class="w-full py-3.5 bg-brand-gold text-black font-bold text-sm rounded-xl hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10 flex items-center justify-center gap-2 mt-2">
+          Entrar na Minha Barbearia <i class="ph-bold ph-sign-in"></i>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="py-4 border-t border-brand-border text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script src="login.js"></script>
+</body>
+</html>

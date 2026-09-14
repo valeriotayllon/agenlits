@@ -14,42 +14,11 @@ body {
   background-color: var(--color-dark);
 }
 
-.bg-brand-dark {
-  background-color: var(--color-dark);
-}
-
-.bg-brand-card {
-  background-color: var(--color-card);
-}
-
-.bg-brand-gold {
-  background-color: var(--color-gold);
-}
-
-.bg-brand-goldHover:hover {
-  background-color: var(--color-gold-hover);
-}
-
-.border-brand-border {
-  border-color: var(--color-border);
-}
-
-.border-brand-gold {
-  border-color: var(--color-gold);
-}
-
-.text-brand-gold {
-  color: var(--color-gold);
-}
-
-.text-brand-muted {
-  color: var(--color-muted);
-}
-
-.transition-transform {
-  transition: transform 0.2s ease-in-out;
-}
-
-.rotate-180 {
-  transform: rotate(180deg);
-}
+.bg-brand-dark { background-color: var(--color-dark); }
+.bg-brand-card { background-color: var(--color-card); }
+.bg-brand-gold { background-color: var(--color-gold); }
+.bg-brand-goldHover:hover { background-color: var(--color-gold-hover); }
+.border-brand-border { border-color: var(--color-border); }
+.border-brand-gold { border-color: var(--color-gold); }
+.text-brand-gold { color: var(--color-gold); }
+.text-brand-muted { color: var(--color-muted); }

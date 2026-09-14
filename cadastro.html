@@ -6,9 +6,9 @@
   <title>Criar Minha Barbearia — agenlits</title>
   <link rel="icon" type="image/png" href="images/fundo transparente fonte clara.png" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <!-- Biblioteca Oficial do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="bg-brand-dark text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-brand-gold selection:text-black">
@@ -18,7 +18,7 @@
       <img src="images/fundo transparente fonte clara.png" alt="agenlits" class="h-8 w-auto object-contain" />
     </a>
     <div class="text-xs text-brand-muted">
-      Já tem uma barbearia cadastrada? <a href="#" class="text-brand-gold font-semibold hover:underline">Fazer login</a>
+      Já tem uma barbearia cadastrada? <a href="login.html" class="text-brand-gold font-semibold hover:underline">Fazer login</a>
     </div>
   </header>
 
@@ -37,10 +37,11 @@
       </div>
 
       <form id="signup-form" autocomplete="off">
+        <!-- ETAPA 1 -->
         <div id="step-1" class="space-y-5">
           <div>
             <h2 class="text-2xl font-bold text-white tracking-tight">Crie sua conta no agenlits</h2>
-            <p class="text-sm text-brand-muted mt-1">Comece seus 14 dias de teste grátis. Não pedimos cartão de crédito.</p>
+            <p class="text-sm text-brand-muted mt-1">Comece seus 14 dias de teste grátis. Salvo em banco de dados real.</p>
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">Seu Nome Completo</label>
@@ -78,6 +79,7 @@
           </button>
         </div>
 
+        <!-- ETAPA 2 -->
         <div id="step-2" class="space-y-5 hidden">
           <div>
             <h2 class="text-2xl font-bold text-white tracking-tight">Configure sua Barbearia</h2>
@@ -98,7 +100,6 @@
               </span>
               <input type="text" id="barbershop-slug" placeholder="viking-club" class="w-full px-3 py-3 bg-transparent text-sm text-brand-gold font-mono focus:outline-none" />
             </div>
-            <p class="text-[11px] text-brand-muted mt-1">Este será o link público que você colocará na bio do seu Instagram.</p>
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">Endereço da Loja (Cidade / Bairro)</label>
@@ -118,31 +119,35 @@
           <div class="flex items-start gap-2 pt-2">
             <input type="checkbox" id="terms-check" required class="mt-1 accent-brand-gold rounded" />
             <label for="terms-check" class="text-xs text-brand-muted leading-snug">
-              Concordo com os <a href="#" class="text-brand-gold underline">Termos de Uso</a> e <a href="#" class="text-brand-gold underline">Política de Privacidade</a> da plataforma agenlits.
+              Concordo com os <a href="#" class="text-brand-gold underline">Termos de Uso</a> e <a href="#" class="text-brand-gold underline">Privacidade</a>.
             </label>
           </div>
           <div class="flex items-center gap-3 pt-2">
             <button type="button" id="btn-prev-step" class="w-1/3 py-3.5 border border-brand-border text-slate-300 font-semibold text-sm rounded-xl hover:border-brand-gold transition flex items-center justify-center gap-1">
               <i class="ph-bold ph-arrow-left"></i> Voltar
             </button>
-            <button type="submit" class="w-2/3 py-3.5 bg-brand-gold text-black font-bold text-sm rounded-xl hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10 flex items-center justify-center gap-2">
-              Concluir e Abrir Painel <i class="ph-bold ph-check"></i>
+            <button type="submit" id="submit-btn" class="w-2/3 py-3.5 bg-brand-gold text-black font-bold text-sm rounded-xl hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10 flex items-center justify-center gap-2">
+              Concluir e Salvar <i class="ph-bold ph-check"></i>
             </button>
           </div>
         </div>
       </form>
 
+      <!-- MODAL SUCESSO -->
       <div id="success-modal" class="hidden absolute inset-0 bg-brand-card/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
         <div class="w-16 h-16 rounded-2xl bg-brand-gold/10 border border-brand-gold text-brand-gold flex items-center justify-center text-3xl mb-4 animate-bounce">
-          <i class="ph-bold ph-scissors"></i>
+          <i class="ph-bold ph-check-circle"></i>
         </div>
         <h3 class="text-xl font-bold text-white">Barbearia cadastrada com sucesso!</h3>
         <p class="text-xs text-brand-muted mt-2 max-w-sm" id="success-msg">
-          Seu período de testes de 14 dias está ativo.
+          Seus dados já estão salvos no banco de dados.
         </p>
-        <div class="mt-6">
-          <a href="index.html" class="px-6 py-2.5 bg-brand-gold text-black text-xs font-bold rounded-lg hover:bg-brand-goldHover transition">
-            Ir para a Página Inicial
+        <div class="mt-6 flex flex-col gap-2 w-full max-w-xs">
+          <a href="login.html" class="w-full py-3 bg-brand-gold text-black text-xs font-bold rounded-lg hover:bg-brand-goldHover transition">
+            Fazer Login Agora
+          </a>
+          <a href="index.html" class="w-full py-2.5 border border-brand-border text-xs text-brand-muted hover:text-white rounded-lg transition">
+            Voltar para a Página Inicial
           </a>
         </div>
       </div>
