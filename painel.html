@@ -159,67 +159,66 @@
   </footer>
 
   <script>
-    const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+    (() => {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const supabasePanelClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const userNameEl = document.getElementById('user-display-name');
-      const userEmailEl = document.getElementById('user-display-email');
-      const shopNameTitle = document.getElementById('shop-name-title');
-      const publicLinkText = document.getElementById('public-link-text');
-      const btnCopyLink = document.getElementById('btn-copy-link');
-      const btnLogout = document.getElementById('btn-logout');
+      document.addEventListener('DOMContentLoaded', async () => {
+        const userNameEl = document.getElementById('user-display-name');
+        const userEmailEl = document.getElementById('user-display-email');
+        const shopNameTitle = document.getElementById('shop-name-title');
+        const publicLinkText = document.getElementById('public-link-text');
+        const btnCopyLink = document.getElementById('btn-copy-link');
+        const btnLogout = document.getElementById('btn-logout');
 
-      // 1. Checar sessão
-      const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session } } = await supabasePanelClient.auth.getSession();
 
-      if (!session) {
-        alert('Faça login para entrar no painel.');
-        window.location.href = 'login.html';
-        return;
-      }
-
-      const user = session.user;
-      userEmailEl.textContent = user.email;
-      userNameEl.textContent = user.user_metadata?.full_name || 'Administrador';
-
-      // 2. Buscar barbearia
-      try {
-        const { data: barbershop } = await supabase
-          .from('barbershops')
-          .select('*')
-          .eq('owner_id', user.id)
-          .maybeSingle();
-
-        if (barbershop) {
-          shopNameTitle.textContent = barbershop.name;
-          const fullUrl = `agenlits.com/${barbershop.slug}`;
-          publicLinkText.textContent = fullUrl;
-
-          btnCopyLink.addEventListener('click', () => {
-            navigator.clipboard.writeText(`https://${fullUrl}`);
-            btnCopyLink.innerHTML = '<i class="ph-bold ph-check"></i> Copiado!';
-            setTimeout(() => {
-              btnCopyLink.innerHTML = '<i class="ph-bold ph-copy"></i> Copiar Link';
-            }, 2500);
-          });
-        }
-      } catch (err) {
-        console.error(err);
-      }
-
-      // 3. Logout
-      btnLogout.addEventListener('click', async () => {
-        if (confirm('Deseja realmente sair da sua conta?')) {
-          btnLogout.disabled = true;
-          btnLogout.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Saindo...';
-          await supabase.auth.signOut();
+        if (!session) {
+          alert('Faça login para entrar no painel.');
           window.location.href = 'login.html';
+          return;
         }
+
+        const user = session.user;
+        userEmailEl.textContent = user.email;
+        userNameEl.textContent = user.user_metadata?.full_name || 'Administrador';
+
+        try {
+          const { data: barbershop } = await supabasePanelClient
+            .from('barbershops')
+            .select('*')
+            .eq('owner_id', user.id)
+            .maybeSingle();
+
+          if (barbershop) {
+            shopNameTitle.textContent = barbershop.name;
+            const fullUrl = `agenlits.com/${barbershop.slug}`;
+            publicLinkText.textContent = fullUrl;
+
+            btnCopyLink.addEventListener('click', () => {
+              navigator.clipboard.writeText(`https://${fullUrl}`);
+              btnCopyLink.innerHTML = '<i class="ph-bold ph-check"></i> Copiado!';
+              setTimeout(() => {
+                btnCopyLink.innerHTML = '<i class="ph-bold ph-copy"></i> Copiar Link';
+              }, 2500);
+            });
+          }
+        } catch (err) {
+          console.error(err);
+        }
+
+        btnLogout.addEventListener('click', async () => {
+          if (confirm('Deseja realmente sair da sua conta?')) {
+            btnLogout.disabled = true;
+            btnLogout.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Saindo...';
+            await supabasePanelClient.auth.signOut();
+            window.location.href = 'login.html';
+          }
+        });
       });
-    });
+    })();
   </script>
 </body>
 </html>
