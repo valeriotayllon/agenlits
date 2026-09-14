@@ -9,40 +9,30 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
-  
-<script>
-  function initTheme() {
-    const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
-    if (savedTheme === 'light') {
-      document.documentElement.classList.add('light');
-    } else {
-      document.documentElement.classList.remove('light');
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
     }
-    updateThemeIcons();
-  }
-
-  function toggleTheme() {
-    const isLight = document.documentElement.classList.toggle('light');
-    localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
-    updateThemeIcons();
-  }
-
-  function updateThemeIcons() {
-    const isLight = document.documentElement.classList.contains('light');
-    document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
-      icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
     });
-  }
-
-  initTheme();
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-      btn.addEventListener('click', toggleTheme);
-    });
-    updateThemeIcons();
-  });
-</script>
-
+  </script>
 </head>
 <body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between">
 
@@ -56,27 +46,26 @@
           Agendamento Online
         </span>
       </div>
-      
-<button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema claro/escuro" aria-label="Mudar tema">
-  <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
-</button>
-
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
     </div>
   </header>
 
   <main class="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8">
     <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-10 shadow-2xl relative">
       
+      <!-- Cabeçalho da Barbearia com Suporte a Foto de Perfil / Avatar -->
       <div class="text-center pb-6 border-b border-brand-border mb-8">
-        <div class="w-16 h-16 rounded-2xl bg-brand-darker border border-brand-border mx-auto flex items-center justify-center text-2xl text-brand-emerald mb-3">
-          <i class="ph ph-scissors"></i>
+        <div id="shop-avatar-container" class="w-20 h-20 rounded-2xl bg-brand-darker border border-brand-border mx-auto flex items-center justify-center text-3xl text-brand-emerald mb-3 overflow-hidden shadow-lg">
+          <img id="shop-avatar-img" src="" alt="Foto Barbearia" class="hidden w-full h-full object-cover" />
+          <i id="shop-avatar-icon" class="ph ph-scissors"></i>
         </div>
         <h1 id="shop-name-display" class="text-2xl sm:text-3xl font-extrabold tracking-tight">Carregando barbearia...</h1>
         <p id="shop-phone-display" class="text-xs text-brand-muted mt-1">Carregando informações...</p>
       </div>
 
       <div class="space-y-8">
-        <!-- 1. SERVIÇOS -->
         <div>
           <h2 class="text-sm font-bold uppercase tracking-wider text-brand-emerald flex items-center gap-2 mb-3">
             <span class="w-6 h-6 rounded-full bg-brand-emerald/10 border border-brand-emerald flex items-center justify-center text-xs font-bold">1</span>
@@ -87,7 +76,6 @@
           </div>
         </div>
 
-        <!-- 2. BARBEIROS -->
         <div>
           <h2 class="text-sm font-bold uppercase tracking-wider text-brand-emerald flex items-center gap-2 mb-3">
             <span class="w-6 h-6 rounded-full bg-brand-emerald/10 border border-brand-emerald flex items-center justify-center text-xs font-bold">2</span>
@@ -98,7 +86,6 @@
           </div>
         </div>
 
-        <!-- 3. DATA E HORA -->
         <div>
           <h2 class="text-sm font-bold uppercase tracking-wider text-brand-emerald flex items-center gap-2 mb-3">
             <span class="w-6 h-6 rounded-full bg-brand-emerald/10 border border-brand-emerald flex items-center justify-center text-xs font-bold">3</span>
@@ -118,7 +105,6 @@
           </div>
         </div>
 
-        <!-- 4. DADOS DO CLIENTE -->
         <div class="pt-4 border-t border-brand-border">
           <h2 class="text-sm font-bold uppercase tracking-wider text-brand-emerald flex items-center gap-2 mb-3">
             <span class="w-6 h-6 rounded-full bg-brand-emerald/10 border border-brand-emerald flex items-center justify-center text-xs font-bold">4</span>
@@ -171,6 +157,8 @@
       let selectedService = null;
       let selectedBarber = null;
 
+      const shopAvatarImg = document.getElementById('shop-avatar-img');
+      const shopAvatarIcon = document.getElementById('shop-avatar-icon');
       const shopNameDisplay = document.getElementById('shop-name-display');
       const shopPhoneDisplay = document.getElementById('shop-phone-display');
       const servicesGrid = document.getElementById('services-grid');
@@ -215,6 +203,13 @@
         currentShop = shop;
         shopNameDisplay.textContent = shop.name;
         shopPhoneDisplay.textContent = shop.phone ? 'WhatsApp: ' + shop.phone : '';
+
+        // Exibe a foto de perfil da barbearia se cadastrada
+        if (shop.avatar_url) {
+          shopAvatarImg.src = shop.avatar_url;
+          shopAvatarImg.classList.remove('hidden');
+          shopAvatarIcon.classList.add('hidden');
+        }
 
         const { data: services } = await client.from('services').select('*').eq('barbershop_id', shop.id);
         if (services && services.length) {

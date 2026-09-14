@@ -9,40 +9,30 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
-  
-<script>
-  function initTheme() {
-    const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
-    if (savedTheme === 'light') {
-      document.documentElement.classList.add('light');
-    } else {
-      document.documentElement.classList.remove('light');
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
     }
-    updateThemeIcons();
-  }
-
-  function toggleTheme() {
-    const isLight = document.documentElement.classList.toggle('light');
-    localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
-    updateThemeIcons();
-  }
-
-  function updateThemeIcons() {
-    const isLight = document.documentElement.classList.contains('light');
-    document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
-      icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
     });
-  }
-
-  initTheme();
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-      btn.addEventListener('click', toggleTheme);
-    });
-    updateThemeIcons();
-  });
-</script>
-
+  </script>
 </head>
 <body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between">
 
@@ -57,11 +47,9 @@
     </div>
 
     <div class="flex items-center gap-3 sm:gap-4">
-      
-<button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema claro/escuro" aria-label="Mudar tema">
-  <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
-</button>
-
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
 
       <div class="text-right hidden sm:block">
         <div id="user-display-name" class="text-xs font-bold">Carregando...</div>
@@ -76,11 +64,33 @@
   </header>
 
   <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-8 py-8 space-y-8">
+    
+    <!-- Mensagem de notificação -->
+    <div id="avatar-status-msg" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
+
+    <!-- CARD PRINCIPAL COM FOTO DE PERFIL / AVATAR INTERATIVO -->
     <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
-      <div>
-        <span class="text-xs font-bold uppercase tracking-wider text-brand-emerald">Visão Geral</span>
-        <h1 id="shop-name-title" class="text-2xl sm:text-3xl font-extrabold mt-1">Sua Barbearia</h1>
-        <p class="text-xs text-brand-muted mt-1">Gerencie sua equipe, horários e acompanhe os agendamentos em tempo real.</p>
+      
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+        <!-- AVATAR / FOTO COM BOTÃO DE UPLOAD -->
+        <div class="relative group shrink-0">
+          <div id="avatar-container" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-brand-darker border-2 border-brand-border overflow-hidden flex items-center justify-center shadow-lg transition duration-200 group-hover:border-brand-emerald">
+            <img id="shop-avatar-img" src="" alt="Foto de perfil" class="hidden w-full h-full object-cover" />
+            <i id="shop-avatar-icon" class="ph ph-storefront text-3xl sm:text-4xl text-brand-emerald"></i>
+          </div>
+
+          <!-- Botão sobreposto para selecionar foto -->
+          <label for="avatar-file-input" class="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-brand-emerald text-brand-darker flex items-center justify-center shadow-md cursor-pointer hover:scale-110 active:scale-95 transition" title="Alterar foto da barbearia">
+            <i class="ph-bold ph-camera text-base text-[#272D2D]"></i>
+          </label>
+          <input type="file" id="avatar-file-input" accept="image/png, image/jpeg, image/webp" class="hidden" />
+        </div>
+
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-brand-emerald">Visão Geral</span>
+          <h1 id="shop-name-title" class="text-2xl sm:text-3xl font-extrabold mt-1">Sua Barbearia</h1>
+          <p class="text-xs text-brand-muted mt-1">Clique na câmera para alterar a foto de perfil exibida no agendamento.</p>
+        </div>
       </div>
 
       <div class="w-full md:w-auto bg-brand-darker border border-brand-border rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
@@ -138,6 +148,7 @@
       </div>
     </div>
 
+    <!-- Agendamentos e Configurações -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-3xl p-6">
         <div class="flex items-center justify-between pb-4 border-b border-brand-border mb-4">
@@ -204,17 +215,43 @@
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
       const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      document.addEventListener('DOMContentLoaded', async () => {
-        const userNameEl = document.getElementById('user-display-name');
-        const userEmailEl = document.getElementById('user-display-email');
-        const shopNameTitle = document.getElementById('shop-name-title');
-        const publicLinkText = document.getElementById('public-link-text');
-        const btnCopyLink = document.getElementById('btn-copy-link');
-        const btnVisitPage = document.getElementById('btn-visit-page');
-        const btnLogout = document.getElementById('btn-logout');
-        const metricBarbers = document.getElementById('metric-barbers');
-        const metricServices = document.getElementById('metric-services');
+      let currentShop = null;
 
+      const userNameEl = document.getElementById('user-display-name');
+      const userEmailEl = document.getElementById('user-display-email');
+      const shopNameTitle = document.getElementById('shop-name-title');
+      const publicLinkText = document.getElementById('public-link-text');
+      const btnCopyLink = document.getElementById('btn-copy-link');
+      const btnVisitPage = document.getElementById('btn-visit-page');
+      const btnLogout = document.getElementById('btn-logout');
+      const metricBarbers = document.getElementById('metric-barbers');
+      const metricServices = document.getElementById('metric-services');
+      const shopAvatarImg = document.getElementById('shop-avatar-img');
+      const shopAvatarIcon = document.getElementById('shop-avatar-icon');
+      const fileInput = document.getElementById('avatar-file-input');
+      const statusMsg = document.getElementById('avatar-status-msg');
+
+      function showNotice(text, isError = false) {
+        statusMsg.textContent = text;
+        statusMsg.className = isError 
+          ? 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-red-950/80 border border-red-500 text-red-200'
+          : 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-emerald-950/80 border border-emerald-500 text-emerald-200';
+        statusMsg.classList.remove('hidden');
+        setTimeout(() => statusMsg.classList.add('hidden'), 4000);
+      }
+
+      function updateAvatarUI(url) {
+        if (url) {
+          shopAvatarImg.src = url;
+          shopAvatarImg.classList.remove('hidden');
+          shopAvatarIcon.classList.add('hidden');
+        } else {
+          shopAvatarImg.classList.add('hidden');
+          shopAvatarIcon.classList.remove('hidden');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', async () => {
         const { data: { session } } = await client.auth.getSession();
         if (!session) return window.location.href = 'login.html';
 
@@ -229,17 +266,20 @@
             .maybeSingle();
 
           if (barbershop) {
+            currentShop = barbershop;
             shopNameTitle.textContent = barbershop.name;
             const fullUrl = '3lits-agenlits.vercel.app/agendar.html?b=' + barbershop.slug;
             publicLinkText.textContent = fullUrl;
             btnVisitPage.href = 'agendar.html?b=' + barbershop.slug;
 
+            if (barbershop.avatar_url) {
+              updateAvatarUI(barbershop.avatar_url);
+            }
+
             btnCopyLink.addEventListener('click', () => {
               navigator.clipboard.writeText('https://' + fullUrl);
               btnCopyLink.innerHTML = '<i class="ph-bold ph-check"></i> Copiado!';
-              setTimeout(() => {
-                btnCopyLink.innerHTML = '<i class="ph-bold ph-copy"></i> Copiar';
-              }, 2500);
+              setTimeout(() => btnCopyLink.innerHTML = '<i class="ph-bold ph-copy"></i> Copiar', 2500);
             });
 
             const { count: sCount } = await client.from('services').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershop.id);
@@ -251,6 +291,52 @@
         } catch (err) {
           console.error(err);
         }
+
+        // UPLOAD DA FOTO DE PERFIL
+        fileInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file || !currentShop) return;
+
+          // Validação simples: limite de 5MB
+          if (file.size > 5 * 1024 * 1024) {
+            return showNotice('A imagem deve ter no máximo 5MB.', true);
+          }
+
+          showNotice('Enviando foto da barbearia...');
+
+          try {
+            const fileExt = file.name.split('.').pop();
+            const filePath = `avatars/${currentShop.id}-${Date.now()}.${fileExt}`;
+
+            // Upload para o bucket barbershop-assets
+            const { error: uploadError } = await client.storage
+              .from('barbershop-assets')
+              .upload(filePath, file, { upsert: true });
+
+            if (uploadError) throw uploadError;
+
+            // Obter URL pública
+            const { data: { publicUrl } } = client.storage
+              .from('barbershop-assets')
+              .getPublicUrl(filePath);
+
+            // Atualizar no banco na tabela barbershops
+            const { error: dbError } = await client
+              .from('barbershops')
+              .update({ avatar_url: publicUrl })
+              .eq('id', currentShop.id);
+
+            if (dbError) throw dbError;
+
+            currentShop.avatar_url = publicUrl;
+            updateAvatarUI(publicUrl);
+            showNotice('Foto de perfil atualizada com sucesso!');
+
+          } catch (err) {
+            console.error(err);
+            showNotice('Erro ao atualizar foto: ' + (err.message || 'Verifique o storage do Supabase.'), true);
+          }
+        });
 
         btnLogout.addEventListener('click', async () => {
           if (confirm('Deseja realmente sair da sua conta?')) {
