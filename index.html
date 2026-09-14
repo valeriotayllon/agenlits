@@ -312,27 +312,44 @@
       const searchForm = document.getElementById('search-form');
 
       // 1. Carrega barbearias do Supabase e mescla com as existentes
+      // 1. Carrega barbearias do Supabase e substitui imagens pelas fotos reais de upload
       async function loadDatabaseShops() {
         try {
-          const { data: shops } = await client.from('barbershops').select('*').limit(8);
+          const { data: shops, error } = await client
+            .from('barbershops')
+            .select('*')
+            .order('created_at', { ascending: false });
+
           if (shops && shops.length > 0) {
             shops.forEach(dbShop => {
-              // Se já não estiver na lista pelo slug
-              if (!allShops.find(s => s.slug === dbShop.slug)) {
+              // Verifica se já existe na lista padrão
+              const existingIdx = allShops.findIndex(s => s.slug === dbShop.slug || s.name.toLowerCase() === dbShop.name.toLowerCase());
+              
+              const realImage = dbShop.avatar_url || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=600&q=80';
+
+              if (existingIdx !== -1) {
+                // Atualiza a barbearia existente com a foto real enviada no painel!
+                allShops[existingIdx].name = dbShop.name;
+                allShops[existingIdx].image = realImage;
+                allShops[existingIdx].avatar = dbShop.avatar_url;
+                allShops[existingIdx].slug = dbShop.slug;
+              } else {
+                // Adiciona a nova barbearia no topo com a foto enviada
                 allShops.unshift({
                   name: dbShop.name,
                   slug: dbShop.slug,
                   location: 'Fortaleza - CE',
                   rating: '5.0',
-                  image: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=600&q=80',
-                  badge: 'Cadastrada',
+                  image: realImage,
+                  avatar: dbShop.avatar_url,
+                  badge: 'Verificada',
                   tags: [dbShop.name.toLowerCase(), dbShop.slug.toLowerCase(), 'corte', 'barba']
                 });
               }
             });
           }
         } catch (e) {
-          console.log('Modo offline/fallback ativo');
+          console.log('Modo fallback ativo:', e);
         }
         renderShops(allShops);
       }
