@@ -259,46 +259,7 @@
       const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       // Base padrão de barbearias para visualização imediata
-      const defaultShops = [
-        {
-          name: 'Barbearia do Valério',
-          slug: 'barbearia-do-valerio',
-          location: 'Aguanambi, Fortaleza - CE',
-          rating: '5.0',
-          image: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=600&q=80',
-          badge: 'Destaque',
-          tags: ['corte', 'barba', 'combo', 'fortaleza', 'valerio']
-        },
-        {
-          name: 'Studio Vintage Barber',
-          slug: 'barbearia-do-valerio',
-          location: 'Aldeota, Fortaleza - CE',
-          rating: '4.9',
-          image: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=600&q=80',
-          badge: 'Popular',
-          tags: ['corte', 'tratamento', 'barba', 'aldeota']
-        },
-        {
-          name: 'Barbearia Fenícia Club',
-          slug: 'barbearia-do-valerio',
-          location: 'Meireles, Fortaleza - CE',
-          rating: '4.8',
-          image: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=600&q=80',
-          badge: '',
-          tags: ['corte', 'barba', 'meireles']
-        },
-        {
-          name: 'Barbearia Batuta Prime',
-          slug: 'barbearia-do-valerio',
-          location: 'Centro, Fortaleza - CE',
-          rating: '4.9',
-          image: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=600&q=80',
-          badge: 'Novo',
-          tags: ['corte', 'combo', 'centro']
-        }
-      ];
-
-      let allShops = [...defaultShops];
+      let allShops = [];
 
       const gridEl = document.getElementById('barbershop-grid');
       const noResultsEl = document.getElementById('no-results');
@@ -311,47 +272,79 @@
       const btnSearch = document.getElementById('btn-search');
       const searchForm = document.getElementById('search-form');
 
-      // 1. Carrega barbearias do Supabase e mescla com as existentes
-      // 1. Carrega barbearias do Supabase e substitui imagens pelas fotos reais de upload
+      // Carrega ESTRITAMENTE as barbearias reais cadastradas no banco de dados Supabase
       async function loadDatabaseShops() {
+        gridEl.innerHTML = `
+          <div class="col-span-full py-12 text-center text-brand-muted text-xs">
+            <i class="ph ph-circle-notch animate-spin text-2xl text-brand-emerald mb-2"></i>
+            <p>Carregando barbearias parceiras...</p>
+          </div>
+        `;
+
         try {
           const { data: shops, error } = await client
             .from('barbershops')
             .select('*')
             .order('created_at', { ascending: false });
 
-          if (shops && shops.length > 0) {
-            shops.forEach(dbShop => {
-              // Verifica se já existe na lista padrão
-              const existingIdx = allShops.findIndex(s => s.slug === dbShop.slug || s.name.toLowerCase() === dbShop.name.toLowerCase());
-              
-              const realImage = dbShop.avatar_url || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=600&q=80';
+          if (error) throw error;
 
-              if (existingIdx !== -1) {
-                // Atualiza a barbearia existente com a foto real enviada no painel!
-                allShops[existingIdx].name = dbShop.name;
-                allShops[existingIdx].image = realImage;
-                allShops[existingIdx].avatar = dbShop.avatar_url;
-                allShops[existingIdx].slug = dbShop.slug;
-              } else {
-                // Adiciona a nova barbearia no topo com a foto enviada
-                allShops.unshift({
-                  name: dbShop.name,
-                  slug: dbShop.slug,
-                  location: 'Fortaleza - CE',
-                  rating: '5.0',
-                  image: realImage,
-                  avatar: dbShop.avatar_url,
-                  badge: 'Verificada',
-                  tags: [dbShop.name.toLowerCase(), dbShop.slug.toLowerCase(), 'corte', 'barba']
-                });
-              }
-            });
+          if (shops && shops.length > 0) {
+            allShops = shops.map(shop => ({
+              name: shop.name,
+              slug: shop.slug,
+              phone: shop.phone || '',
+              location: 'Fortaleza - CE',
+              rating: '5.0',
+              image: shop.avatar_url || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=600&q=80',
+              hasRealAvatar: !!shop.avatar_url,
+              tags: [shop.name.toLowerCase(), shop.slug.toLowerCase(), 'corte', 'barba']
+            }));
+          } else {
+            allShops = [];
           }
         } catch (e) {
-          console.log('Modo fallback ativo:', e);
+          console.error('Erro ao buscar barbearias do Supabase:', e);
+          allShops = [];
         }
+
         renderShops(allShops);
+      }
+
+      function renderShops(list) {
+        if (!list || list.length === 0) {
+          gridEl.innerHTML = '';
+          noResultsEl.classList.remove('hidden');
+          return;
+        }
+
+        noResultsEl.classList.add('hidden');
+        gridEl.innerHTML = list.map(shop => `
+          <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl hover:border-brand-emerald transition flex flex-col justify-between group">
+            <div class="relative h-44 bg-brand-darker overflow-hidden">
+              <img src="${shop.image}" alt="${shop.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+              <span class="absolute top-3 left-3 bg-brand-darker/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-brand-emerald border border-brand-border">
+                Verificada
+              </span>
+            </div>
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <div>
+                <div class="flex items-center justify-between">
+                  <h3 class="font-extrabold text-sm text-brand-main">${shop.name}</h3>
+                  <span class="flex items-center text-xs text-amber-400 font-bold gap-1">
+                    <i class="ph-fill ph-star"></i> ${shop.rating}
+                  </span>
+                </div>
+                <p class="text-[11px] text-brand-muted mt-1 flex items-center gap-1">
+                  <i class="ph ph-map-pin text-brand-emerald"></i> ${shop.location}
+                </p>
+              </div>
+              <a href="agendar.html?b=${shop.slug}" class="btn-emerald-invert w-full py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 text-center">
+                Agendar Horário <i class="ph-bold ph-calendar"></i>
+              </a>
+            </div>
+          </div>
+        `).join('');
       }
 
       function renderShops(list) {
