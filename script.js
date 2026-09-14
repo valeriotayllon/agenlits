@@ -1,4 +1,4 @@
-// BarberFlow - Interatividade da Página Inicial
+// agenlits - Interatividade da Página Inicial
 
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Alternar menu mobile
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         itemIcon.classList.remove('rotate-180');
       });
 
-      // Se não estava aberto, abre o clicado
+      // Se não estava aberto, abre o selecionado
       if (!isCurrentlyOpen) {
         content.classList.remove('hidden');
         if (icon) {

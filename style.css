@@ -1,4 +1,4 @@
-/* BarberFlow - Custom Styles & Config */
+/* agenlits - Custom Styles & Config */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
@@ -14,7 +14,7 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Classes utilitárias do Tailwind estendidas via CSS puro */
+/* Classes utilitárias com as cores da identidade agenlits */
 .bg-brand-dark {
   background-color: var(--color-dark);
 }
