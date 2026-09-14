@@ -1,4 +1,3 @@
-/* agenlits - Custom Styles & Config */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
@@ -12,9 +11,9 @@
 
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--color-dark);
 }
 
-/* Classes utilitárias com as cores da identidade agenlits */
 .bg-brand-dark {
   background-color: var(--color-dark);
 }
@@ -47,7 +46,6 @@ body {
   color: var(--color-muted);
 }
 
-/* Efeito suave de rotação de ícones */
 .transition-transform {
   transition: transform 0.2s ease-in-out;
 }
