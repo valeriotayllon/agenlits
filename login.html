@@ -224,33 +224,26 @@
 
           const user = data.user;
 
-          // Validação inteligente do perfil no Supabase:
-          // Consulta se este ID de usuário é dono de uma barbearia
+          // Validação cruzada no banco de dados
           const { data: shop } = await supabaseAuthClient
             .from('barbershops')
-            .select('id, name')
+            .select('id')
             .eq('owner_id', user.id)
             .maybeSingle();
 
           const isOwner = !!shop;
 
-          if (currentType === 'client' && isOwner) {
-            // Conta de empresa tentando entrar na aba de cliente
-            showError('Esta conta pertence à barbearia "' + shop.name + '". Por favor, selecione a aba "Sou Barbeiro" acima para acessar o painel de gestão.');
+          // Se tentar entrar na aba errada (Empresa como Cliente ou Cliente como Barbeiro),
+          // desloga a sessão e exibe a mensagem de usuário não encontrado / dados incorretos
+          if ((currentType === 'client' && isOwner) || (currentType === 'owner' && !isOwner)) {
+            await supabaseAuthClient.auth.signOut();
+            showError('Usuário não encontrado ou dados incorretos. Verifique o e-mail e a senha digitados ou faça seu cadastro.');
             btnLogin.disabled = false;
             btnLogin.innerHTML = `<span id="btn-login-text">${btnLoginText.textContent}</span> <i class="ph-bold ph-sign-in"></i>`;
             return;
           }
 
-          if (currentType === 'owner' && !isOwner) {
-            // Conta de cliente tentando entrar na aba de empresa
-            showError('Esta conta está cadastrada como Cliente. Por favor, selecione a aba "Sou Cliente" para entrar.');
-            btnLogin.disabled = false;
-            btnLogin.innerHTML = `<span id="btn-login-text">${btnLoginText.textContent}</span> <i class="ph-bold ph-sign-in"></i>`;
-            return;
-          }
-
-          // Redirecionamento correto conforme o perfil real
+          // Redirecionamento correto conforme o perfil
           if (isOwner) {
             window.location.href = 'painel.html';
           } else {
