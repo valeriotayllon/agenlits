@@ -1,3 +1,4 @@
+// agenlits - Login integrado ao Supabase com Redirecionamento para o Painel
 const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
 
@@ -26,11 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (error) throw error;
 
-      alert('Login realizado com sucesso! Bem-vindo(a) ao agenlits.');
-      window.location.href = 'index.html';
+      // Redireciona imediatamente para a Página Inicial do Sistema (Painel)
+      window.location.href = 'painel.html';
 
     } catch (err) {
-      loginError.textContent = 'Erro ao entrar: ' + err.message;
+      loginError.textContent = 'Erro ao entrar: ' + (err.message || 'Verifique suas credenciais.');
       loginError.classList.remove('hidden');
       btnLogin.disabled = false;
       btnLogin.innerHTML = 'Entrar na Minha Barbearia <i class="ph-bold ph-sign-in"></i>';

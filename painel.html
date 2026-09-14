@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel da Barbearia — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte clara.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-brand-dark text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-brand-gold selection:text-black">
+
+  <!-- BARRA DE NAVEGAÇÃO PRINCIPAL DO PAINEL -->
+  <header class="sticky top-0 z-40 bg-brand-dark/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a href="painel.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte clara.png" alt="agenlits" class="h-8 w-auto object-contain" />
+      </a>
+      <span class="hidden sm:inline-block px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-card border border-brand-border text-brand-gold">
+        Painel de Gestão
+      </span>
+    </div>
+
+    <!-- Identificação do Usuário + Botão de Saída -->
+    <div class="flex items-center gap-3 sm:gap-5">
+      <div class="text-right hidden sm:block">
+        <div id="user-display-name" class="text-xs font-bold text-white">Carregando...</div>
+        <div id="user-display-email" class="text-[11px] text-brand-muted">...</div>
+      </div>
+
+      <!-- Botão de Deslogar / Sair -->
+      <button id="btn-logout" class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition">
+        <i class="ph-bold ph-sign-out text-base"></i>
+        <span>Sair</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL DO PAINEL -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-8 py-8 space-y-8">
+
+    <!-- CABEÇALHO BOAS-VINDAS + LINK DA BARBEARIA -->
+    <div class="bg-gradient-to-r from-brand-card to-brand-card/70 border border-brand-border rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-brand-gold">Visão Geral</span>
+        <h1 id="shop-name-title" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Sua Barbearia</h1>
+        <p class="text-xs text-brand-muted mt-1">Gerencie sua equipe, horários e acompanhe os agendamentos em tempo real.</p>
+      </div>
+
+      <!-- Cartão com o link público da barbearia -->
+      <div class="w-full md:w-auto bg-brand-dark/90 border border-brand-border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div>
+          <div class="text-[11px] uppercase font-bold text-brand-muted">Página pública de agendamento</div>
+          <div id="public-link-text" class="text-xs font-mono text-brand-gold break-all mt-0.5">agenlits.com/...</div>
+        </div>
+        <button id="btn-copy-link" class="w-full sm:w-auto mt-2 sm:mt-0 px-3 py-2 bg-brand-gold text-black rounded-lg text-xs font-bold hover:bg-brand-goldHover transition flex items-center justify-center gap-1 shrink-0">
+          <i class="ph-bold ph-copy"></i> Copiar Link
+        </button>
+      </div>
+    </div>
+
+    <!-- CARTÕES DE MÉTRICAS RÁPIDAS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-brand-card border border-brand-border rounded-xl p-5">
+        <div class="flex items-center justify-between text-brand-muted mb-2">
+          <span class="text-xs font-semibold uppercase">Agendamentos Hoje</span>
+          <i class="ph ph-calendar-check text-xl text-brand-gold"></i>
+        </div>
+        <div class="text-2xl font-extrabold text-white">0</div>
+        <span class="text-[11px] text-brand-muted">Nenhum cliente agendado para hoje</span>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-xl p-5">
+        <div class="flex items-center justify-between text-brand-muted mb-2">
+          <span class="text-xs font-semibold uppercase">Barbeiros Ativos</span>
+          <i class="ph ph-users-three text-xl text-brand-gold"></i>
+        </div>
+        <div class="text-2xl font-extrabold text-white">1</div>
+        <span class="text-[11px] text-emerald-400">Equipe pronta para atender</span>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-xl p-5">
+        <div class="flex items-center justify-between text-brand-muted mb-2">
+          <span class="text-xs font-semibold uppercase">Faturamento (Mês)</span>
+          <i class="ph ph-currency-circle-dollar text-xl text-brand-gold"></i>
+        </div>
+        <div class="text-2xl font-extrabold text-white">R$ 0,00</div>
+        <span class="text-[11px] text-brand-muted">Período de teste ativo</span>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-xl p-5">
+        <div class="flex items-center justify-between text-brand-muted mb-2">
+          <span class="text-xs font-semibold uppercase">Status da Conta</span>
+          <i class="ph ph-shield-check text-xl text-emerald-400"></i>
+        </div>
+        <div class="text-sm font-bold text-emerald-400 mt-1">Período Grátis Ativo</div>
+        <span class="text-[11px] text-brand-muted">14 dias restantes de teste</span>
+      </div>
+    </div>
+
+    <!-- SEÇÃO PRINCIPAL: TABELA DE AGENDAMENTOS E ATALHOS -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Agenda do Dia -->
+      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-2xl p-6">
+        <div class="flex items-center justify-between pb-4 border-b border-brand-border mb-4">
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="ph-bold ph-calendar text-brand-gold"></i> Próximos Agendamentos
+          </h2>
+          <button class="text-xs text-brand-gold hover:underline font-semibold">Novo Agendamento Manual</button>
+        </div>
+
+        <!-- Estado Vazio (Sem agendamentos no momento) -->
+        <div class="py-12 text-center text-brand-muted space-y-3">
+          <div class="w-12 h-12 rounded-full bg-brand-dark border border-brand-border flex items-center justify-center mx-auto text-xl text-brand-gold">
+            <i class="ph ph-scissors"></i>
+          </div>
+          <p class="text-sm text-slate-300 font-medium">Nenhum agendamento registrado ainda.</p>
+          <p class="text-xs max-w-sm mx-auto text-brand-muted">
+            Compartilhe o link da sua barbearia com os clientes no Instagram ou WhatsApp para começar a receber reservas!
+          </p>
+        </div>
+      </div>
+
+      <!-- Atalhos de Configuração Rápida -->
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-6 space-y-4">
+        <h2 class="text-base font-bold text-white pb-3 border-b border-brand-border flex items-center gap-2">
+          <i class="ph-bold ph-gear text-brand-gold"></i> Configurações Rápidas
+        </h2>
+
+        <div class="space-y-3 text-sm">
+          <a href="#" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <i class="ph ph-scissors text-lg text-brand-gold"></i>
+              <span>Serviços & Preços</span>
+            </div>
+            <i class="ph-bold ph-caret-right text-xs text-brand-muted group-hover:text-brand-gold transition"></i>
+          </a>
+
+          <a href="#" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <i class="ph ph-clock text-lg text-brand-gold"></i>
+              <span>Horários de Atendimento</span>
+            </div>
+            <i class="ph-bold ph-caret-right text-xs text-brand-muted group-hover:text-brand-gold transition"></i>
+          </a>
+
+          <a href="#" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <i class="ph ph-user-plus text-lg text-brand-gold"></i>
+              <span>Cadastrar Barbeiros</span>
+            </div>
+            <i class="ph-bold ph-caret-right text-xs text-brand-muted group-hover:text-brand-gold transition"></i>
+          </a>
+
+          <a href="#" class="p-3 rounded-xl bg-brand-dark border border-brand-border hover:border-brand-gold transition flex items-center justify-between group">
+            <div class="flex items-center gap-3">
+              <i class="ph ph-whatsapp-logo text-lg text-brand-gold"></i>
+              <span>Lembretes por WhatsApp</span>
+            </div>
+            <i class="ph-bold ph-caret-right text-xs text-brand-muted group-hover:text-brand-gold transition"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- RODAPÉ DO PAINEL -->
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script src="painel.js"></script>
+</body>
+</html>
