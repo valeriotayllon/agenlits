@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Painel da Barbearia — agenlits</title>
   <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,168 +34,161 @@
     });
   </script>
 </head>
-<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between">
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-emerald-500 selection:text-black">
 
-  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
-    <div class="flex items-center gap-4">
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-3.5 sm:px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2.5 sm:gap-4">
       <a href="painel.html" class="flex items-center gap-2">
-        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-8 w-auto object-contain" />
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
       </a>
       <span class="hidden sm:inline-block px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
         Painel de Gestão
       </span>
     </div>
 
-    <div class="flex items-center gap-3 sm:gap-4">
+    <div class="flex items-center gap-2 sm:gap-4">
       <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
         <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
       </button>
 
       <div class="text-right hidden sm:block">
-        <div id="user-display-name" class="text-xs font-bold">Carregando...</div>
-        <div id="user-display-email" class="text-[11px] text-brand-muted">...</div>
+        <div id="user-display-name" class="text-xs font-bold truncate max-w-[140px]">Carregando...</div>
+        <div id="user-display-email" class="text-[11px] text-brand-muted truncate max-w-[140px]">...</div>
       </div>
 
-      <button id="btn-logout" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition cursor-pointer">
+      <button id="btn-logout" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition cursor-pointer">
         <i class="ph-bold ph-sign-out text-base"></i>
-        <span>Sair</span>
+        <span class="hidden xs:inline">Sair</span>
       </button>
     </div>
   </header>
 
-  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-8 py-8 space-y-8">
+  <main class="flex-1 max-w-7xl mx-auto w-full px-3.5 sm:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
     
-    <!-- Mensagem de notificação -->
     <div id="avatar-status-msg" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
 
-    <!-- CARD PRINCIPAL COM FOTO DE PERFIL / AVATAR INTERATIVO -->
-    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
+    <div class="bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-4 sm:p-8 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 sm:gap-6 shadow-xl">
       
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-        <!-- AVATAR / FOTO COM BOTÃO DE UPLOAD -->
+      <div class="flex items-center gap-4 sm:gap-5">
         <div class="relative group shrink-0">
-          <div id="avatar-container" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-brand-darker border-2 border-brand-border overflow-hidden flex items-center justify-center shadow-lg transition duration-200 group-hover:border-brand-emerald">
+          <div id="avatar-container" class="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-brand-darker border-2 border-brand-border overflow-hidden flex items-center justify-center shadow-lg transition duration-200 group-hover:border-brand-emerald">
             <img id="shop-avatar-img" src="" alt="Foto de perfil" class="hidden w-full h-full object-cover" />
-            <i id="shop-avatar-icon" class="ph ph-storefront text-3xl sm:text-4xl text-brand-emerald"></i>
+            <i id="shop-avatar-icon" class="ph ph-storefront text-2xl sm:text-4xl text-brand-emerald"></i>
           </div>
 
-          <!-- Botão sobreposto para selecionar foto -->
-          <label for="avatar-file-input" class="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-brand-emerald text-brand-darker flex items-center justify-center shadow-md cursor-pointer hover:scale-110 active:scale-95 transition" title="Alterar foto da barbearia">
-            <i class="ph-bold ph-camera text-base text-[#272D2D]"></i>
+          <label for="avatar-file-input" class="absolute -bottom-1.5 -right-1.5 sm:-bottom-2 sm:-right-2 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-brand-emerald text-brand-darker flex items-center justify-center shadow-md cursor-pointer hover:scale-110 active:scale-95 transition" title="Alterar foto de perfil">
+            <i class="ph-bold ph-camera text-sm sm:text-base text-[#272D2D]"></i>
           </label>
           <input type="file" id="avatar-file-input" accept="image/png, image/jpeg, image/webp" class="hidden" />
         </div>
 
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-brand-emerald">Visão Geral</span>
-          <h1 id="shop-name-title" class="text-2xl sm:text-3xl font-extrabold mt-1">Sua Barbearia</h1>
-          <p class="text-xs text-brand-muted mt-1">Clique na câmera para alterar a foto de perfil exibida no agendamento.</p>
+        <div class="min-w-0 flex-1">
+          <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-brand-emerald">Visão Geral</span>
+          <h1 id="shop-name-title" class="text-lg sm:text-3xl font-extrabold truncate mt-0.5">Sua Barbearia</h1>
         </div>
       </div>
 
-      <div class="w-full md:w-auto bg-brand-darker border border-brand-border rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <div>
-          <div class="text-[11px] uppercase font-bold text-brand-muted">Link público de agendamento</div>
-          <div id="public-link-text" class="text-xs font-mono text-brand-emerald break-all mt-0.5">3lits-agenlits.vercel.app/agendar.html?b=...</div>
+      <div class="w-full md:w-auto bg-brand-darker border border-brand-border rounded-xl sm:rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+        <div class="min-w-0">
+          <div class="text-[10px] sm:text-[11px] uppercase font-bold text-brand-muted">Link público de agendamento</div>
+          <div id="public-link-text" class="text-xs font-mono text-brand-emerald truncate mt-0.5">3lits-agenlits.vercel.app/agendar.html?b=...</div>
         </div>
-        <div class="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-          <button id="btn-copy-link" class="btn-emerald-invert px-3.5 py-2 rounded-xl text-xs flex items-center justify-center gap-1 shrink-0">
+        <div class="flex items-center gap-2 mt-1 sm:mt-0">
+          <button id="btn-copy-link" class="btn-emerald-invert flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 shrink-0">
             <i class="ph-bold ph-copy"></i> Copiar
           </button>
-          <a id="btn-visit-page" href="#" target="_blank" class="btn-secondary-invert px-3.5 py-2 rounded-xl text-xs flex items-center justify-center gap-1 shrink-0">
+          <a id="btn-visit-page" href="#" target="_blank" class="btn-secondary-invert flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 shrink-0">
             <i class="ph-bold ph-arrow-square-out"></i> Abrir
           </a>
         </div>
       </div>
     </div>
 
-    <!-- Métricas -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-brand-card border border-brand-border rounded-2xl p-5">
-        <div class="flex items-center justify-between text-brand-muted mb-2">
-          <span class="text-xs font-semibold uppercase">Agendamentos Hoje</span>
-          <i class="ph ph-calendar-check text-xl text-brand-emerald"></i>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
+        <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
+          <span class="text-[10px] sm:text-xs font-semibold uppercase">Agendamentos</span>
+          <i class="ph ph-calendar-check text-base sm:text-xl text-brand-emerald"></i>
         </div>
-        <div class="text-2xl font-extrabold">0</div>
-        <span class="text-[11px] text-brand-muted">Nenhum cliente agendado</span>
+        <div class="text-xl sm:text-2xl font-extrabold">0</div>
+        <span class="text-[10px] sm:text-[11px] text-brand-muted block truncate">Hoje</span>
       </div>
 
-      <div class="bg-brand-card border border-brand-border rounded-2xl p-5">
-        <div class="flex items-center justify-between text-brand-muted mb-2">
-          <span class="text-xs font-semibold uppercase">Barbeiros Ativos</span>
-          <i class="ph ph-users-three text-xl text-brand-emerald"></i>
+      <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
+        <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
+          <span class="text-[10px] sm:text-xs font-semibold uppercase">Barbeiros</span>
+          <i class="ph ph-users-three text-base sm:text-xl text-brand-emerald"></i>
         </div>
-        <div id="metric-barbers" class="text-2xl font-extrabold">0</div>
-        <span class="text-[11px] text-brand-emerald">Equipe cadastrada</span>
+        <div id="metric-barbers" class="text-xl sm:text-2xl font-extrabold">0</div>
+        <span class="text-[10px] sm:text-[11px] text-brand-emerald block truncate">Equipe ativa</span>
       </div>
 
-      <div class="bg-brand-card border border-brand-border rounded-2xl p-5">
-        <div class="flex items-center justify-between text-brand-muted mb-2">
-          <span class="text-xs font-semibold uppercase">Serviços Ativos</span>
-          <i class="ph ph-scissors text-xl text-brand-emerald"></i>
+      <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
+        <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
+          <span class="text-[10px] sm:text-xs font-semibold uppercase">Serviços</span>
+          <i class="ph ph-scissors text-base sm:text-xl text-brand-emerald"></i>
         </div>
-        <div id="metric-services" class="text-2xl font-extrabold">0</div>
-        <span class="text-[11px] text-brand-muted">Catálogo configurado</span>
+        <div id="metric-services" class="text-xl sm:text-2xl font-extrabold">0</div>
+        <span class="text-[10px] sm:text-[11px] text-brand-muted block truncate">Cadastrados</span>
       </div>
 
-      <div class="bg-brand-card border border-brand-border rounded-2xl p-5">
-        <div class="flex items-center justify-between text-brand-muted mb-2">
-          <span class="text-xs font-semibold uppercase">Status da Conta</span>
-          <i class="ph ph-shield-check text-xl text-brand-emerald"></i>
+      <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
+        <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
+          <span class="text-[10px] sm:text-xs font-semibold uppercase">Plataforma</span>
+          <i class="ph ph-shield-check text-base sm:text-xl text-brand-emerald"></i>
         </div>
-        <div class="text-sm font-bold text-brand-emerald mt-1">Período Grátis Ativo</div>
-        <span class="text-[11px] text-brand-muted">14 dias de teste</span>
+        <div class="text-xs sm:text-sm font-bold text-brand-emerald mt-1">Grátis Ativo</div>
+        <span class="text-[10px] sm:text-[11px] text-brand-muted block truncate">14 dias teste</span>
       </div>
     </div>
 
-    <!-- Agendamentos e Configurações -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-3xl p-6">
-        <div class="flex items-center justify-between pb-4 border-b border-brand-border mb-4">
-          <h2 class="text-base font-bold flex items-center gap-2">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
+      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-5 sm:p-6">
+        <div class="flex items-center justify-between pb-3 sm:pb-4 border-b border-brand-border mb-4">
+          <h2 class="text-sm sm:text-base font-bold flex items-center gap-2">
             <i class="ph-bold ph-calendar text-brand-emerald"></i> Próximos Agendamentos
           </h2>
-          <a href="agendar.html" target="_blank" class="btn-emerald-invert px-3 py-1.5 rounded-lg text-xs flex items-center gap-1">
-            + Novo Agendamento
+          <a href="agendar.html" target="_blank" class="btn-emerald-invert px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1">
+            + Novo
           </a>
         </div>
 
-        <div class="py-14 text-center text-brand-muted space-y-3">
-          <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border flex items-center justify-center mx-auto text-xl text-brand-emerald">
+        <div class="py-10 sm:py-14 text-center text-brand-muted space-y-2.5">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-brand-darker border border-brand-border flex items-center justify-center mx-auto text-lg sm:text-xl text-brand-emerald">
             <i class="ph ph-scissors"></i>
           </div>
-          <p class="text-sm font-medium">Nenhum agendamento registrado ainda.</p>
-          <p class="text-xs max-w-sm mx-auto">
-            Compartilhe seu link público de agendamento para receber reservas dos clientes.
+          <p class="text-xs sm:text-sm font-medium">Nenhum agendamento registrado ainda.</p>
+          <p class="text-[11px] max-w-sm mx-auto">
+            Compartilhe seu link público de agendamento para receber reservas.
           </p>
         </div>
       </div>
 
-      <div class="bg-brand-card border border-brand-border rounded-3xl p-6 space-y-4">
-        <h2 class="text-base font-bold pb-3 border-b border-brand-border flex items-center gap-2">
+      <div class="bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-4">
+        <h2 class="text-sm sm:text-base font-bold pb-3 border-b border-brand-border flex items-center gap-2">
           <i class="ph-bold ph-gear text-brand-emerald"></i> Configurações Rápidas
         </h2>
 
-        <div class="space-y-3 text-sm">
-          <a href="servicos.html" class="btn-secondary-invert p-3.5 rounded-2xl flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <i class="ph ph-scissors text-lg text-brand-emerald group-hover:text-inherit"></i>
+        <div class="space-y-2.5 text-xs sm:text-sm">
+          <a href="servicos.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <i class="ph ph-scissors text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
               <span>Serviços & Preços</span>
             </div>
             <i class="ph-bold ph-caret-right text-xs"></i>
           </a>
 
-          <a href="horarios.html" class="btn-secondary-invert p-3.5 rounded-2xl flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <i class="ph ph-clock text-lg text-brand-emerald group-hover:text-inherit"></i>
+          <a href="horarios.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <i class="ph ph-clock text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
               <span>Horários de Atendimento</span>
             </div>
             <i class="ph-bold ph-caret-right text-xs"></i>
           </a>
 
-          <a href="barbeiros.html" class="btn-secondary-invert p-3.5 rounded-2xl flex items-center justify-between group">
-            <div class="flex items-center gap-3">
-              <i class="ph ph-user-plus text-lg text-brand-emerald group-hover:text-inherit"></i>
+          <a href="barbeiros.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <i class="ph ph-user-plus text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
               <span>Cadastrar Barbeiros</span>
             </div>
             <i class="ph-bold ph-caret-right text-xs"></i>
@@ -205,7 +198,7 @@
     </div>
   </main>
 
-  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+  <footer class="border-t border-brand-border py-4 text-center text-[11px] text-brand-muted">
     &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
   </footer>
 
@@ -292,12 +285,10 @@
           console.error(err);
         }
 
-        // UPLOAD DA FOTO DE PERFIL
         fileInput.addEventListener('change', async (e) => {
           const file = e.target.files[0];
           if (!file || !currentShop) return;
 
-          // Validação simples: limite de 5MB
           if (file.size > 5 * 1024 * 1024) {
             return showNotice('A imagem deve ter no máximo 5MB.', true);
           }
@@ -308,19 +299,16 @@
             const fileExt = file.name.split('.').pop();
             const filePath = `avatars/${currentShop.id}-${Date.now()}.${fileExt}`;
 
-            // Upload para o bucket barbershop-assets
             const { error: uploadError } = await client.storage
               .from('barbershop-assets')
               .upload(filePath, file, { upsert: true });
 
             if (uploadError) throw uploadError;
 
-            // Obter URL pública
             const { data: { publicUrl } } = client.storage
               .from('barbershop-assets')
               .getPublicUrl(filePath);
 
-            // Atualizar no banco na tabela barbershops
             const { error: dbError } = await client
               .from('barbershops')
               .update({ avatar_url: publicUrl })
@@ -338,11 +326,12 @@
           }
         });
 
+        // Logout direto sem pop-up de confirm
         btnLogout.addEventListener('click', async () => {
-          if (confirm('Deseja realmente sair da sua conta?')) {
-            await client.auth.signOut();
-            window.location.href = 'login.html';
-          }
+          btnLogout.disabled = true;
+          btnLogout.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i>';
+          await client.auth.signOut();
+          window.location.href = 'login.html';
         });
       });
     })();
