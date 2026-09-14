@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Criar Minha Barbearia — agenlits</title>
+  <title>Cadastre sua Barbearia — agenlits</title>
   <link rel="icon" type="image/png" href="images/fundo transparente fonte clara.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -23,134 +23,154 @@
   </header>
 
   <main class="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-    <div class="w-full max-w-xl bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
-      <div class="mb-8">
-        <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wider mb-2">
-          <span id="step-label" class="text-brand-gold flex items-center gap-1.5">
-            <i class="ph-bold ph-number-circle-one text-base"></i> Passo 1: Seus Dados e Acesso
-          </span>
-          <span id="step-indicator" class="text-brand-muted">Etapa 1 de 2</span>
-        </div>
-        <div class="w-full bg-brand-dark h-2 rounded-full overflow-hidden border border-brand-border">
-          <div id="progress-bar" class="bg-brand-gold h-full w-1/2 transition-all duration-300"></div>
-        </div>
+    <div class="w-full max-w-xl bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-10 shadow-2xl relative">
+      
+      <!-- Título idêntico ao modelo da imagem -->
+      <div class="mb-6">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Cadastre sua Barbearia</h1>
+        <p class="text-xs text-brand-muted mt-1">Preencha os dados abaixo para criar sua plataforma e link exclusivo.</p>
       </div>
 
-      <form id="signup-form" autocomplete="off">
-        <!-- ETAPA 1 -->
-        <div id="step-1" class="space-y-5">
-          <div>
-            <h2 class="text-2xl font-bold text-white tracking-tight">Crie sua conta no agenlits</h2>
-            <p class="text-sm text-brand-muted mt-1">Comece seus 14 dias de teste grátis. Salvo em banco de dados real.</p>
+      <form id="signup-form" class="space-y-4" autocomplete="off">
+
+        <!-- Nome da Barbearia -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-200 mb-1.5">Nome da Barbearia</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted">
+              <i class="ph ph-storefront text-lg"></i>
+            </span>
+            <input type="text" id="barbershop-name" required placeholder="Ex: Barbearia do Silva" class="w-full pl-11 pr-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">Seu Nome Completo</label>
+        </div>
+
+        <!-- Linha Dinâmica: WhatsApp + Tipo Documento + Documento -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+          <!-- WhatsApp -->
+          <div class="sm:col-span-6">
+            <label class="block text-xs font-semibold text-slate-200 mb-1.5">WhatsApp</label>
             <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted"><i class="ph ph-user"></i></span>
-              <input type="text" id="owner-name" required placeholder="Ex: Lucas Medeiros" class="w-full pl-10 pr-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted">
+                <i class="ph ph-phone text-lg"></i>
+              </span>
+              <input type="tel" id="owner-phone" required placeholder="(11) 99999-9999" maxlength="15" class="w-full pl-11 pr-3 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
             </div>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">Seu E-mail Profissional</label>
+
+          <!-- Tipo Documento (CPF / CNPJ) -->
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-slate-200 mb-1.5">Tipo</label>
             <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted"><i class="ph ph-envelope-simple"></i></span>
-              <input type="email" id="owner-email" required placeholder="dono@barbearia.com" class="w-full pl-10 pr-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
+              <select id="doc-type" class="w-full px-2 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition appearance-none text-center cursor-pointer">
+                <option value="CPF" selected>CPF</option>
+                <option value="CNPJ">CNPJ</option>
+              </select>
+              <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-brand-muted">
+                <i class="ph ph-caret-down text-xs"></i>
+              </span>
             </div>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">WhatsApp / Celular com DDD</label>
+
+          <!-- Campo Documento -->
+          <div class="sm:col-span-4">
+            <label class="block text-xs font-semibold text-slate-200 mb-1.5">Documento</label>
             <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted"><i class="ph ph-whatsapp-logo"></i></span>
-              <input type="tel" id="owner-phone" required placeholder="(11) 99999-9999" class="w-full pl-10 pr-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted">
+                <i class="ph ph-fingerprint text-lg"></i>
+              </span>
+              <input type="text" id="doc-number" required placeholder="000.000.000-00" maxlength="18" class="w-full pl-10 pr-3 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
             </div>
           </div>
+        </div>
+
+        <!-- Nome Responsável -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-200 mb-1.5">Nome Responsável</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted">
+              <i class="ph ph-user text-lg"></i>
+            </span>
+            <input type="text" id="owner-name" required placeholder="Nome do administrador" class="w-full pl-11 pr-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
+          </div>
+        </div>
+
+        <!-- Seu melhor e-mail -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-200 mb-1.5">Seu melhor e-mail</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted">
+              <i class="ph ph-envelope-simple text-lg"></i>
+            </span>
+            <input type="email" id="owner-email" required placeholder="seu@email.com" class="w-full pl-11 pr-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
+          </div>
+        </div>
+
+        <!-- Linha: Senha + Confirmar Senha -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Senha -->
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">Crie uma Senha Segura</label>
+            <label class="block text-xs font-semibold text-slate-200 mb-1.5">Senha</label>
             <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted"><i class="ph ph-lock-key"></i></span>
-              <input type="password" id="owner-password" required minlength="6" placeholder="Mínimo 6 caracteres" class="w-full pl-10 pr-10 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted">
+                <i class="ph ph-lock text-lg"></i>
+              </span>
+              <input type="password" id="owner-password" required minlength="6" placeholder="Mínimo 6 caracteres" class="w-full pl-11 pr-10 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
               <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-brand-muted hover:text-white">
-                <i class="ph ph-eye"></i>
+                <i class="ph ph-eye text-base"></i>
               </button>
             </div>
           </div>
-          <button type="button" id="btn-next-step" class="w-full py-3.5 bg-brand-gold text-black font-bold text-sm rounded-xl hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10 flex items-center justify-center gap-2 mt-2">
-            Continuar para Dados da Barbearia <i class="ph-bold ph-arrow-right"></i>
-          </button>
+
+          <!-- Confirmar Senha -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-200 mb-1.5">Confirmar Senha</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted">
+                <i class="ph ph-lock text-lg"></i>
+              </span>
+              <input type="password" id="owner-confirm-password" required minlength="6" placeholder="Repita a senha" class="w-full pl-11 pr-10 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
+              <button type="button" id="toggle-confirm-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-brand-muted hover:text-white">
+                <i class="ph ph-eye text-base"></i>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- ETAPA 2 -->
-        <div id="step-2" class="space-y-5 hidden">
-          <div>
-            <h2 class="text-2xl font-bold text-white tracking-tight">Configure sua Barbearia</h2>
-            <p class="text-sm text-brand-muted mt-1">Essas informações vão compor sua página de agendamento online.</p>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">Nome da Barbearia</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted"><i class="ph ph-scissors"></i></span>
-              <input type="text" id="barbershop-name" placeholder="Ex: Barbearia Viking Club" class="w-full pl-10 pr-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
-            </div>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">Seu Link Exclusivo de Agendamento</label>
-            <div class="flex items-center rounded-xl bg-brand-dark border border-brand-border overflow-hidden focus-within:border-brand-gold transition">
-              <span class="bg-brand-dark/80 px-3 py-3 text-xs text-brand-muted border-r border-brand-border font-mono select-none">
-                agenlits.com/
-              </span>
-              <input type="text" id="barbershop-slug" placeholder="viking-club" class="w-full px-3 py-3 bg-transparent text-sm text-brand-gold font-mono focus:outline-none" />
-            </div>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">Endereço da Loja (Cidade / Bairro)</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted"><i class="ph ph-map-pin"></i></span>
-              <input type="text" id="barbershop-address" placeholder="Ex: Av. Paulista, 1000 - Bela Vista" class="w-full pl-10 pr-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition" />
-            </div>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">Plano Selecionado</label>
-            <select id="selected-plan" class="w-full px-4 py-3 bg-brand-dark border border-brand-border rounded-xl text-sm text-white focus:outline-none focus:border-brand-gold transition">
-              <option value="solo">Barbeiro Solo — R$ 49/mês (14 dias grátis)</option>
-              <option value="pro" selected>Barbearia Pro — R$ 99/mês (14 dias grátis)</option>
-              <option value="redes">Franquias & Redes — R$ 199/mês (14 dias grátis)</option>
-            </select>
-          </div>
-          <div class="flex items-start gap-2 pt-2">
-            <input type="checkbox" id="terms-check" required class="mt-1 accent-brand-gold rounded" />
-            <label for="terms-check" class="text-xs text-brand-muted leading-snug">
-              Concordo com os <a href="#" class="text-brand-gold underline">Termos de Uso</a> e <a href="#" class="text-brand-gold underline">Privacidade</a>.
-            </label>
-          </div>
-          <div class="flex items-center gap-3 pt-2">
-            <button type="button" id="btn-prev-step" class="w-1/3 py-3.5 border border-brand-border text-slate-300 font-semibold text-sm rounded-xl hover:border-brand-gold transition flex items-center justify-center gap-1">
-              <i class="ph-bold ph-arrow-left"></i> Voltar
-            </button>
-            <button type="submit" id="submit-btn" class="w-2/3 py-3.5 bg-brand-gold text-black font-bold text-sm rounded-xl hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10 flex items-center justify-center gap-2">
-              Concluir e Salvar <i class="ph-bold ph-check"></i>
-            </button>
+        <!-- Slug Gerado Automaticamente -->
+        <div class="pt-1">
+          <label class="block text-xs font-semibold text-slate-200 mb-1.5">Link exclusivo da sua Barbearia</label>
+          <div class="flex items-center rounded-xl bg-brand-dark border border-brand-border overflow-hidden focus-within:border-brand-gold transition">
+            <span class="bg-brand-dark px-3.5 py-3 text-xs text-brand-muted border-r border-brand-border font-mono select-none">
+              agenlits.com/
+            </span>
+            <input type="text" id="barbershop-slug" required placeholder="barbearia-do-silva" class="w-full px-3 py-3 bg-transparent text-sm text-brand-gold font-mono focus:outline-none" />
           </div>
         </div>
+
+        <button type="submit" id="submit-btn" class="w-full py-3.5 bg-brand-gold text-black font-bold text-sm rounded-xl hover:bg-brand-goldHover transition shadow-lg shadow-brand-gold/10 flex items-center justify-center gap-2 mt-4">
+          Cadastrar Barbearia <i class="ph-bold ph-check"></i>
+        </button>
       </form>
 
-      <!-- MODAL SUCESSO -->
-      <div id="success-modal" class="hidden absolute inset-0 bg-brand-card/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
+      <!-- Modal de Confirmação com Instrução do E-mail -->
+      <div id="success-modal" class="hidden absolute inset-0 bg-brand-card/95 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center p-6 text-center z-20">
         <div class="w-16 h-16 rounded-2xl bg-brand-gold/10 border border-brand-gold text-brand-gold flex items-center justify-center text-3xl mb-4 animate-bounce">
-          <i class="ph-bold ph-check-circle"></i>
+          <i class="ph-bold ph-envelope-simple-open"></i>
         </div>
         <h3 class="text-xl font-bold text-white">Barbearia cadastrada com sucesso!</h3>
         <p class="text-xs text-brand-muted mt-2 max-w-sm" id="success-msg">
-          Seus dados já estão salvos no banco de dados.
+          Enviamos um e-mail de confirmação para você. Por favor, acesse sua caixa de entrada para ativar sua conta antes de logar.
         </p>
         <div class="mt-6 flex flex-col gap-2 w-full max-w-xs">
           <a href="login.html" class="w-full py-3 bg-brand-gold text-black text-xs font-bold rounded-lg hover:bg-brand-goldHover transition">
-            Fazer Login Agora
+            Ir para Tela de Login
           </a>
           <a href="index.html" class="w-full py-2.5 border border-brand-border text-xs text-brand-muted hover:text-white rounded-lg transition">
-            Voltar para a Página Inicial
+            Voltar para Página Inicial
           </a>
         </div>
       </div>
+
     </div>
   </main>
 

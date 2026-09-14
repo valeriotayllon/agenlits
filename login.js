@@ -1,4 +1,4 @@
-// agenlits - Login Real integrado com Supabase
+// agenlits - Login integrado ao Supabase
 const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
 
@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (error) throw error;
 
       alert('Login realizado com sucesso! Bem-vindo(a) ao agenlits.');
-      // Na próxima etapa, aqui redirecionaremos para painel.html
       window.location.href = 'index.html';
 
     } catch (err) {
