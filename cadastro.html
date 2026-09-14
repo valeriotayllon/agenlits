@@ -176,7 +176,7 @@
   <script src="cadastro.js"></script>
   <script>
     (() => {
-      let regType = 'owner';
+      let regType = 'owner'; window.getRegType = () => regType;
 
       const tabClient = document.getElementById('reg-tab-client');
       const tabOwner = document.getElementById('reg-tab-owner');
