@@ -101,7 +101,33 @@
 
       <div class="space-y-8">
         <div>
-          <h2 class="text-sm font-bold uppercase tracking-wider text-brand-emerald flex items-center gap-2 mb-3">
+          
+      <!-- SEÇÃO DA GALERIA DE FOTOS E PORTFÓLIO (ESTABELECIMENTO & TRABALHOS) -->
+      <div id="gallery-section" class="hidden bg-brand-darker/60 border border-brand-border rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm sm:text-base font-bold flex items-center gap-2">
+              <i class="ph-bold ph-images text-brand-emerald"></i> Conheça Nosso Espaço & Trabalhos
+            </h2>
+            <p class="text-[11px] text-brand-muted mt-0.5">Fotos reais do ambiente, equipe e resultados dos nossos cortes e tratamentos.</p>
+          </div>
+          <span id="gallery-badge-count" class="text-[10px] font-bold px-2.5 py-1 rounded-md bg-brand-card border border-brand-border text-brand-emerald">0 fotos</span>
+        </div>
+
+        <!-- Filtro Rápido da Galeria do Estabelecimento -->
+        <div class="flex items-center gap-1.5 text-xs">
+          <button type="button" onclick="window.filterPublicGallery('all')" class="pub-gal-tab px-3 py-1 rounded-lg text-xs font-bold transition bg-brand-emerald text-[#272D2D]" data-pubcat="all">Todas</button>
+          <button type="button" onclick="window.filterPublicGallery('Trabalho Realizado')" class="pub-gal-tab px-3 py-1 rounded-lg text-xs font-semibold text-brand-muted hover:text-brand-main transition" data-pubcat="Trabalho Realizado">Trabalhos Realizados</button>
+          <button type="button" onclick="window.filterPublicGallery('Espaço & Ambiente')" class="pub-gal-tab px-3 py-1 rounded-lg text-xs font-semibold text-brand-muted hover:text-brand-main transition" data-pubcat="Espaço & Ambiente">Espaço & Ambiente</button>
+        </div>
+
+        <div id="public-gallery-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-1">
+          <!-- Injetado dinamicamente -->
+        </div>
+      </div>
+
+
+        <h2 class="text-sm font-bold uppercase tracking-wider text-brand-emerald flex items-center gap-2 mb-3">
             <span class="w-6 h-6 rounded-full bg-brand-emerald/10 border border-brand-emerald flex items-center justify-center text-xs font-bold">1</span>
             Selecione o Serviço
           </h2>
@@ -310,6 +336,74 @@
         summaryText.innerHTML = `Horário agendado para <strong>${clientName}</strong> no dia <strong>${dateInput.value.split('-').reverse().join('/')}</strong> às <strong>${timeSelect.value}</strong> para <strong>${selectedService.name}</strong>.`;
         successModal.classList.remove('hidden');
       });
+
+      
+      // Carregar Fotos do Estabelecimento
+      let publicGalleryPhotos = [];
+      let activePubFilter = 'all';
+
+      async function loadShopPhotos(shopId, shopData) {
+        const gallerySection = document.getElementById('gallery-section');
+        const badgeCount = document.getElementById('gallery-badge-count');
+        try {
+          const { data, error } = await client
+            .from('barbershop_photos')
+            .select('*')
+            .eq('barbershop_id', shopId)
+            .order('created_at', { ascending: false });
+
+          if (!error && data && data.length > 0) {
+            publicGalleryPhotos = data;
+          } else if (shopData && Array.isArray(shopData.photos) && shopData.photos.length > 0) {
+            publicGalleryPhotos = shopData.photos;
+          }
+        } catch(e) {
+          if (shopData && Array.isArray(shopData.photos) && shopData.photos.length > 0) {
+            publicGalleryPhotos = shopData.photos;
+          }
+        }
+
+        if (publicGalleryPhotos && publicGalleryPhotos.length > 0) {
+          gallerySection.classList.remove('hidden');
+          badgeCount.textContent = `${publicGalleryPhotos.length} foto(s)`;
+          renderPublicGallery();
+        }
+      }
+
+      window.filterPublicGallery = (cat) => {
+        activePubFilter = cat;
+        document.querySelectorAll('.pub-gal-tab').forEach(t => {
+          if (t.dataset.pubcat === cat) {
+            t.className = 'pub-gal-tab px-3 py-1 rounded-lg text-xs font-bold transition bg-brand-emerald text-[#272D2D]';
+          } else {
+            t.className = 'pub-gal-tab px-3 py-1 rounded-lg text-xs font-semibold text-brand-muted hover:text-brand-main transition';
+          }
+        });
+        renderPublicGallery();
+      };
+
+      function renderPublicGallery() {
+        const grid = document.getElementById('public-gallery-grid');
+        const list = activePubFilter === 'all'
+          ? publicGalleryPhotos
+          : publicGalleryPhotos.filter(p => p.category === activePubFilter);
+
+        if (!list.length) {
+          grid.innerHTML = '<div class="col-span-full py-4 text-center text-xs text-brand-muted">Nenhuma foto encontrada nesta categoria.</div>';
+          return;
+        }
+
+        grid.innerHTML = list.map(p => `
+          <div class="group relative rounded-xl sm:rounded-2xl overflow-hidden border border-brand-border bg-brand-card aspect-square shadow-sm">
+            <img src="${p.url}" alt="${p.caption || 'Foto do Estabelecimento'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition p-2.5 flex flex-col justify-end">
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-emerald text-black w-fit mb-0.5">${p.category || 'Galeria'}</span>
+              ${p.caption ? `<p class="text-[10px] text-white font-medium line-clamp-2 leading-tight">${p.caption}</p>` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+
 
       document.addEventListener('DOMContentLoaded', init);
     })();

@@ -178,7 +178,7 @@
         </span>
 
         <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
-          Agende com os melhores <span class="text-brand-emerald">profissionais</span> perto de você
+          Agende com os melhores <span class="text-brand-emerald">barbeiros</span> perto de você
         </h1>
         
         <p class="text-xs sm:text-sm text-brand-muted max-w-xl mx-auto">
@@ -208,42 +208,44 @@
           </button>
         </form>
 
-        <!-- CATEGORIAS RÁPIDAS QUE EXECUTAM BUSCA AO CLICAR -->
-        <div class="pt-8 flex items-center justify-center gap-4 sm:gap-6 overflow-x-auto py-2 scrollbar-none">
-          <button type="button" onclick="window.filterByCategory('Corte')" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
-            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
+        <!-- CATEGORIAS RÁPIDAS QUE EXECUTAM BUSCA AO CLICAR (ESPAÇAMENTO PERFEITO E EQUIDISTANTE) -->
+        <div class="pt-8 flex items-center justify-center gap-1 sm:gap-4 overflow-x-auto py-2 scrollbar-none max-w-2xl mx-auto">
+          
+          <button type="button" onclick="window.filterByCategory('Corte')" class="w-24 sm:w-28 flex flex-col items-center gap-1.5 py-2 px-1 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
+            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition shadow-sm">
               <i class="ph ph-scissors text-brand-emerald"></i>
             </div>
-            <span class="text-[11px] font-medium">Corte de Cabelo</span>
+            <span class="text-[11px] font-medium text-center truncate w-full">Corte de Cabelo</span>
           </button>
 
-          <button type="button" onclick="window.filterByCategory('Barba')" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
-            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
+          <button type="button" onclick="window.filterByCategory('Barba')" class="w-24 sm:w-28 flex flex-col items-center gap-1.5 py-2 px-1 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
+            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition shadow-sm">
               <i class="ph ph-sparkle text-brand-emerald"></i>
             </div>
-            <span class="text-[11px] font-medium">Barba & Toalha</span>
+            <span class="text-[11px] font-medium text-center truncate w-full">Barba & Toalha</span>
           </button>
 
-          <button type="button" onclick="window.filterByCategory('Combo')" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
-            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
+          <button type="button" onclick="window.filterByCategory('Combo')" class="w-24 sm:w-28 flex flex-col items-center gap-1.5 py-2 px-1 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
+            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition shadow-sm">
               <i class="ph ph-lightning text-brand-emerald"></i>
             </div>
-            <span class="text-[11px] font-medium">Combo Cabelo+Barba</span>
+            <span class="text-[11px] font-medium text-center truncate w-full">Combo Cabelo+Barba</span>
           </button>
 
-          <button type="button" onclick="window.filterByCategory('Tratamento')" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
-            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
+          <button type="button" onclick="window.filterByCategory('Tratamento')" class="w-24 sm:w-28 flex flex-col items-center gap-1.5 py-2 px-1 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
+            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition shadow-sm">
               <i class="ph ph-drop text-brand-emerald"></i>
             </div>
-            <span class="text-[11px] font-medium">Tratamentos</span>
+            <span class="text-[11px] font-medium text-center truncate w-full">Tratamentos</span>
           </button>
 
-          <button type="button" onclick="window.resetSearch()" class="flex flex-col items-center gap-1.5 p-2 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
-            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition">
+          <button type="button" onclick="window.resetSearch()" class="w-24 sm:w-28 flex flex-col items-center gap-1.5 py-2 px-1 text-brand-muted hover:text-brand-emerald transition group shrink-0 cursor-pointer">
+            <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border group-hover:border-brand-emerald flex items-center justify-center text-xl transition shadow-sm">
               <i class="ph ph-arrow-counter-clockwise text-brand-emerald"></i>
             </div>
-            <span class="text-[11px] font-medium">Ver Todas</span>
+            <span class="text-[11px] font-medium text-center truncate w-full">Ver Todas</span>
           </button>
+
         </div>
 
       </div>
