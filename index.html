@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="scroll-smooth">
 <head>
-  <!-- REDIRECIONAMENTO INSTANTÂNEO PARA USUÁRIOS LOGADOS (SEM PISCAR A HOME) -->
+  <!-- REDIRECIONAMENTO INTELIGENTE CONFORME A INTENÇÃO DO USUÁRIO -->
   <script>
     (() => {
-      // 1. Checagem ultra-rápida via localStorage
       const supabaseToken = localStorage.getItem('sb-fdoceyjcibzdfiqvdzkv-auth-token');
       const userType = localStorage.getItem('agenlits_user_type');
 
-      if (supabaseToken) {
-        // Oculta a página imediatamente
+      if (supabaseToken && userType) {
         document.documentElement.style.visibility = 'hidden';
-
-        if (userType === 'owner') {
-          window.location.replace('painel.html');
-        } else if (userType === 'client') {
+        if (userType === 'client') {
           window.location.replace('cliente.html');
+        } else if (userType === 'owner') {
+          window.location.replace('painel.html');
         }
       }
     })();
@@ -96,8 +93,20 @@
         const { data: { session } } = await client.auth.getSession();
 
         if (session && session.user) {
-          document.documentElement.style.visibility = 'hidden';
+          const userType = localStorage.getItem('agenlits_user_type');
+          if (userType === 'client') {
+            document.documentElement.style.visibility = 'hidden';
+            window.location.replace('cliente.html');
+            return;
+          } else if (userType === 'owner') {
+            document.documentElement.style.visibility = 'hidden';
+            window.location.replace('painel.html');
+            return;
+          }
+
+          // Se não tiver preferência gravada, verifica se tem barbearia
           const { data: shop } = await client.from('barbershops').select('id').eq('owner_id', session.user.id).maybeSingle();
+          document.documentElement.style.visibility = 'hidden';
           if (shop) {
             localStorage.setItem('agenlits_user_type', 'owner');
             window.location.replace('painel.html');
@@ -114,7 +123,6 @@
       }
     })();
   </script>
-
 </head>
 <body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
 

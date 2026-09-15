@@ -250,7 +250,7 @@
         if (!password) return showError('Por favor, digite sua senha.');
 
         btnLogin.disabled = true;
-        btnLogin.innerHTML = '<i class="ph-bold ph-spinner animate-spin text-lg"></i> Validando acesso...';
+        btnLogin.innerHTML = '<i class="ph-bold ph-spinner animate-spin text-lg"></i> Entrando...';
 
         try {
           const { data, error } = await supabaseAuthClient.auth.signInWithPassword({ email, password });
@@ -258,33 +258,61 @@
 
           const user = data.user;
 
-          // Validação cruzada no banco de dados
-          const { data: shop } = await supabaseAuthClient
-            .from('barbershops')
-            .select('id')
-            .eq('owner_id', user.id)
-            .maybeSingle();
+          // Se o usuário selecionou a aba "Sou Cliente":
+          if (currentType === 'client') {
+            // Garante que o cliente existe na tabela clients
+            try {
+              const { data: existingClient } = await supabaseAuthClient
+                .from('clients')
+                .select('id')
+                .eq('auth_user_id', user.id)
+                .maybeSingle();
 
-          const isOwner = !!shop;
+              if (!existingClient) {
+                // Cria o registro na tabela clients caso ainda não exista
+                await supabaseAuthClient.from('clients').insert([{
+                  auth_user_id: user.id,
+                  name: user.user_metadata?.full_name || email.split('@')[0],
+                  email: email,
+                  phone: user.phone || ''
+                }]);
+              }
+            } catch (e) {
+              console.log('Cliente já existente ou erro de inserção:', e);
+            }
 
-          // Se tentar entrar na aba errada (Empresa como Cliente ou Cliente como Barbeiro),
-          // desloga a sessão e exibe a mensagem de usuário não encontrado / dados incorretos
-          if ((currentType === 'client' && isOwner) || (currentType === 'owner' && !isOwner)) {
-            await supabaseAuthClient.auth.signOut();
-            showError('Usuário não encontrado ou dados incorretos. Verifique o e-mail e a senha digitados ou faça seu cadastro.');
-            btnLogin.disabled = false;
-            btnLogin.innerHTML = `<span id="btn-login-text">${btnLoginText.textContent}</span> <i class="ph-bold ph-sign-in"></i>`;
+            localStorage.setItem('agenlits_user_type', 'client');
+            window.location.href = 'cliente.html';
             return;
           }
 
-          // Redirecionamento correto conforme o perfil
-          if (isOwner) {
+          // Se o usuário selecionou a aba "Sou Barbeiro / Dono":
+          if (currentType === 'owner') {
+            const { data: shop } = await supabaseAuthClient
+              .from('barbershops')
+              .select('id, name')
+              .eq('owner_id', user.id)
+              .maybeSingle();
+
+            if (!shop) {
+              await supabaseAuthClient.auth.signOut();
+              showError('Nenhuma barbearia vinculada a esta conta. Cadastre seu estabelecimento na aba de cadastro.');
+              btnLogin.disabled = false;
+              btnLogin.innerHTML = `<span id="btn-login-text">${btnLoginText.textContent}</span> <i class="ph-bold ph-sign-in"></i>`;
+              return;
+            }
+
+            localStorage.setItem('agenlits_user_type', 'owner');
             window.location.href = 'painel.html';
-          } else {
-            window.location.href = 'cliente.html';
+            return;
           }
 
         } catch (err) {
+          showError(getFriendlyErrorMessage(err));
+          btnLogin.disabled = false;
+          btnLogin.innerHTML = `<span id="btn-login-text">${btnLoginText.textContent}</span> <i class="ph-bold ph-sign-in"></i>`;
+        }
+      } catch (err) {
           showError(getFriendlyErrorMessage(err));
           btnLogin.disabled = false;
           btnLogin.innerHTML = `<span id="btn-login-text">${btnLoginText.textContent}</span> <i class="ph-bold ph-sign-in"></i>`;
