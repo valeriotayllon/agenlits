@@ -33,40 +33,6 @@
       updateThemeIcons();
     });
   </script>
-
-<script>
-  // Redirecionamento inteligente ao clicar na logo para usuários com sessão ativa
-  (async function setupLogoRedirect() {
-    try {
-      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
-      if (!window.supabase) return;
-      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      const { data: { session } } = await client.auth.getSession();
-      
-      if (session && session.user) {
-        const { data: shop } = await client
-          .from('barbershops')
-          .select('id')
-          .eq('owner_id', session.user.id)
-          .maybeSingle();
-
-        const destination = shop ? 'painel.html' : 'cliente.html';
-
-        document.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('a[href="index.html"], a[href="painel.html"], a[href="/"]').forEach(link => {
-            if (link.querySelector('img[src*="fonte escura.png"]') || link.querySelector('img[alt*="agenlits"]')) {
-              link.href = destination;
-            }
-          });
-        });
-      }
-    } catch (e) {
-      console.error('Erro no link dinâmico da logo:', e);
-    }
-  })();
-</script>
-
 </head>
 <body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
 
@@ -131,7 +97,7 @@
           </div>
         </div>
 
-        <button type="button" id="btn-login" class="btn-emerald-invert w-full py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 mt-2 shadow-lg shadow-emerald-500/10">
+        <button type="button" id="btn-login" class="btn-emerald-invert w-full py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 mt-2 shadow-lg shadow-emerald-500/10 cursor-pointer">
           <span id="btn-login-text">Entrar como Cliente</span> <i class="ph-bold ph-sign-in"></i>
         </button>
 
@@ -258,9 +224,7 @@
 
           const user = data.user;
 
-          // Se o usuário selecionou a aba "Sou Cliente":
           if (currentType === 'client') {
-            // Garante que o cliente existe na tabela clients
             try {
               const { data: existingClient } = await supabaseAuthClient
                 .from('clients')
@@ -269,7 +233,6 @@
                 .maybeSingle();
 
               if (!existingClient) {
-                // Cria o registro na tabela clients caso ainda não exista
                 await supabaseAuthClient.from('clients').insert([{
                   auth_user_id: user.id,
                   name: user.user_metadata?.full_name || email.split('@')[0],
@@ -286,7 +249,6 @@
             return;
           }
 
-          // Se o usuário selecionou a aba "Sou Barbeiro / Dono":
           if (currentType === 'owner') {
             const { data: shop } = await supabaseAuthClient
               .from('barbershops')
@@ -312,11 +274,6 @@
           btnLogin.disabled = false;
           btnLogin.innerHTML = `<span id="btn-login-text">${btnLoginText.textContent}</span> <i class="ph-bold ph-sign-in"></i>`;
         }
-      } catch (err) {
-          showError(getFriendlyErrorMessage(err));
-          btnLogin.disabled = false;
-          btnLogin.innerHTML = `<span id="btn-login-text">${btnLoginText.textContent}</span> <i class="ph-bold ph-sign-in"></i>`;
-        }
       }
 
       btnLogin.addEventListener('click', handleLogin);
@@ -328,10 +285,13 @@
           btnGoogle.disabled = true;
           btnGoogle.innerHTML = '<i class="ph-bold ph-spinner animate-spin text-base text-brand-emerald"></i> Conectando...';
           try {
-            const dest = currentType === 'owner' ? '/painel.html' : '/index.html';
+            const dest = currentType === 'owner' ? '/painel.html' : '/cliente.html';
             const redirectUrl = window.location.origin.includes('localhost') 
               ? window.location.origin + dest 
               : 'https://3lits-agenlits.vercel.app' + dest;
+
+            // Salva antecipadamente o tipo para redirecionamento pós-OAuth
+            localStorage.setItem('agenlits_user_type', currentType);
 
             const { error } = await supabaseAuthClient.auth.signInWithOAuth({
               provider: 'google',
