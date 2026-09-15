@@ -225,9 +225,41 @@
 
           if (error) throw error;
 
+          // Busca fotos cadastradas na galeria
+          let photosByShop = {};
+          try {
+            const { data: photosData } = await client
+              .from('barbershop_photos')
+              .select('barbershop_id, url');
+            if (photosData) {
+              photosData.forEach(p => {
+                if (!photosByShop[p.barbershop_id]) photosByShop[p.barbershop_id] = [];
+                if (p.url && !photosByShop[p.barbershop_id].includes(p.url)) {
+                  photosByShop[p.barbershop_id].push(p.url);
+                }
+              });
+            }
+          } catch(e) {}
+
           if (shops && shops.length > 0) {
             allEstablishments = shops.map(shop => {
               const isBarber = !(shop.name.toLowerCase().includes('salão') || shop.name.toLowerCase().includes('estética') || shop.name.toLowerCase().includes('studio fem'));
+              const defaultAvatar = shop.avatar_url || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=600&q=80';
+              let gallery = [defaultAvatar];
+
+              if (photosByShop[shop.id]) {
+                photosByShop[shop.id].forEach(u => {
+                  if (u && !gallery.includes(u)) gallery.push(u);
+                });
+              }
+
+              if (Array.isArray(shop.photos)) {
+                shop.photos.forEach(p => {
+                  const u = typeof p === 'string' ? p : p.url;
+                  if (u && !gallery.includes(u)) gallery.push(u);
+                });
+              }
+
               return {
                 id: shop.id,
                 name: shop.name,
@@ -236,7 +268,9 @@
                 typeLabel: isBarber ? 'Barbearia' : 'Salão de Beleza',
                 city: 'Fortaleza',
                 neighborhood: shop.name.includes('Valério') ? 'Aguanambi' : 'Aldeota',
-                image: shop.avatar_url || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=600&q=80',
+                image: defaultAvatar,
+                profileImage: defaultAvatar,
+                galleryImages: gallery,
                 rating: '5.0',
                 services: ['corte', 'barba', 'cabelo-fem', 'hidratacao']
               };
@@ -293,6 +327,59 @@
         renderList(filtered);
       }
 
+      // Controle de Slideshow nos Cards de Explorar
+      const expCardTimers = new Map();
+
+      window.startExpCardHover = (cardEl) => {
+        try {
+          const photos = JSON.parse(cardEl.getAttribute('data-photos') || '[]');
+          if (!photos || photos.length <= 1) return;
+
+          const img = cardEl.querySelector('.card-cover-img');
+          const dots = cardEl.querySelectorAll('.card-dot');
+          if (!img) return;
+
+          let idx = 0;
+          if (expCardTimers.has(cardEl)) clearInterval(expCardTimers.get(cardEl));
+
+          const timer = setInterval(() => {
+            idx = (idx + 1) % photos.length;
+            img.style.opacity = '0.35';
+            setTimeout(() => {
+              img.src = photos[idx];
+              img.style.opacity = '1';
+              dots.forEach((d, i) => {
+                d.className = i === idx ? 'card-dot h-1.5 flex-1 rounded-full bg-brand-emerald transition-all shadow-sm' : 'card-dot h-1.5 flex-1 rounded-full bg-white/40 transition-all';
+              });
+            }, 120);
+          }, 1300);
+
+          expCardTimers.set(cardEl, timer);
+        } catch(e) {
+          console.error(e);
+        }
+      };
+
+      window.stopExpCardHover = (cardEl) => {
+        if (expCardTimers.has(cardEl)) {
+          clearInterval(expCardTimers.get(cardEl));
+          expCardTimers.delete(cardEl);
+        }
+        const defaultSrc = cardEl.getAttribute('data-default-photo');
+        const img = cardEl.querySelector('.card-cover-img');
+        const dots = cardEl.querySelectorAll('.card-dot');
+        if (img && defaultSrc) {
+          img.style.opacity = '0.35';
+          setTimeout(() => {
+            img.src = defaultSrc;
+            img.style.opacity = '1';
+            dots.forEach((d, i) => {
+              d.className = i === 0 ? 'card-dot h-1.5 flex-1 rounded-full bg-brand-emerald transition-all shadow-sm' : 'card-dot h-1.5 flex-1 rounded-full bg-white/40 transition-all';
+            });
+          }, 120);
+        }
+      };
+
       function renderList(list) {
         countEl.textContent = `${list.length} estabelecimento(s) encontrado(s)`;
 
@@ -303,35 +390,59 @@
         }
 
         emptyEl.classList.add('hidden');
-        gridEl.innerHTML = list.map(item => `
-          <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl hover:border-brand-emerald transition flex flex-col justify-between group">
-            <div class="relative h-44 bg-brand-darker overflow-hidden">
-              <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-              <span class="absolute top-3 left-3 bg-brand-darker/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-brand-emerald border border-brand-border">
+        gridEl.innerHTML = list.map(item => {
+          const gallery = item.galleryImages || [item.image];
+          const hasGallery = gallery.length > 1;
+          const photosJson = JSON.stringify(gallery).replace(/"/g, '&quot;');
+
+          return `
+          <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl hover:border-brand-emerald transition flex flex-col justify-between group"
+               data-photos="${photosJson}"
+               data-default-photo="${item.profileImage || item.image}"
+               onmouseenter="window.startExpCardHover(this)"
+               onmouseleave="window.stopExpCardHover(this)">
+            
+            <div class="relative h-48 bg-brand-darker overflow-hidden">
+              <img src="${item.profileImage || item.image}" alt="${item.name}" class="card-cover-img w-full h-full object-cover transition-opacity duration-200 group-hover:scale-105 transition-transform duration-500" />
+              
+              <span class="absolute top-3 left-3 bg-brand-darker/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-brand-emerald border border-brand-border z-10">
                 ${item.typeLabel}
               </span>
-              <span class="absolute top-3 right-3 bg-brand-darker/90 backdrop-blur-md px-2 py-0.5 rounded-md text-[10px] font-bold text-amber-400 border border-brand-border flex items-center gap-1">
+              
+              <span class="absolute top-3 right-3 bg-brand-darker/90 backdrop-blur-md px-2 py-0.5 rounded-md text-[10px] font-bold text-amber-400 border border-brand-border flex items-center gap-1 z-10">
                 <i class="ph-fill ph-star"></i> ${item.rating}
               </span>
+
+              ${hasGallery ? `
+                <div class="absolute bottom-2.5 inset-x-4 flex items-center gap-1.5 z-10 opacity-0 group-hover:opacity-100 transition duration-300">
+                  ${gallery.map((_, i) => `<span class="card-dot h-1.5 flex-1 rounded-full ${i === 0 ? 'bg-brand-emerald' : 'bg-white/40'} transition-all shadow-sm"></span>`).join('')}
+                </div>
+              ` : ''}
             </div>
+
             <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
               <div>
                 <h3 class="font-extrabold text-sm text-brand-main truncate">${item.name}</h3>
                 <p class="text-[11px] text-brand-muted mt-1 flex items-center gap-1">
                   <i class="ph ph-map-pin text-brand-emerald"></i> ${item.neighborhood}, ${item.city} - CE
                 </p>
-                <div class="flex flex-wrap gap-1 mt-2.5">
-                  <span class="text-[9px] px-2 py-0.5 rounded bg-brand-darker border border-brand-border text-brand-muted">Cabelo</span>
-                  <span class="text-[9px] px-2 py-0.5 rounded bg-brand-darker border border-brand-border text-brand-muted">Estilo</span>
-                  <span class="text-[9px] px-2 py-0.5 rounded bg-brand-darker border border-brand-border text-brand-muted">Atendimento VIP</span>
-                </div>
+                ${hasGallery ? `
+                  <p class="text-[10px] text-brand-emerald font-semibold mt-1.5 flex items-center gap-1">
+                    <i class="ph ph-images"></i> ${gallery.length} fotos (passe o mouse)
+                  </p>
+                ` : `
+                  <div class="flex flex-wrap gap-1 mt-2.5">
+                    <span class="text-[9px] px-2 py-0.5 rounded bg-brand-darker border border-brand-border text-brand-muted">Cabelo</span>
+                    <span class="text-[9px] px-2 py-0.5 rounded bg-brand-darker border border-brand-border text-brand-muted">Estilo</span>
+                  </div>
+                `}
               </div>
               <a href="agendar.html?b=${item.slug}" class="btn-emerald-invert w-full py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 text-center">
                 Agendar Horário <i class="ph-bold ph-calendar"></i>
               </a>
             </div>
           </div>
-        `).join('');
+        `}).join('');
       }
 
       window.resetAllFilters = () => {
