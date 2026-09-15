@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Área do Cliente — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
+    }
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
+    });
+  </script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-emerald-500 selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-3.5 sm:px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2.5 sm:gap-4">
+      <a href="index.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+      </a>
+      <span class="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
+        Painel do Cliente
+      </span>
+    </div>
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
+
+      <a href="index.html" class="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main border border-brand-border bg-brand-card hover:border-brand-emerald transition">
+        <i class="ph-bold ph-magnifying-glass"></i> Agendar Novo Corte
+      </a>
+
+      <button id="btn-logout" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition cursor-pointer">
+        <i class="ph-bold ph-sign-out text-base"></i>
+        <span>Sair</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl mx-auto w-full px-3.5 sm:px-6 py-6 sm:py-8 space-y-6">
+    
+    <!-- Boas-vindas -->
+    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+      <div>
+        <span class="text-[11px] uppercase font-bold text-brand-emerald tracking-wider">Área Exclusiva</span>
+        <h1 class="text-xl sm:text-2xl font-extrabold mt-1">Olá, <span id="client-name-display">Cliente</span> 👋</h1>
+        <p class="text-xs text-brand-muted mt-0.5">Acompanhe seus horários agendados e reserve novos cortes com facilidade.</p>
+      </div>
+
+      <a href="index.html#recomendados" class="btn-emerald-invert w-full sm:w-auto px-5 py-3 rounded-xl text-xs flex items-center justify-center gap-2">
+        <i class="ph-bold ph-plus-circle"></i> Agendar Horário
+      </a>
+    </div>
+
+    <!-- Lista de Agendamentos do Cliente -->
+    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-8 shadow-xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+        <h2 class="text-base font-bold flex items-center gap-2">
+          <i class="ph-bold ph-calendar text-brand-emerald"></i> Meus Agendamentos
+        </h2>
+        <span id="booking-count" class="text-xs text-brand-muted">0 agendamentos</span>
+      </div>
+
+      <div id="client-bookings-list" class="space-y-3 pt-2">
+        <div class="py-12 text-center text-brand-muted space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border flex items-center justify-center mx-auto text-xl text-brand-emerald">
+            <i class="ph ph-calendar-x"></i>
+          </div>
+          <p class="text-sm font-medium">Você ainda não tem nenhum horário agendado.</p>
+          <p class="text-xs max-w-sm mx-auto text-brand-muted">
+            Encontre a barbearia mais perto de você e escolha seu estilo de corte favorito!
+          </p>
+          <a href="index.html#recomendados" class="btn-emerald-invert inline-flex px-4 py-2 rounded-xl text-xs mt-2">
+            Explorar Barbearias
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      const nameDisplay = document.getElementById('client-name-display');
+      const btnLogout = document.getElementById('btn-logout');
+      const bookingsList = document.getElementById('client-bookings-list');
+      const bookingCount = document.getElementById('booking-count');
+
+      async function init() {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = 'login.html?type=client';
+
+        const user = session.user;
+        const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
+        nameDisplay.textContent = fullName;
+
+        // Buscar dados na tabela clients
+        try {
+          const { data: clientData } = await client
+            .from('clients')
+            .select('*')
+            .eq('auth_user_id', user.id)
+            .maybeSingle();
+
+          if (clientData && clientData.name) {
+            nameDisplay.textContent = clientData.name;
+          }
+        } catch (e) {
+          console.log(e);
+        }
+
+        // Buscar agendamentos do cliente (se houver tabela appointments)
+        try {
+          const { data: appts } = await client
+            .from('appointments')
+            .select('*, barbershops(name, phone), services(name, price), barbers(name)')
+            .eq('client_phone', user.phone || '')
+            .order('date', { ascending: false });
+
+          if (appts && appts.length > 0) {
+            bookingCount.textContent = `${appts.length} agendamento(s)`;
+            bookingsList.innerHTML = appts.map(a => `
+              <div class="p-4 rounded-2xl bg-brand-darker border border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div class="font-bold text-sm text-brand-main">${a.barbershops?.name || 'Barbearia'}</div>
+                  <div class="text-xs text-brand-emerald font-semibold mt-0.5">${a.services?.name || 'Serviço'} • R$ ${a.services?.price || '0,00'}</div>
+                  <div class="text-[11px] text-brand-muted mt-1">Barbeiro: ${a.barbers?.name || 'Profissional'}</div>
+                </div>
+                <div class="text-right sm:text-right flex sm:flex-col items-center sm:items-end justify-between">
+                  <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-brand-card border border-brand-border text-brand-main">
+                    ${a.date.split('-').reverse().join('/')} às ${a.time}
+                  </span>
+                  <span class="text-[10px] text-emerald-400 font-bold uppercase mt-1">Confirmado</span>
+                </div>
+              </div>
+            `).join('');
+          }
+        } catch (e) {
+          console.log(e);
+        }
+
+        btnLogout.addEventListener('click', async () => {
+          btnLogout.disabled = true;
+          btnLogout.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i>';
+          await client.auth.signOut();
+          window.location.href = 'login.html?type=client';
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>

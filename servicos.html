@@ -2,49 +2,39 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Serviços & Preços — agenlits</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Serviços & Tipos de Corte — agenlits</title>
   <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
-  
-<script>
-  function initTheme() {
-    const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
-    if (savedTheme === 'light') {
-      document.documentElement.classList.add('light');
-    } else {
-      document.documentElement.classList.remove('light');
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
     }
-    updateThemeIcons();
-  }
-
-  function toggleTheme() {
-    const isLight = document.documentElement.classList.toggle('light');
-    localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
-    updateThemeIcons();
-  }
-
-  function updateThemeIcons() {
-    const isLight = document.documentElement.classList.contains('light');
-    document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
-      icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
     });
-  }
-
-  initTheme();
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-      btn.addEventListener('click', toggleTheme);
-    });
-    updateThemeIcons();
-  });
-</script>
-
+  </script>
 </head>
-<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between">
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
 
   <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
     <div class="flex items-center gap-4">
@@ -52,15 +42,13 @@
         <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-8 w-auto object-contain" />
       </a>
       <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
-        Serviços & Preços
+        Serviços & Tipos de Corte
       </span>
     </div>
     <div class="flex items-center gap-3">
-      
-<button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema claro/escuro" aria-label="Mudar tema">
-  <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
-</button>
-
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
       <a href="painel.html" class="btn-secondary-invert flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs">
         <i class="ph-bold ph-arrow-left"></i> Painel
       </a>
@@ -70,23 +58,44 @@
   <main class="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-8 py-8 space-y-8">
     <div>
       <h1 class="text-2xl font-extrabold flex items-center gap-2">
-        <i class="ph-bold ph-scissors text-brand-emerald"></i> Catálogo de Serviços
+        <i class="ph-bold ph-scissors text-brand-emerald"></i> Catálogo & Tipos de Corte de Cabelo
       </h1>
-      <p class="text-xs text-brand-muted mt-1">Defina os serviços oferecidos, valores e duração aproximada de cada atendimento.</p>
+      <p class="text-xs text-brand-muted mt-1">Cadastre os modelos de corte (Fade, Degradê, Social, Militar, etc.) e serviços oferecidos pela barbearia com valores e duração.</p>
     </div>
 
     <div id="status-msg" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div class="bg-brand-card border border-brand-border rounded-3xl p-6 h-fit shadow-xl">
-        <h2 class="text-sm font-bold mb-4 pb-2 border-b border-brand-border flex items-center gap-2">
-          <i class="ph-bold ph-plus-circle text-brand-emerald"></i> Novo Serviço
+      
+      <!-- Formulário de Adicionar Serviço / Tipo de Corte -->
+      <div class="bg-brand-card border border-brand-border rounded-3xl p-6 h-fit shadow-xl space-y-4">
+        <h2 class="text-sm font-bold pb-2 border-b border-brand-border flex items-center gap-2">
+          <i class="ph-bold ph-plus-circle text-brand-emerald"></i> Novo Corte / Serviço
         </h2>
 
         <form id="service-form" onsubmit="return false;" class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-brand-muted mb-1">Nome do Serviço</label>
-            <input type="text" id="service-name" placeholder="Ex: Corte Degrade, Barba" class="w-full px-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald" />
+            <label class="block text-xs font-semibold text-brand-muted mb-1">Categoria do Atendimento</label>
+            <select id="service-category" class="w-full px-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald cursor-pointer">
+              <option value="Corte de Cabelo" selected>✂️ Corte de Cabelo</option>
+              <option value="Barba & Toalha">🧔 Barba & Toalha</option>
+              <option value="Combo (Cabelo + Barba)">⚡ Combo (Cabelo + Barba)</option>
+              <option value="Acabamento / Pézinho">📐 Acabamento / Pézinho</option>
+              <option value="Tratamento / Lavagem">🧴 Tratamento / Lavagem</option>
+              <option value="Pintura / Luzes / Platinado">🎨 Pintura / Luzes / Platinado</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-brand-muted mb-1">Nome / Estilo do Corte</label>
+            <input type="text" id="service-name" placeholder="Ex: Degradê / Fade Americano, Corte Social" class="w-full px-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald" />
+            <!-- Sugestões rápidas de corte -->
+            <div class="flex flex-wrap gap-1 mt-2">
+              <button type="button" onclick="document.getElementById('service-name').value='Degradê / Fade'; document.getElementById('service-category').value='Corte de Cabelo';" class="px-2 py-0.5 rounded-md bg-brand-darker border border-brand-border text-[10px] text-brand-muted hover:text-brand-emerald hover:border-brand-emerald transition">Degradê / Fade</button>
+              <button type="button" onclick="document.getElementById('service-name').value='Corte Social Clássico'; document.getElementById('service-category').value='Corte de Cabelo';" class="px-2 py-0.5 rounded-md bg-brand-darker border border-brand-border text-[10px] text-brand-muted hover:text-brand-emerald hover:border-brand-emerald transition">Social</button>
+              <button type="button" onclick="document.getElementById('service-name').value='Corte Militar / Raspado'; document.getElementById('service-category').value='Corte de Cabelo';" class="px-2 py-0.5 rounded-md bg-brand-darker border border-brand-border text-[10px] text-brand-muted hover:text-brand-emerald hover:border-brand-emerald transition">Militar</button>
+              <button type="button" onclick="document.getElementById('service-name').value='Corte Pompadour / Topete'; document.getElementById('service-category').value='Corte de Cabelo';" class="px-2 py-0.5 rounded-md bg-brand-darker border border-brand-border text-[10px] text-brand-muted hover:text-brand-emerald hover:border-brand-emerald transition">Pompadour</button>
+            </div>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
@@ -95,30 +104,32 @@
               <input type="number" step="0.50" id="service-price" placeholder="40.00" class="w-full px-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald" />
             </div>
             <div>
-              <label class="block text-xs font-semibold text-brand-muted mb-1">Duração (min)</label>
-              <input type="number" step="5" id="service-duration" value="30" class="w-full px-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald" />
+              <label class="block text-xs font-semibold text-brand-muted mb-1">Duração (minutos)</label>
+              <input type="number" step="5" id="service-duration" value="35" class="w-full px-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald" />
             </div>
           </div>
 
           <button type="button" id="btn-save-service" class="btn-emerald-invert w-full py-3 rounded-xl text-xs flex items-center justify-center gap-1.5 mt-2">
-            Adicionar Serviço <i class="ph-bold ph-plus"></i>
+            Salvar Tipo de Corte / Serviço <i class="ph-bold ph-plus"></i>
           </button>
         </form>
       </div>
 
+      <!-- Lista de Serviços Cadastrados -->
       <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-3xl p-6 shadow-xl">
         <h2 class="text-sm font-bold mb-4 pb-2 border-b border-brand-border flex items-center justify-between">
-          <span>Serviços Ativos</span>
+          <span>Serviços & Cortes Ativos</span>
           <span id="services-count" class="text-xs font-normal text-brand-muted">0 serviços</span>
         </h2>
 
         <div id="services-list" class="space-y-3">
           <div class="text-center py-10 text-brand-muted text-xs">
             <i class="ph ph-circle-notch animate-spin text-xl mb-2 text-brand-emerald"></i>
-            <p>Carregando serviços...</p>
+            <p>Carregando catálogo...</p>
           </div>
         </div>
       </div>
+
     </div>
   </main>
 
@@ -133,6 +144,7 @@
       const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       let currentShopId = null;
+      const categoryInput = document.getElementById('service-category');
       const nameInput = document.getElementById('service-name');
       const priceInput = document.getElementById('service-price');
       const durationInput = document.getElementById('service-duration');
@@ -164,19 +176,22 @@
         countEl.textContent = services.length + (services.length === 1 ? ' serviço' : ' serviços');
 
         if (!services.length) {
-          listContainer.innerHTML = '<div class="py-12 text-center text-brand-muted text-xs">Nenhum serviço cadastrado ainda.</div>';
+          listContainer.innerHTML = '<div class="py-12 text-center text-brand-muted text-xs">Nenhum corte ou serviço cadastrado ainda.</div>';
           return;
         }
 
         listContainer.innerHTML = services.map(s => `
           <div class="flex items-center justify-between p-3.5 rounded-2xl bg-brand-darker border border-brand-border hover:border-brand-emerald/40 transition">
             <div>
-              <div class="text-sm font-bold">${s.name}</div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold">${s.name}</span>
+                ${s.category ? `<span class="text-[10px] px-2 py-0.5 rounded bg-brand-card border border-brand-border text-brand-emerald font-semibold">${s.category}</span>` : ''}
+              </div>
               <div class="text-[11px] text-brand-muted mt-0.5">Duração: <span class="font-semibold">${s.duration_minutes} min</span></div>
             </div>
             <div class="flex items-center gap-4">
               <span class="text-sm font-extrabold text-brand-emerald">R$ ${parseFloat(s.price).toFixed(2).replace('.', ',')}</span>
-              <button onclick="window.removeService('${s.id}')" class="text-brand-muted hover:text-red-400 text-base p-1.5 rounded-lg transition" title="Excluir">
+              <button onclick="window.removeService('${s.id}')" class="text-brand-muted hover:text-red-400 text-base p-1.5 rounded-lg transition cursor-pointer" title="Excluir">
                 <i class="ph ph-trash"></i>
               </button>
             </div>
@@ -193,20 +208,40 @@
 
       btnSave.addEventListener('click', async () => {
         const name = nameInput.value.trim();
+        const category = categoryInput.value;
         const price = parseFloat(priceInput.value);
         const duration = parseInt(durationInput.value);
 
-        if (!name || isNaN(price) || isNaN(duration)) return showNotice('Preencha todos os campos.', true);
+        if (!name || isNaN(price) || isNaN(duration)) return showNotice('Preencha o nome, valor e duração do corte.', true);
 
         btnSave.disabled = true;
         btnSave.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Salvando...';
 
-        await client.from('services').insert([{ barbershop_id: currentShopId, name, price, duration_minutes: duration }]);
+        // Salva com nome e categoria
+        const { error } = await client.from('services').insert([{ 
+          barbershop_id: currentShopId, 
+          name: name,
+          category: category,
+          price: price, 
+          duration_minutes: duration 
+        }]);
+
         btnSave.disabled = false;
-        btnSave.innerHTML = 'Adicionar Serviço <i class="ph-bold ph-plus"></i>';
+        btnSave.innerHTML = 'Salvar Tipo de Corte / Serviço <i class="ph-bold ph-plus"></i>';
+
+        if (error) {
+          // Caso a coluna category ainda não exista no schema, salva sem category
+          await client.from('services').insert([{ 
+            barbershop_id: currentShopId, 
+            name: `${name} (${category})`, 
+            price: price, 
+            duration_minutes: duration 
+          }]);
+        }
+
         nameInput.value = '';
         priceInput.value = '';
-        showNotice('Serviço cadastrado com sucesso!');
+        showNotice('Tipo de corte cadastrado com sucesso!');
         loadServices();
       });
 
