@@ -72,7 +72,7 @@
 
   <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-3.5 sm:px-8 py-3 flex items-center justify-between">
     <div class="flex items-center gap-2.5 sm:gap-4">
-      <a href="index.html" class="flex items-center gap-2">
+      <a href="cliente.html" class="flex items-center gap-2">
         <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
       </a>
       <span class="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
@@ -209,7 +209,7 @@
         btnLogout.addEventListener('click', async () => {
           btnLogout.disabled = true;
           btnLogout.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i>';
-          await client.auth.signOut();
+          localStorage.removeItem('agenlits_user_type'); await client.auth.signOut();
           window.location.href = 'login.html?type=client';
         });
       }

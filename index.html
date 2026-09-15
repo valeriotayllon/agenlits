@@ -1,40 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="scroll-smooth">
 <head>
-
-  <!-- VERIFICAÇÃO AUTOMÁTICA DE SESSÃO ATIVA (REDIRECIONAMENTO INSTANTÂNEO) -->
+  <!-- REDIRECIONAMENTO INSTANTÂNEO PARA USUÁRIOS LOGADOS (SEM PISCAR A HOME) -->
   <script>
-    (async () => {
-      try {
-        const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
-        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    (() => {
+      // 1. Checagem ultra-rápida via localStorage
+      const supabaseToken = localStorage.getItem('sb-fdoceyjcibzdfiqvdzkv-auth-token');
+      const userType = localStorage.getItem('agenlits_user_type');
 
-        const { data: { session } } = await client.auth.getSession();
-        if (session && session.user) {
-          // Oculta o corpo da página para transição limpa
-          document.documentElement.style.display = 'none';
+      if (supabaseToken) {
+        // Oculta a página imediatamente
+        document.documentElement.style.visibility = 'hidden';
 
-          // Checa se o usuário é Dono de Barbearia
-          const { data: shop } = await client
-            .from('barbershops')
-            .select('id')
-            .eq('owner_id', session.user.id)
-            .maybeSingle();
-
-          if (shop) {
-            window.location.replace('painel.html');
-          } else {
-            window.location.replace('cliente.html');
-          }
+        if (userType === 'owner') {
+          window.location.replace('painel.html');
+        } else if (userType === 'client') {
+          window.location.replace('cliente.html');
         }
-      } catch (e) {
-        console.error('Erro na verificação de sessão:', e);
-        document.documentElement.style.display = '';
       }
     })();
   </script>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>agenlits — Reserve com os melhores barbeiros perto de você</title>
@@ -100,6 +85,35 @@
     }
   })();
 </script>
+
+
+  <script>
+    (async () => {
+      try {
+        const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data: { session } } = await client.auth.getSession();
+
+        if (session && session.user) {
+          document.documentElement.style.visibility = 'hidden';
+          const { data: shop } = await client.from('barbershops').select('id').eq('owner_id', session.user.id).maybeSingle();
+          if (shop) {
+            localStorage.setItem('agenlits_user_type', 'owner');
+            window.location.replace('painel.html');
+          } else {
+            localStorage.setItem('agenlits_user_type', 'client');
+            window.location.replace('cliente.html');
+          }
+        } else {
+          document.documentElement.style.visibility = 'visible';
+          localStorage.removeItem('agenlits_user_type');
+        }
+      } catch(e) {
+        document.documentElement.style.visibility = 'visible';
+      }
+    })();
+  </script>
 
 </head>
 <body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">

@@ -364,7 +364,7 @@
         btnLogout.addEventListener('click', async () => {
           btnLogout.disabled = true;
           btnLogout.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i>';
-          await client.auth.signOut();
+          localStorage.removeItem('agenlits_user_type'); await client.auth.signOut();
           window.location.href = 'login.html';
         });
       });
