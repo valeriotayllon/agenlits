@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Painel Administrativo Master — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
+    }
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
+    });
+  </script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+
+  <!-- CABEÇALHO DO ADMIN -->
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+      </a>
+      <span class="px-2.5 py-1 text-[11px] font-black uppercase tracking-wider rounded-md bg-red-500/10 border border-red-500/30 text-red-400 flex items-center gap-1.5">
+        <i class="ph-fill ph-shield-check"></i> Super Admin
+      </span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
+
+      <button id="btn-admin-logout" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition cursor-pointer">
+        <i class="ph-bold ph-sign-out text-base"></i> Sair
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+    
+    <!-- TÍTULO E BOAS-VINDAS -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
+          <i class="ph-bold ph-chart-polar text-brand-emerald"></i> Controle Geral de Usuários
+        </h1>
+        <p class="text-xs text-brand-muted mt-1">Gerencie todos os clientes, salões, barbearias e agendamentos cadastrados no agenlits.</p>
+      </div>
+
+      <button type="button" onclick="loadAllData()" class="btn-secondary-invert self-start sm:self-auto px-4 py-2.5 rounded-xl text-xs flex items-center gap-2">
+        <i class="ph-bold ph-arrows-clockwise text-base text-brand-emerald"></i> Atualizar Dados
+      </button>
+    </div>
+
+    <!-- CARDS COM MÉTRICAS GERAIS -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center justify-between text-brand-muted mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider">Estabelecimentos</span>
+          <i class="ph ph-storefront text-xl text-brand-emerald"></i>
+        </div>
+        <div id="stat-shops" class="text-2xl sm:text-3xl font-black text-brand-main">0</div>
+        <span class="text-[11px] text-brand-muted">Salões e Barbearias</span>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center justify-between text-brand-muted mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider">Clientes Cadastrados</span>
+          <i class="ph ph-users text-xl text-brand-emerald"></i>
+        </div>
+        <div id="stat-clients" class="text-2xl sm:text-3xl font-black text-brand-main">0</div>
+        <span class="text-[11px] text-brand-muted">Usuários finais</span>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center justify-between text-brand-muted mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider">Total de Agendamentos</span>
+          <i class="ph ph-calendar-check text-xl text-brand-emerald"></i>
+        </div>
+        <div id="stat-appointments" class="text-2xl sm:text-3xl font-black text-brand-main">0</div>
+        <span class="text-[11px] text-brand-muted">Reservas realizadas</span>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center justify-between text-brand-muted mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider">Status do Sistema</span>
+          <i class="ph ph-activity text-xl text-emerald-400"></i>
+        </div>
+        <div class="text-sm font-black text-emerald-400 mt-2 flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> 100% Operacional
+        </div>
+        <span class="text-[11px] text-brand-muted">Supabase & Vercel</span>
+      </div>
+
+    </div>
+
+    <!-- NAVEGAÇÃO ENTRE ABAS -->
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-brand-border pb-3">
+      <div class="flex gap-2 p-1 bg-brand-card border border-brand-border rounded-2xl">
+        <button type="button" onclick="switchAdminTab('shops')" id="tab-btn-shops" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-[#272D2D] shadow-sm flex items-center gap-1.5">
+          <i class="ph-bold ph-storefront"></i> Estabelecimentos (<span id="tab-count-shops">0</span>)
+        </button>
+        <button type="button" onclick="switchAdminTab('clients')" id="tab-btn-clients" class="px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5">
+          <i class="ph-bold ph-users"></i> Clientes (<span id="tab-count-clients">0</span>)
+        </button>
+        <button type="button" onclick="switchAdminTab('appointments')" id="tab-btn-appointments" class="px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5">
+          <i class="ph-bold ph-calendar"></i> Agendamentos (<span id="tab-count-appointments">0</span>)
+        </button>
+      </div>
+
+      <!-- Barra de Pesquisa Rápida da Tabela Ativa -->
+      <div class="relative w-full sm:w-72">
+        <i class="ph ph-magnifying-glass absolute left-3.5 top-2.5 text-base text-brand-muted"></i>
+        <input type="text" id="admin-search-input" placeholder="Buscar na tabela..." class="w-full pl-10 pr-3.5 py-2 bg-brand-card border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald transition" />
+      </div>
+    </div>
+
+    <div id="admin-status-notice" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
+
+    <!-- CONTEÚDO DA TABELA 1: ESTABELECIMENTOS -->
+    <div id="view-shops" class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-brand-border bg-brand-darker/60 text-brand-muted uppercase font-bold text-[11px]">
+              <th class="py-3 px-4">Estabelecimento</th>
+              <th class="py-3 px-4">Slug / Link</th>
+              <th class="py-3 px-4">Telefone</th>
+              <th class="py-3 px-4">Data Cadastro</th>
+              <th class="py-3 px-4 text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="table-shops-body" class="divide-y divide-brand-border">
+            <tr>
+              <td colspan="5" class="py-12 text-center text-brand-muted">
+                <i class="ph ph-circle-notch animate-spin text-xl text-brand-emerald mb-1"></i>
+                <p>Carregando estabelecimentos...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CONTEÚDO DA TABELA 2: CLIENTES -->
+    <div id="view-clients" class="hidden bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-brand-border bg-brand-darker/60 text-brand-muted uppercase font-bold text-[11px]">
+              <th class="py-3 px-4">Nome do Cliente</th>
+              <th class="py-3 px-4">E-mail</th>
+              <th class="py-3 px-4">Telefone</th>
+              <th class="py-3 px-4">Data Registro</th>
+              <th class="py-3 px-4 text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="table-clients-body" class="divide-y divide-brand-border">
+            <tr>
+              <td colspan="5" class="py-12 text-center text-brand-muted">
+                <i class="ph ph-circle-notch animate-spin text-xl text-brand-emerald mb-1"></i>
+                <p>Carregando clientes...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CONTEÚDO DA TABELA 3: AGENDAMENTOS GERAIS -->
+    <div id="view-appointments" class="hidden bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-brand-border bg-brand-darker/60 text-brand-muted uppercase font-bold text-[11px]">
+              <th class="py-3 px-4">Data & Horário</th>
+              <th class="py-3 px-4">Cliente</th>
+              <th class="py-3 px-4">Estabelecimento</th>
+              <th class="py-3 px-4">Serviço</th>
+              <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4 text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="table-appointments-body" class="divide-y divide-brand-border">
+            <tr>
+              <td colspan="6" class="py-12 text-center text-brand-muted">
+                <i class="ph ph-circle-notch animate-spin text-xl text-brand-emerald mb-1"></i>
+                <p>Carregando agendamentos...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Painel Administrativo Geral da Plataforma.
+  </footer>
+
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      let currentTab = 'shops';
+      let rawShops = [];
+      let rawClients = [];
+      let rawAppointments = [];
+
+      const viewShops = document.getElementById('view-shops');
+      const viewClients = document.getElementById('view-clients');
+      const viewAppointments = document.getElementById('view-appointments');
+
+      const tabBtnShops = document.getElementById('tab-btn-shops');
+      const tabBtnClients = document.getElementById('tab-btn-clients');
+      const tabBtnAppointments = document.getElementById('tab-btn-appointments');
+
+      const tabCountShops = document.getElementById('tab-count-shops');
+      const tabCountClients = document.getElementById('tab-count-clients');
+      const tabCountAppointments = document.getElementById('tab-count-appointments');
+
+      const statShops = document.getElementById('stat-shops');
+      const statClients = document.getElementById('stat-clients');
+      const statAppointments = document.getElementById('stat-appointments');
+
+      const searchInput = document.getElementById('admin-search-input');
+      const noticeBox = document.getElementById('admin-status-notice');
+
+      function showNotice(msg, isError = false) {
+        noticeBox.textContent = msg;
+        noticeBox.className = isError
+          ? 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-red-950/80 border border-red-500 text-red-200'
+          : 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-emerald-950/80 border border-emerald-500 text-emerald-200';
+        noticeBox.classList.remove('hidden');
+        setTimeout(() => noticeBox.classList.add('hidden'), 4000);
+      }
+
+      window.switchAdminTab = (tab) => {
+        currentTab = tab;
+        viewShops.classList.add('hidden');
+        viewClients.classList.add('hidden');
+        viewAppointments.classList.add('hidden');
+
+        tabBtnShops.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5';
+        tabBtnClients.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5';
+        tabBtnAppointments.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5';
+
+        if (tab === 'shops') {
+          viewShops.classList.remove('hidden');
+          tabBtnShops.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-[#272D2D] shadow-sm flex items-center gap-1.5';
+          renderShopsTable();
+        } else if (tab === 'clients') {
+          viewClients.classList.remove('hidden');
+          tabBtnClients.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-[#272D2D] shadow-sm flex items-center gap-1.5';
+          renderClientsTable();
+        } else if (tab === 'appointments') {
+          viewAppointments.classList.remove('hidden');
+          tabBtnAppointments.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-[#272D2D] shadow-sm flex items-center gap-1.5';
+          renderAppointmentsTable();
+        }
+      };
+
+      async function loadAllData() {
+        // Carrega Estabelecimentos
+        try {
+          const { data: shops } = await client.from('barbershops').select('*').order('created_at', { ascending: false });
+          rawShops = shops || [];
+          statShops.textContent = rawShops.length;
+          tabCountShops.textContent = rawShops.length;
+        } catch(e) {
+          rawShops = [];
+        }
+
+        // Carrega Clientes
+        try {
+          const { data: clients } = await client.from('clients').select('*').order('created_at', { ascending: false });
+          rawClients = clients || [];
+          statClients.textContent = rawClients.length;
+          tabCountClients.textContent = rawClients.length;
+        } catch(e) {
+          rawClients = [];
+        }
+
+        // Carrega Agendamentos
+        try {
+          const { data: appts } = await client.from('appointments').select('*, barbershops(name), services(name, price)').order('created_at', { ascending: false });
+          rawAppointments = appts || [];
+          statAppointments.textContent = rawAppointments.length;
+          tabCountAppointments.textContent = rawAppointments.length;
+        } catch(e) {
+          rawAppointments = [];
+        }
+
+        if (currentTab === 'shops') renderShopsTable();
+        else if (currentTab === 'clients') renderClientsTable();
+        else renderAppointmentsTable();
+      }
+
+      window.loadAllData = loadAllData;
+
+      function renderShopsTable() {
+        const q = searchInput.value.trim().toLowerCase();
+        const filtered = rawShops.filter(s => 
+          !q || s.name.toLowerCase().includes(q) || (s.slug && s.slug.toLowerCase().includes(q)) || (s.phone && s.phone.includes(q))
+        );
+
+        const tbody = document.getElementById('table-shops-body');
+        if (!filtered.length) {
+          tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-brand-muted text-xs">Nenhum estabelecimento encontrado.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(s => {
+          const dateStr = s.created_at ? new Date(s.created_at).toLocaleDateString('pt-BR') : '-';
+          return `
+            <tr class="hover:bg-brand-darker/40 transition">
+              <td class="py-3.5 px-4 font-bold text-brand-main">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-lg overflow-hidden bg-brand-darker border border-brand-border shrink-0">
+                    ${s.avatar_url ? `<img src="${s.avatar_url}" class="w-full h-full object-cover"/>` : '<i class="ph ph-storefront p-2 text-brand-emerald"></i>'}
+                  </div>
+                  <span>${s.name}</span>
+                </div>
+              </td>
+              <td class="py-3.5 px-4 font-mono text-[11px] text-brand-emerald">/${s.slug || '-'}</td>
+              <td class="py-3.5 px-4 text-brand-muted">${s.phone || '-'}</td>
+              <td class="py-3.5 px-4 text-brand-muted">${dateStr}</td>
+              <td class="py-3.5 px-4 text-right space-x-2">
+                <a href="agendar.html?b=${s.slug}" target="_blank" class="p-1.5 rounded-lg bg-brand-darker hover:bg-brand-border border border-brand-border text-brand-main inline-flex items-center transition" title="Ver Página Pública">
+                  <i class="ph ph-arrow-square-out text-sm"></i>
+                </a>
+                <button onclick="window.deleteShop('${s.id}')" class="p-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 text-red-400 inline-flex items-center transition cursor-pointer" title="Excluir Estabelecimento">
+                  <i class="ph ph-trash text-sm"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      function renderClientsTable() {
+        const q = searchInput.value.trim().toLowerCase();
+        const filtered = rawClients.filter(c => 
+          !q || (c.name && c.name.toLowerCase().includes(q)) || (c.email && c.email.toLowerCase().includes(q)) || (c.phone && c.phone.includes(q))
+        );
+
+        const tbody = document.getElementById('table-clients-body');
+        if (!filtered.length) {
+          tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-brand-muted text-xs">Nenhum cliente cadastrado ainda.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(c => {
+          const dateStr = c.created_at ? new Date(c.created_at).toLocaleDateString('pt-BR') : '-';
+          return `
+            <tr class="hover:bg-brand-darker/40 transition">
+              <td class="py-3.5 px-4 font-bold text-brand-main flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-brand-darker border border-brand-border flex items-center justify-center text-brand-emerald font-bold text-xs">
+                  ${(c.name || 'C')[0].toUpperCase()}
+                </div>
+                <span>${c.name || 'Cliente'}</span>
+              </td>
+              <td class="py-3.5 px-4 text-brand-muted">${c.email || '-'}</td>
+              <td class="py-3.5 px-4 text-brand-muted">${c.phone || '-'}</td>
+              <td class="py-3.5 px-4 text-brand-muted">${dateStr}</td>
+              <td class="py-3.5 px-4 text-right">
+                <button onclick="window.deleteClient('${c.id}')" class="p-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 text-red-400 inline-flex items-center transition cursor-pointer" title="Remover Registro de Cliente">
+                  <i class="ph ph-trash text-sm"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      function renderAppointmentsTable() {
+        const q = searchInput.value.trim().toLowerCase();
+        const filtered = rawAppointments.filter(a => 
+          !q || (a.client_name && a.client_name.toLowerCase().includes(q)) || (a.barbershops?.name && a.barbershops.name.toLowerCase().includes(q))
+        );
+
+        const tbody = document.getElementById('table-appointments-body');
+        if (!filtered.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-brand-muted text-xs">Nenhum agendamento registrado.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(a => `
+          <tr class="hover:bg-brand-darker/40 transition">
+            <td class="py-3.5 px-4 font-bold text-brand-main font-mono">
+              ${a.date ? a.date.split('-').reverse().join('/') : '-'} às ${a.time || '-'}
+            </td>
+            <td class="py-3.5 px-4 text-brand-main font-semibold">${a.client_name || a.client_phone || '-'}</td>
+            <td class="py-3.5 px-4 text-brand-muted">${a.barbershops?.name || 'Estabelecimento'}</td>
+            <td class="py-3.5 px-4 text-brand-emerald font-semibold">${a.services?.name || 'Serviço'}</td>
+            <td class="py-3.5 px-4">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 uppercase">
+                ${a.status || 'Ativo'}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-right">
+              <button onclick="window.deleteAppointment('${a.id}')" class="p-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 text-red-400 inline-flex items-center transition cursor-pointer" title="Cancelar Agendamento">
+                <i class="ph ph-trash text-sm"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      window.deleteShop = async (id) => {
+        if (!confirm('Tem certeza que deseja remover este estabelecimento da plataforma? Todos os serviços e fotos vinculados serão apagados.')) return;
+        try {
+          const { error } = await client.from('barbershops').delete().eq('id', id);
+          if (error) throw error;
+          showNotice('Estabelecimento removido com sucesso!');
+          loadAllData();
+        } catch(e) {
+          showNotice('Erro ao remover: ' + e.message, true);
+        }
+      };
+
+      window.deleteClient = async (id) => {
+        if (!confirm('Deseja remover este registro de cliente?')) return;
+        try {
+          const { error } = await client.from('clients').delete().eq('id', id);
+          if (error) throw error;
+          showNotice('Cliente removido!');
+          loadAllData();
+        } catch(e) {
+          showNotice('Erro ao remover: ' + e.message, true);
+        }
+      };
+
+      window.deleteAppointment = async (id) => {
+        if (!confirm('Deseja cancelar/excluir este agendamento?')) return;
+        try {
+          const { error } = await client.from('appointments').delete().eq('id', id);
+          if (error) throw error;
+          showNotice('Agendamento excluído!');
+          loadAllData();
+        } catch(e) {
+          showNotice('Erro ao excluir: ' + e.message, true);
+        }
+      };
+
+      searchInput.addEventListener('input', () => {
+        if (currentTab === 'shops') renderShopsTable();
+        else if (currentTab === 'clients') renderClientsTable();
+        else renderAppointmentsTable();
+      });
+
+      document.getElementById('btn-admin-logout').addEventListener('click', async () => {
+        await client.auth.signOut();
+        window.location.href = 'login.html';
+      });
+
+      document.addEventListener('DOMContentLoaded', loadAllData);
+    })();
+  </script>
+</body>
+</html>
