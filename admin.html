@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Painel Administrativo Master — agenlits</title>
+  <title>Acesso Restrito — Painel do Administrador</title>
   <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -36,198 +36,321 @@
 </head>
 <body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
 
-  <!-- CABEÇALHO DO ADMIN -->
-  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <a href="index.html" class="flex items-center gap-2">
-        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
-      </a>
-      <span class="px-2.5 py-1 text-[11px] font-black uppercase tracking-wider rounded-md bg-red-500/10 border border-red-500/30 text-red-400 flex items-center gap-1.5">
-        <i class="ph-fill ph-shield-check"></i> Super Admin
-      </span>
-    </div>
-
-    <div class="flex items-center gap-3">
-      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
-        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
-      </button>
-
-      <button id="btn-admin-logout" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition cursor-pointer">
-        <i class="ph-bold ph-sign-out text-base"></i> Sair
-      </button>
-    </div>
-  </header>
-
-  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
-    
-    <!-- TÍTULO E BOAS-VINDAS -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
-          <i class="ph-bold ph-chart-polar text-brand-emerald"></i> Controle Geral de Usuários
-        </h1>
-        <p class="text-xs text-brand-muted mt-1">Gerencie todos os clientes, salões, barbearias e agendamentos cadastrados no agenlits.</p>
-      </div>
-
-      <button type="button" onclick="loadAllData()" class="btn-secondary-invert self-start sm:self-auto px-4 py-2.5 rounded-xl text-xs flex items-center gap-2">
-        <i class="ph-bold ph-arrows-clockwise text-base text-brand-emerald"></i> Atualizar Dados
-      </button>
-    </div>
-
-    <!-- CARDS COM MÉTRICAS GERAIS -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+  <!-- ================= TELA DE LOGIN DO ADMINISTRADOR (BLOQUEIO INICIAL) ================= -->
+  <div id="admin-auth-screen" class="flex-1 flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-sm bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 text-center relative overflow-hidden">
       
-      <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
-        <div class="flex items-center justify-between text-brand-muted mb-2">
-          <span class="text-xs font-semibold uppercase tracking-wider">Estabelecimentos</span>
-          <i class="ph ph-storefront text-xl text-brand-emerald"></i>
-        </div>
-        <div id="stat-shops" class="text-2xl sm:text-3xl font-black text-brand-main">0</div>
-        <span class="text-[11px] text-brand-muted">Salões e Barbearias</span>
+      <div class="absolute -top-16 -right-16 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+      <div class="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center mx-auto text-2xl shadow-inner">
+        <i class="ph-bold ph-lock-key"></i>
       </div>
 
-      <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
-        <div class="flex items-center justify-between text-brand-muted mb-2">
-          <span class="text-xs font-semibold uppercase tracking-wider">Clientes Cadastrados</span>
-          <i class="ph ph-users text-xl text-brand-emerald"></i>
-        </div>
-        <div id="stat-clients" class="text-2xl sm:text-3xl font-black text-brand-main">0</div>
-        <span class="text-[11px] text-brand-muted">Usuários finais</span>
+      <div>
+        <h1 class="text-xl font-extrabold tracking-tight">Área Restrita</h1>
+        <p class="text-xs text-brand-muted mt-1">Acesso exclusivo à administração da plataforma.</p>
       </div>
 
-      <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
-        <div class="flex items-center justify-between text-brand-muted mb-2">
-          <span class="text-xs font-semibold uppercase tracking-wider">Total de Agendamentos</span>
-          <i class="ph ph-calendar-check text-xl text-brand-emerald"></i>
-        </div>
-        <div id="stat-appointments" class="text-2xl sm:text-3xl font-black text-brand-main">0</div>
-        <span class="text-[11px] text-brand-muted">Reservas realizadas</span>
+      <div id="auth-error-box" class="hidden p-3 rounded-xl bg-red-950/80 border border-red-500 text-red-200 text-xs flex items-center gap-2 text-left">
+        <i class="ph-bold ph-warning-circle text-base shrink-0 text-red-400"></i>
+        <span id="auth-error-text">Usuário ou senha incorretos.</span>
       </div>
 
-      <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
-        <div class="flex items-center justify-between text-brand-muted mb-2">
-          <span class="text-xs font-semibold uppercase tracking-wider">Status do Sistema</span>
-          <i class="ph ph-activity text-xl text-emerald-400"></i>
+      <form id="admin-auth-form" onsubmit="return false;" class="space-y-3.5 text-left">
+        <div>
+          <label class="block text-[11px] font-bold text-brand-muted uppercase mb-1">Usuário</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted">
+              <i class="ph ph-user text-base"></i>
+            </span>
+            <input type="text" id="admin-user-input" required placeholder="Digite seu login" autocomplete="off" class="w-full pl-9 pr-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs text-brand-main focus:outline-none focus:border-brand-emerald transition" />
+          </div>
         </div>
-        <div class="text-sm font-black text-emerald-400 mt-2 flex items-center gap-1.5">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> 100% Operacional
+
+        <div>
+          <label class="block text-[11px] font-bold text-brand-muted uppercase mb-1">Senha</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted">
+              <i class="ph ph-password text-base"></i>
+            </span>
+            <input type="password" id="admin-pass-input" required placeholder="••••••••" autocomplete="off" class="w-full pl-9 pr-9 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs text-brand-main focus:outline-none focus:border-brand-emerald transition" />
+            <button type="button" id="toggle-admin-pass" class="absolute inset-y-0 right-0 flex items-center pr-3 text-brand-muted hover:text-brand-main">
+              <i class="ph ph-eye text-base"></i>
+            </button>
+          </div>
         </div>
-        <span class="text-[11px] text-brand-muted">Supabase & Vercel</span>
-      </div>
 
-    </div>
-
-    <!-- NAVEGAÇÃO ENTRE ABAS -->
-    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-brand-border pb-3">
-      <div class="flex gap-2 p-1 bg-brand-card border border-brand-border rounded-2xl">
-        <button type="button" onclick="switchAdminTab('shops')" id="tab-btn-shops" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-[#272D2D] shadow-sm flex items-center gap-1.5">
-          <i class="ph-bold ph-storefront"></i> Estabelecimentos (<span id="tab-count-shops">0</span>)
+        <button type="button" id="btn-admin-submit-login" class="btn-emerald-invert w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 mt-2 cursor-pointer shadow-lg shadow-emerald-500/10">
+          Acessar Painel <i class="ph-bold ph-arrow-right"></i>
         </button>
-        <button type="button" onclick="switchAdminTab('clients')" id="tab-btn-clients" class="px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5">
-          <i class="ph-bold ph-users"></i> Clientes (<span id="tab-count-clients">0</span>)
+      </form>
+
+      <div class="pt-2 border-t border-brand-border">
+        <a href="index.html" class="text-[11px] text-brand-muted hover:text-brand-emerald transition flex items-center justify-center gap-1">
+          <i class="ph ph-arrow-left"></i> Voltar à página inicial
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PAINEL DE CONTROLE (SÓ APARECE APÓS AUTENTICADO) ================= -->
+  <div id="admin-dashboard-screen" class="hidden flex-1 flex flex-col justify-between">
+    
+    <!-- CABEÇALHO DO ADMIN -->
+    <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="flex items-center gap-2">
+          <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+        </a>
+        <span class="px-2.5 py-1 text-[11px] font-black uppercase tracking-wider rounded-md bg-red-500/10 border border-red-500/30 text-red-400 flex items-center gap-1.5">
+          <i class="ph-fill ph-shield-check"></i> Super Admin
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-brand-muted font-medium hidden sm:inline">Logado como: <strong class="text-brand-main">valeriotayllon</strong></span>
+        <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+          <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
         </button>
-        <button type="button" onclick="switchAdminTab('appointments')" id="tab-btn-appointments" class="px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5">
-          <i class="ph-bold ph-calendar"></i> Agendamentos (<span id="tab-count-appointments">0</span>)
+
+        <button id="btn-admin-logout" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition cursor-pointer">
+          <i class="ph-bold ph-sign-out text-base"></i> Sair
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+      
+      <!-- TÍTULO E BOAS-VINDAS -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
+            <i class="ph-bold ph-chart-polar text-brand-emerald"></i> Controle Geral de Usuários
+          </h1>
+          <p class="text-xs text-brand-muted mt-1">Gerencie todos os clientes, salões, barbearias e agendamentos cadastrados no agenlits.</p>
+        </div>
+
+        <button type="button" onclick="loadAllData()" class="btn-secondary-invert self-start sm:self-auto px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer">
+          <i class="ph-bold ph-arrows-clockwise text-base text-brand-emerald"></i> Atualizar Dados
         </button>
       </div>
 
-      <!-- Barra de Pesquisa Rápida da Tabela Ativa -->
-      <div class="relative w-full sm:w-72">
-        <i class="ph ph-magnifying-glass absolute left-3.5 top-2.5 text-base text-brand-muted"></i>
-        <input type="text" id="admin-search-input" placeholder="Buscar na tabela..." class="w-full pl-10 pr-3.5 py-2 bg-brand-card border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald transition" />
+      <!-- CARDS COM MÉTRICAS GERAIS -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
+          <div class="flex items-center justify-between text-brand-muted mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Estabelecimentos</span>
+            <i class="ph ph-storefront text-xl text-brand-emerald"></i>
+          </div>
+          <div id="stat-shops" class="text-2xl sm:text-3xl font-black text-brand-main">0</div>
+          <span class="text-[11px] text-brand-muted">Salões e Barbearias</span>
+        </div>
+
+        <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
+          <div class="flex items-center justify-between text-brand-muted mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Clientes Cadastrados</span>
+            <i class="ph ph-users text-xl text-brand-emerald"></i>
+          </div>
+          <div id="stat-clients" class="text-2xl sm:text-3xl font-black text-brand-main">0</div>
+          <span class="text-[11px] text-brand-muted">Usuários finais</span>
+        </div>
+
+        <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
+          <div class="flex items-center justify-between text-brand-muted mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Total de Agendamentos</span>
+            <i class="ph ph-calendar-check text-xl text-brand-emerald"></i>
+          </div>
+          <div id="stat-appointments" class="text-2xl sm:text-3xl font-black text-brand-main">0</div>
+          <span class="text-[11px] text-brand-muted">Reservas realizadas</span>
+        </div>
+
+        <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
+          <div class="flex items-center justify-between text-brand-muted mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Status do Sistema</span>
+            <i class="ph ph-activity text-xl text-emerald-400"></i>
+          </div>
+          <div class="text-sm font-black text-emerald-400 mt-2 flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> 100% Operacional
+          </div>
+          <span class="text-[11px] text-brand-muted">Supabase & Vercel</span>
+        </div>
+
       </div>
-    </div>
 
-    <div id="admin-status-notice" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
+      <!-- NAVEGAÇÃO ENTRE ABAS -->
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-brand-border pb-3">
+        <div class="flex gap-2 p-1 bg-brand-card border border-brand-border rounded-2xl">
+          <button type="button" onclick="switchAdminTab('shops')" id="tab-btn-shops" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-[#272D2D] shadow-sm flex items-center gap-1.5 cursor-pointer">
+            <i class="ph-bold ph-storefront"></i> Estabelecimentos (<span id="tab-count-shops">0</span>)
+          </button>
+          <button type="button" onclick="switchAdminTab('clients')" id="tab-btn-clients" class="px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5 cursor-pointer">
+            <i class="ph-bold ph-users"></i> Clientes (<span id="tab-count-clients">0</span>)
+          </button>
+          <button type="button" onclick="switchAdminTab('appointments')" id="tab-btn-appointments" class="px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5 cursor-pointer">
+            <i class="ph-bold ph-calendar"></i> Agendamentos (<span id="tab-count-appointments">0</span>)
+          </button>
+        </div>
 
-    <!-- CONTEÚDO DA TABELA 1: ESTABELECIMENTOS -->
-    <div id="view-shops" class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr class="border-b border-brand-border bg-brand-darker/60 text-brand-muted uppercase font-bold text-[11px]">
-              <th class="py-3 px-4">Estabelecimento</th>
-              <th class="py-3 px-4">Slug / Link</th>
-              <th class="py-3 px-4">Telefone</th>
-              <th class="py-3 px-4">Data Cadastro</th>
-              <th class="py-3 px-4 text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="table-shops-body" class="divide-y divide-brand-border">
-            <tr>
-              <td colspan="5" class="py-12 text-center text-brand-muted">
-                <i class="ph ph-circle-notch animate-spin text-xl text-brand-emerald mb-1"></i>
-                <p>Carregando estabelecimentos...</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- Barra de Pesquisa Rápida da Tabela Ativa -->
+        <div class="relative w-full sm:w-72">
+          <i class="ph ph-magnifying-glass absolute left-3.5 top-2.5 text-base text-brand-muted"></i>
+          <input type="text" id="admin-search-input" placeholder="Buscar na tabela..." class="w-full pl-10 pr-3.5 py-2 bg-brand-card border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald transition" />
+        </div>
       </div>
-    </div>
 
-    <!-- CONTEÚDO DA TABELA 2: CLIENTES -->
-    <div id="view-clients" class="hidden bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr class="border-b border-brand-border bg-brand-darker/60 text-brand-muted uppercase font-bold text-[11px]">
-              <th class="py-3 px-4">Nome do Cliente</th>
-              <th class="py-3 px-4">E-mail</th>
-              <th class="py-3 px-4">Telefone</th>
-              <th class="py-3 px-4">Data Registro</th>
-              <th class="py-3 px-4 text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="table-clients-body" class="divide-y divide-brand-border">
-            <tr>
-              <td colspan="5" class="py-12 text-center text-brand-muted">
-                <i class="ph ph-circle-notch animate-spin text-xl text-brand-emerald mb-1"></i>
-                <p>Carregando clientes...</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div id="admin-status-notice" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
+
+      <!-- TABELA 1: ESTABELECIMENTOS -->
+      <div id="view-shops" class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-brand-border bg-brand-darker/60 text-brand-muted uppercase font-bold text-[11px]">
+                <th class="py-3 px-4">Estabelecimento</th>
+                <th class="py-3 px-4">Slug / Link</th>
+                <th class="py-3 px-4">Telefone</th>
+                <th class="py-3 px-4">Data Cadastro</th>
+                <th class="py-3 px-4 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="table-shops-body" class="divide-y divide-brand-border">
+              <tr>
+                <td colspan="5" class="py-12 text-center text-brand-muted">
+                  <i class="ph ph-circle-notch animate-spin text-xl text-brand-emerald mb-1"></i>
+                  <p>Carregando estabelecimentos...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
 
-    <!-- CONTEÚDO DA TABELA 3: AGENDAMENTOS GERAIS -->
-    <div id="view-appointments" class="hidden bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr class="border-b border-brand-border bg-brand-darker/60 text-brand-muted uppercase font-bold text-[11px]">
-              <th class="py-3 px-4">Data & Horário</th>
-              <th class="py-3 px-4">Cliente</th>
-              <th class="py-3 px-4">Estabelecimento</th>
-              <th class="py-3 px-4">Serviço</th>
-              <th class="py-3 px-4">Status</th>
-              <th class="py-3 px-4 text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="table-appointments-body" class="divide-y divide-brand-border">
-            <tr>
-              <td colspan="6" class="py-12 text-center text-brand-muted">
-                <i class="ph ph-circle-notch animate-spin text-xl text-brand-emerald mb-1"></i>
-                <p>Carregando agendamentos...</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- TABELA 2: CLIENTES -->
+      <div id="view-clients" class="hidden bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-brand-border bg-brand-darker/60 text-brand-muted uppercase font-bold text-[11px]">
+                <th class="py-3 px-4">Nome do Cliente</th>
+                <th class="py-3 px-4">E-mail</th>
+                <th class="py-3 px-4">Telefone</th>
+                <th class="py-3 px-4">Data Registro</th>
+                <th class="py-3 px-4 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="table-clients-body" class="divide-y divide-brand-border">
+              <tr>
+                <td colspan="5" class="py-12 text-center text-brand-muted">
+                  <i class="ph ph-circle-notch animate-spin text-xl text-brand-emerald mb-1"></i>
+                  <p>Carregando clientes...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
 
-  </main>
+      <!-- TABELA 3: AGENDAMENTOS GERAIS -->
+      <div id="view-appointments" class="hidden bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-brand-border bg-brand-darker/60 text-brand-muted uppercase font-bold text-[11px]">
+                <th class="py-3 px-4">Data & Horário</th>
+                <th class="py-3 px-4">Cliente</th>
+                <th class="py-3 px-4">Estabelecimento</th>
+                <th class="py-3 px-4">Serviço</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="table-appointments-body" class="divide-y divide-brand-border">
+              <tr>
+                <td colspan="6" class="py-12 text-center text-brand-muted">
+                  <i class="ph ph-circle-notch animate-spin text-xl text-brand-emerald mb-1"></i>
+                  <p>Carregando agendamentos...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
-    &copy; 2026 agenlits — Painel Administrativo Geral da Plataforma.
-  </footer>
+    </main>
+
+    <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+      &copy; 2026 agenlits — Painel Administrativo Geral da Plataforma.
+    </footer>
+  </div>
 
   <script>
     (() => {
+      // Credenciais exclusivas do Administrador
+      const ADMIN_VALID_USER = "valeriotayllon";
+      const ADMIN_VALID_PASS = "192169";
+
       const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
       const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+      const authScreen = document.getElementById('admin-auth-screen');
+      const dashboardScreen = document.getElementById('admin-dashboard-screen');
+      const userInput = document.getElementById('admin-user-input');
+      const passInput = document.getElementById('admin-pass-input');
+      const btnLogin = document.getElementById('btn-admin-submit-login');
+      const btnLogout = document.getElementById('btn-admin-logout');
+      const errorBox = document.getElementById('auth-error-box');
+      const errorText = document.getElementById('auth-error-text');
+      const togglePassBtn = document.getElementById('toggle-admin-pass');
+
+      // Alternar visualização da senha
+      if (togglePassBtn) {
+        togglePassBtn.addEventListener('click', () => {
+          const isPass = passInput.type === 'password';
+          passInput.type = isPass ? 'text' : 'password';
+          togglePassBtn.querySelector('i').className = isPass ? 'ph ph-eye-slash text-base' : 'ph ph-eye text-base';
+        });
+      }
+
+      function checkAdminSession() {
+        const isAuth = sessionStorage.getItem('agenlits_admin_session') === 'true';
+        if (isAuth) {
+          authScreen.classList.add('hidden');
+          dashboardScreen.classList.remove('hidden');
+          loadAllData();
+        } else {
+          authScreen.classList.remove('hidden');
+          dashboardScreen.classList.add('hidden');
+        }
+      }
+
+      function handleAdminAuth() {
+        const u = (userInput.value || '').trim();
+        const p = (passInput.value || '').trim();
+
+        if (u === ADMIN_VALID_USER && p === ADMIN_VALID_PASS) {
+          errorBox.classList.add('hidden');
+          sessionStorage.setItem('agenlits_admin_session', 'true');
+          checkAdminSession();
+        } else {
+          errorText.textContent = 'Usuário ou senha de administrador incorretos.';
+          errorBox.classList.remove('hidden');
+        }
+      }
+
+      btnLogin.addEventListener('click', handleAdminAuth);
+      userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAdminAuth(); });
+      passInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAdminAuth(); });
+
+      if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+          sessionStorage.removeItem('agenlits_admin_session');
+          checkAdminSession();
+        });
+      }
+
+      // ---------------- LÓGICA DO PAINEL APÓS AUTENTICADO ----------------
       let currentTab = 'shops';
       let rawShops = [];
       let rawClients = [];
@@ -267,27 +390,26 @@
         viewClients.classList.add('hidden');
         viewAppointments.classList.add('hidden');
 
-        tabBtnShops.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5';
-        tabBtnClients.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5';
-        tabBtnAppointments.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5';
+        tabBtnShops.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5 cursor-pointer';
+        tabBtnClients.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5 cursor-pointer';
+        tabBtnAppointments.className = 'px-4 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main transition flex items-center gap-1.5 cursor-pointer';
 
         if (tab === 'shops') {
           viewShops.classList.remove('hidden');
-          tabBtnShops.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-[#272D2D] shadow-sm flex items-center gap-1.5';
+          tabBtnShops.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-[#272D2D] shadow-sm flex items-center gap-1.5 cursor-pointer';
           renderShopsTable();
         } else if (tab === 'clients') {
           viewClients.classList.remove('hidden');
-          tabBtnClients.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-[#272D2D] shadow-sm flex items-center gap-1.5';
+          tabBtnClients.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-[#272D2D] shadow-sm flex items-center gap-1.5 cursor-pointer';
           renderClientsTable();
         } else if (tab === 'appointments') {
           viewAppointments.classList.remove('hidden');
-          tabBtnAppointments.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-[#272D2D] shadow-sm flex items-center gap-1.5';
+          tabBtnAppointments.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-[#272D2D] shadow-sm flex items-center gap-1.5 cursor-pointer';
           renderAppointmentsTable();
         }
       };
 
       async function loadAllData() {
-        // Carrega Estabelecimentos
         try {
           const { data: shops } = await client.from('barbershops').select('*').order('created_at', { ascending: false });
           rawShops = shops || [];
@@ -297,7 +419,6 @@
           rawShops = [];
         }
 
-        // Carrega Clientes
         try {
           const { data: clients } = await client.from('clients').select('*').order('created_at', { ascending: false });
           rawClients = clients || [];
@@ -307,7 +428,6 @@
           rawClients = [];
         }
 
-        // Carrega Agendamentos
         try {
           const { data: appts } = await client.from('appointments').select('*, barbershops(name), services(name, price)').order('created_at', { ascending: false });
           rawAppointments = appts || [];
@@ -475,12 +595,8 @@
         else renderAppointmentsTable();
       });
 
-      document.getElementById('btn-admin-logout').addEventListener('click', async () => {
-        await client.auth.signOut();
-        window.location.href = 'login.html';
-      });
-
-      document.addEventListener('DOMContentLoaded', loadAllData);
+      // Inicializa checando se já há sessão ativa
+      document.addEventListener('DOMContentLoaded', checkAdminSession);
     })();
   </script>
 </body>
