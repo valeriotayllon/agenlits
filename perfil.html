@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Configurações de Perfil — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
+    }
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
+    });
+  </script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a id="logo-back-link" href="javascript:history.back()" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+      </a>
+      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
+        Configurações da Conta
+      </span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
+      <a id="btn-back-dashboard" href="painel.html" class="btn-secondary-invert flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs">
+        <i class="ph-bold ph-arrow-left"></i> Voltar
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-8 space-y-6">
+    
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
+        <i class="ph-bold ph-gear text-brand-emerald"></i> Configurações de Perfil
+      </h1>
+      <p class="text-xs text-brand-muted mt-1">Gerencie suas informações cadastrais, contatos e credenciais de acesso.</p>
+    </div>
+
+    <div id="notice-msg" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
+
+    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
+      
+      <!-- FOTO / AVATAR (EXIBIDO PARA DONO OU CLIENTE) -->
+      <div id="avatar-section" class="flex flex-col sm:flex-row items-center gap-4 pb-6 border-b border-brand-border">
+        <div class="relative w-24 h-24 rounded-2xl overflow-hidden bg-brand-darker border-2 border-brand-border flex items-center justify-center shadow-md">
+          <img id="avatar-preview-img" src="" alt="Avatar" class="hidden w-full h-full object-cover" />
+          <i id="avatar-default-icon" class="ph ph-user text-3xl text-brand-emerald"></i>
+        </div>
+        <div class="text-center sm:text-left space-y-1.5">
+          <h3 class="text-sm font-bold text-brand-main">Foto de Identificação</h3>
+          <p class="text-xs text-brand-muted">Essa imagem é exibida no perfil e na visualização pública do seu atendimento.</p>
+          <div class="pt-1">
+            <input type="file" id="avatar-file-input" accept="image/*" class="hidden" />
+            <button type="button" onclick="document.getElementById('avatar-file-input').click()" class="btn-secondary-invert px-3.5 py-1.5 rounded-xl text-xs inline-flex items-center gap-1.5 cursor-pointer">
+              <i class="ph ph-upload-simple"></i> Alterar Imagem
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULÁRIO DE DADOS PESSOAIS / DO ESTABELECIMENTO -->
+      <form id="profile-form" onsubmit="return false;" class="space-y-4">
+        
+        <!-- Campo: Nome (Cliente) ou Nome do Salão/Barbearia (Dono) -->
+        <div>
+          <label id="lbl-name-input" class="block text-xs font-semibold text-brand-muted mb-1.5 uppercase">Nome Completo</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted"><i class="ph ph-identification-card text-base"></i></span>
+            <input type="text" id="profile-name" required class="w-full pl-10 pr-4 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs sm:text-sm focus:outline-none focus:border-brand-emerald transition" />
+          </div>
+        </div>
+
+        <!-- Campo E-mail (somente leitura para referência) -->
+        <div>
+          <label class="block text-xs font-semibold text-brand-muted mb-1.5 uppercase">E-mail Cadastrado</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted"><i class="ph ph-envelope-simple text-base"></i></span>
+            <input type="email" id="profile-email" disabled class="w-full pl-10 pr-4 py-2.5 bg-brand-darker/50 border border-brand-border rounded-xl text-xs sm:text-sm text-brand-muted cursor-not-allowed" />
+          </div>
+        </div>
+
+        <!-- Campo Telefone / WhatsApp -->
+        <div>
+          <label class="block text-xs font-semibold text-brand-muted mb-1.5 uppercase">WhatsApp / Contato</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-brand-muted"><i class="ph ph-phone text-base"></i></span>
+            <input type="tel" id="profile-phone" placeholder="(11) 99999-9999" class="w-full pl-10 pr-4 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs sm:text-sm focus:outline-none focus:border-brand-emerald transition" />
+          </div>
+        </div>
+
+        <!-- Campos Exclusivos de Estabelecimento (Dono) -->
+        <div id="owner-only-fields" class="hidden space-y-4 pt-2 border-t border-brand-border">
+          <div>
+            <label class="block text-xs font-semibold text-brand-muted mb-1.5 uppercase">Link Exclusivo da Barbearia / Salão</label>
+            <div class="flex items-center rounded-xl bg-brand-darker border border-brand-border overflow-hidden focus-within:border-brand-emerald transition">
+              <span class="px-3 py-2.5 text-xs text-brand-muted border-r border-brand-border font-mono select-none">agenlits.com/</span>
+              <input type="text" id="profile-slug" class="w-full px-3 py-2.5 bg-transparent text-xs sm:text-sm text-brand-emerald font-mono focus:outline-none" />
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 flex justify-end">
+          <button type="button" id="btn-save-profile" class="btn-emerald-invert w-full sm:w-auto px-6 py-3 rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/10">
+            Salvar Alterações <i class="ph-bold ph-check"></i>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+    <!-- SEÇÃO PARA REDEFINIÇÃO DE SENHA -->
+    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-8 shadow-xl space-y-4">
+      <h2 class="text-sm font-bold pb-2 border-b border-brand-border flex items-center gap-2">
+        <i class="ph-bold ph-lock-key text-brand-emerald"></i> Segurança & Nova Senha
+      </h2>
+      <p class="text-xs text-brand-muted">Deseja atualizar sua senha de acesso? Digite a nova senha abaixo com no mínimo 6 caracteres.</p>
+
+      <form id="password-form" onsubmit="return false;" class="space-y-3.5 max-w-md">
+        <div>
+          <label class="block text-xs font-semibold text-brand-muted mb-1 uppercase">Nova Senha</label>
+          <input type="password" id="new-password" placeholder="••••••••" minlength="6" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-brand-muted mb-1 uppercase">Confirmar Nova Senha</label>
+          <input type="password" id="confirm-new-password" placeholder="••••••••" minlength="6" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald" />
+        </div>
+        <button type="button" id="btn-change-password" class="btn-secondary-invert px-5 py-2.5 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer">
+          Atualizar Senha <i class="ph-bold ph-shield-check"></i>
+        </button>
+      </form>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      let currentUser = null;
+      let isOwner = false;
+      let currentRecord = null; // dados do shop ou do client
+
+      const notice = document.getElementById('notice-msg');
+      const nameInput = document.getElementById('profile-name');
+      const emailInput = document.getElementById('profile-email');
+      const phoneInput = document.getElementById('profile-phone');
+      const slugInput = document.getElementById('profile-slug');
+      const lblName = document.getElementById('lbl-name-input');
+      const ownerFields = document.getElementById('owner-only-fields');
+      const avatarImg = document.getElementById('avatar-preview-img');
+      const avatarIcon = document.getElementById('avatar-default-icon');
+      const avatarFileInput = document.getElementById('avatar-file-input');
+      const btnBackDashboard = document.getElementById('btn-back-dashboard');
+      const btnSave = document.getElementById('btn-save-profile');
+      const btnChangePass = document.getElementById('btn-change-password');
+      const newPassInput = document.getElementById('new-password');
+      const confirmPassInput = document.getElementById('confirm-new-password');
+
+      function showNotice(text, isError = false) {
+        notice.textContent = text;
+        notice.className = isError
+          ? 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-red-950/80 border border-red-500 text-red-200'
+          : 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-emerald-950/80 border border-emerald-500 text-emerald-200';
+        notice.classList.remove('hidden');
+        setTimeout(() => notice.classList.add('hidden'), 4000);
+      }
+
+      async function init() {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = 'login.html';
+
+        currentUser = session.user;
+        emailInput.value = currentUser.email;
+
+        const storedType = localStorage.getItem('agenlits_user_type');
+
+        // Checar se é dono ou cliente
+        const { data: shop } = await client
+          .from('barbershops')
+          .select('*')
+          .eq('owner_id', currentUser.id)
+          .maybeSingle();
+
+        if (shop && storedType !== 'client') {
+          isOwner = true;
+          currentRecord = shop;
+          lblName.textContent = 'Nome do Salão ou Barbearia';
+          nameInput.value = shop.name || '';
+          phoneInput.value = shop.phone || '';
+          slugInput.value = shop.slug || '';
+          ownerFields.classList.remove('hidden');
+          btnBackDashboard.href = 'painel.html';
+          btnBackDashboard.innerHTML = '<i class="ph-bold ph-arrow-left"></i> Painel da Barbearia';
+
+          if (shop.avatar_url) {
+            avatarImg.src = shop.avatar_url;
+            avatarImg.classList.remove('hidden');
+            avatarIcon.classList.add('hidden');
+          }
+        } else {
+          isOwner = false;
+          lblName.textContent = 'Seu Nome Completo';
+          btnBackDashboard.href = 'cliente.html';
+          btnBackDashboard.innerHTML = '<i class="ph-bold ph-arrow-left"></i> Área do Cliente';
+
+          const { data: clientData } = await client
+            .from('clients')
+            .select('*')
+            .eq('auth_user_id', currentUser.id)
+            .maybeSingle();
+
+          currentRecord = clientData;
+          nameInput.value = clientData?.name || currentUser.user_metadata?.full_name || '';
+          phoneInput.value = clientData?.phone || currentUser.phone || '';
+
+          if (currentUser.user_metadata?.avatar_url) {
+            avatarImg.src = currentUser.user_metadata.avatar_url;
+            avatarImg.classList.remove('hidden');
+            avatarIcon.classList.add('hidden');
+          }
+        }
+      }
+
+      // Upload de Imagem de Perfil
+      avatarFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        showNotice('Fazendo upload da imagem...');
+
+        try {
+          const ext = file.name.split('.').pop();
+          const fileName = `${currentUser.id}/perfil_${Date.now()}.${ext}`;
+
+          let publicUrl = '';
+          const { error: uploadError } = await client.storage
+            .from('barbershop-avatars')
+            .upload(fileName, file, { upsert: true });
+
+          if (!uploadError) {
+            const { data: { publicUrl: url } } = client.storage.from('barbershop-avatars').getPublicUrl(fileName);
+            publicUrl = url;
+          } else {
+            // Fallback base64
+            publicUrl = await new Promise(resolve => {
+              const r = new FileReader();
+              r.onload = () => resolve(r.result);
+              r.readAsDataURL(file);
+            });
+          }
+
+          avatarImg.src = publicUrl;
+          avatarImg.classList.remove('hidden');
+          avatarIcon.classList.add('hidden');
+
+          if (isOwner) {
+            await client.from('barbershops').update({ avatar_url: publicUrl }).eq('id', currentRecord.id);
+          } else {
+            await client.auth.updateUser({ data: { avatar_url: publicUrl } });
+          }
+
+          showNotice('Imagem de perfil atualizada com sucesso!');
+        } catch (err) {
+          showNotice('Erro ao enviar imagem: ' + err.message, true);
+        }
+      });
+
+      // Salvar Dados
+      btnSave.addEventListener('click', async () => {
+        const name = nameInput.value.trim();
+        const phone = phoneInput.value.trim();
+
+        if (!name) return showNotice('O campo nome não pode ficar vazio.', true);
+
+        btnSave.disabled = true;
+        btnSave.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Salvando...';
+
+        try {
+          if (isOwner) {
+            const slug = slugInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+            const { error } = await client.from('barbershops').update({
+              name: name,
+              phone: phone,
+              slug: slug
+            }).eq('id', currentRecord.id);
+
+            if (error) throw error;
+          } else {
+            // Atualiza tabela clients
+            if (currentRecord && currentRecord.id) {
+              await client.from('clients').update({
+                name: name,
+                phone: phone
+              }).eq('id', currentRecord.id);
+            } else {
+              await client.from('clients').insert([{
+                auth_user_id: currentUser.id,
+                name: name,
+                phone: phone,
+                email: currentUser.email
+              }]);
+            }
+
+            // Atualiza user_metadata no auth
+            await client.auth.updateUser({ data: { full_name: name } });
+          }
+
+          showNotice('Perfil atualizado com sucesso!');
+        } catch (err) {
+          showNotice('Erro ao atualizar perfil: ' + err.message, true);
+        } finally {
+          btnSave.disabled = false;
+          btnSave.innerHTML = 'Salvar Alterações <i class="ph-bold ph-check"></i>';
+        }
+      });
+
+      // Atualizar Senha
+      btnChangePass.addEventListener('click', async () => {
+        const p1 = newPassInput.value;
+        const p2 = confirmPassInput.value;
+
+        if (!p1 || p1.length < 6) return showNotice('A nova senha deve ter no mínimo 6 caracteres.', true);
+        if (p1 !== p2) return showNotice('As senhas digitadas não coincidem.', true);
+
+        btnChangePass.disabled = true;
+        btnChangePass.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Atualizando...';
+
+        try {
+          const { error } = await client.auth.updateUser({ password: p1 });
+          if (error) throw error;
+
+          newPassInput.value = '';
+          confirmPassInput.value = '';
+          showNotice('Senha alterada com sucesso!');
+        } catch (err) {
+          showNotice('Erro ao alterar senha: ' + err.message, true);
+        } finally {
+          btnChangePass.disabled = false;
+          btnChangePass.innerHTML = 'Atualizar Senha <i class="ph-bold ph-shield-check"></i>';
+        }
+      });
+
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>
