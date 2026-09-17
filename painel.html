@@ -267,6 +267,88 @@
       const fileInput = document.getElementById('avatar-file-input');
       const statusMsg = document.getElementById('avatar-status-msg');
 
+      
+      function escapeHtml(str) {
+        return String(str || '').replace(/[&<>'"]/g, t => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[t]));
+      }
+
+      async function loadDashboardAppointments(barbershopId) {
+        const container = document.getElementById('dashboard-appointments-list');
+        if (!container) return;
+
+        try {
+          const { data: appointments, error } = await client
+            .from('appointments')
+            .select('id, starts_at, status, client_name, client_phone, services(name, price), barbers(name)')
+            .eq('barbershop_id', barbershopId)
+            .gte('starts_at', new Date().toISOString())
+            .order('starts_at', { ascending: true })
+            .limit(10);
+
+          if (error) throw error;
+
+          if (!appointments || appointments.length === 0) {
+            container.innerHTML = `
+              <div class="py-10 text-center text-brand-muted space-y-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-brand-darker border border-brand-border flex items-center justify-center mx-auto text-lg text-brand-emerald">
+                  <i class="ph ph-calendar"></i>
+                </div>
+                <p class="text-xs font-semibold">Nenhum próximo agendamento encontrado.</p>
+                <p class="text-[11px]">Compartilhe seu link público para receber novas reservas.</p>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = appointments.map(apt => {
+            const dataHora = apt.starts_at 
+              ? new Date(apt.starts_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+              : '-';
+            const servico = apt.services?.name || 'Serviço';
+            const cliente = apt.client_name || 'Cliente';
+            const barbeiro = apt.barbers?.name || 'Profissional';
+            const statusMap = {
+              pending: 'Pendente',
+              confirmed: 'Confirmado',
+              done: 'Concluído',
+              cancelled: 'Cancelado',
+              no_show: 'Não compareceu'
+            };
+            const statusLabel = statusMap[apt.status] || apt.status || 'Confirmado';
+
+            return `
+              <div class="p-3.5 rounded-2xl bg-brand-darker border border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-xs text-brand-main">${escapeHtml(cliente)}</span>
+                    <span class="text-[10px] text-brand-muted font-mono">(${escapeHtml(apt.client_phone || '')})</span>
+                  </div>
+                  <div class="text-xs text-brand-emerald font-semibold mt-0.5">
+                    ${escapeHtml(servico)} • ${dataHora}
+                  </div>
+                  <div class="text-[10px] text-brand-muted mt-0.5">Profissional: ${escapeHtml(barbeiro)}</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
+                    ${escapeHtml(statusLabel)}
+                  </span>
+                  ${apt.client_phone ? `
+                    <a href="https://wa.me/55${apt.client_phone.replace(/\D/g, '')}" target="_blank" class="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-black transition" title="Contatar no WhatsApp">
+                      <i class="ph-bold ph-whatsapp-logo text-sm"></i>
+                    </a>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+        } catch (err) {
+          console.error('Erro ao carregar agendamentos do dashboard:', err);
+          container.innerHTML = '<p class="text-xs text-red-400 py-4 text-center">Falha ao buscar agendamentos.</p>';
+        }
+      }
+
       function showNotice(text, isError = false) {
         statusMsg.textContent = text;
         statusMsg.className = isError 
@@ -303,6 +385,7 @@
 
           if (barbershop) {
             currentShop = barbershop;
+            loadDashboardAppointments(barbershop.id);
             shopNameTitle.textContent = barbershop.name;
             const fullUrl = '3lits-agenlits.vercel.app/agendar.html?b=' + barbershop.slug;
             publicLinkText.textContent = fullUrl;

@@ -195,26 +195,50 @@
             appts = data || [];
           }
 
+          function escapeHtml(str) {
+            return String(str || '').replace(/[&<>'"]/g, t => ({
+              '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[t]));
+          }
+
           if (appts && appts.length > 0) {
             bookingCount.textContent = `${appts.length} agendamento(s)`;
-            bookingsList.innerHTML = appts.map(a => `
-              <div class="p-4 rounded-2xl bg-brand-darker border border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <div class="font-bold text-sm text-brand-main">${a.barbershops?.name || 'Barbearia'}</div>
-                  <div class="text-xs text-brand-emerald font-semibold mt-0.5">${a.services?.name || 'Serviço'} • R$ ${a.services?.price || '0,00'}</div>
-                  <div class="text-[11px] text-brand-muted mt-1">Barbeiro: ${a.barbers?.name || 'Profissional'}</div>
+            bookingsList.innerHTML = appts.map(a => {
+              const formattedDate = a.starts_at 
+                ? new Date(a.starts_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+                : 'Data não informada';
+
+              const statusMap = {
+                pending: 'Pendente',
+                confirmed: 'Confirmado',
+                done: 'Concluído',
+                cancelled: 'Cancelado',
+                no_show: 'Não compareceu'
+              };
+              const label = statusMap[a.status] || a.status || 'Confirmado';
+
+              return `
+                <div class="p-4 rounded-2xl bg-brand-darker border border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <div class="font-bold text-sm text-brand-main">${escapeHtml(a.barbershops?.name || 'Barbearia')}</div>
+                    <div class="text-xs text-brand-emerald font-semibold mt-0.5">${escapeHtml(a.services?.name || 'Serviço')} • R$ ${a.services?.price || '0,00'}</div>
+                    <div class="text-[11px] text-brand-muted mt-1">Profissional: ${escapeHtml(a.barbers?.name || 'Geral')}</div>
+                  </div>
+                  <div class="text-right sm:text-right flex sm:flex-col items-center sm:items-end justify-between">
+                    <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-brand-card border border-brand-border text-brand-main">
+                      ${formattedDate}
+                    </span>
+                    <span class="text-[10px] text-emerald-400 font-bold uppercase mt-1">${escapeHtml(label)}</span>
+                  </div>
                 </div>
-                <div class="text-right sm:text-right flex sm:flex-col items-center sm:items-end justify-between">
-                  <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-brand-card border border-brand-border text-brand-main">
-                    ${a.date.split('-').reverse().join('/')} às ${a.time}
-                  </span>
-                  <span class="text-[10px] text-emerald-400 font-bold uppercase mt-1">Confirmado</span>
-                </div>
-              </div>
-            `).join('');
+              `;
+            }).join('');
+          } else {
+            bookingsList.innerHTML = '<p class="text-xs text-brand-muted py-6 text-center">Nenhum agendamento encontrado.</p>';
           }
         } catch (e) {
-          console.log(e);
+          console.error('Erro ao buscar agendamentos:', e);
+          bookingsList.innerHTML = '<p class="text-xs text-red-400 py-6 text-center">Erro ao buscar agendamentos.</p>';
         }
 
         btnLogout.addEventListener('click', async () => {

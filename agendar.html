@@ -319,6 +319,7 @@
         }
 
         populateTimes();
+        await loadShopPhotos(currentShop.id, currentShop);
       }
 
       window.chooseService = (id, name, price, duration, element) => {
@@ -326,6 +327,7 @@
         document.querySelectorAll('.service-card').forEach(c => c.classList.remove('border-brand-emerald', 'bg-brand-emerald/10'));
         element.classList.add('border-brand-emerald', 'bg-brand-emerald/10');
         populateTimes();
+        await loadShopPhotos(currentShop.id, currentShop);
       };
 
       window.chooseBarber = (id, name, element) => {
@@ -333,6 +335,7 @@
         document.querySelectorAll('.barber-card').forEach(c => c.classList.remove('border-brand-emerald', 'bg-brand-emerald/10'));
         element.classList.add('border-brand-emerald', 'bg-brand-emerald/10');
         populateTimes();
+        await loadShopPhotos(currentShop.id, currentShop);
       };
 
 async function populateTimes() {
