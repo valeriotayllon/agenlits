@@ -271,11 +271,11 @@
 
           let publicUrl = '';
           const { error: uploadError } = await client.storage
-            .from('barbershop-avatars')
+            .from('barbershop-assets')
             .upload(fileName, file, { upsert: true });
 
           if (!uploadError) {
-            const { data: { publicUrl: url } } = client.storage.from('barbershop-avatars').getPublicUrl(fileName);
+            const { data: { publicUrl: url } } = client.storage.from('barbershop-assets').getPublicUrl(fileName);
             publicUrl = url;
           } else {
             // Fallback base64

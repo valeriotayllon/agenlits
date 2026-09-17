@@ -182,11 +182,18 @@
 
         // Buscar agendamentos do cliente (se houver tabela appointments)
         try {
-          const { data: appts } = await client
-            .from('appointments')
-            .select('*, barbershops(name, phone), services(name, price), barbers(name)')
-            .eq('client_phone', user.phone || '')
-            .order('date', { ascending: false });
+          let appts = [];
+          // 1. Busca id do cliente
+          const { data: cData } = await client.from('clients').select('id, phone').eq('auth_user_id', user.id).maybeSingle();
+          
+          if (cData && cData.id) {
+            const { data } = await client
+              .from('appointments')
+              .select('*, barbershops(name, phone), services(name, price), barbers(name)')
+              .or(`client_id.eq.${cData.id},client_phone.eq.${cData.phone || 'none'}`)
+              .order('starts_at', { ascending: false });
+            appts = data || [];
+          }
 
           if (appts && appts.length > 0) {
             bookingCount.textContent = `${appts.length} agendamento(s)`;

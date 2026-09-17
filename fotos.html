@@ -299,11 +299,11 @@
           // Upload para o storage
           let publicUrl = '';
           const { error: uploadError } = await client.storage
-            .from('barbershop-avatars')
+            .from('barbershop-assets')
             .upload(fileName, selectedFile, { upsert: true });
 
           if (!uploadError) {
-            const { data: { publicUrl: url } } = client.storage.from('barbershop-avatars').getPublicUrl(fileName);
+            const { data: { publicUrl: url } } = client.storage.from('barbershop-assets').getPublicUrl(fileName);
             publicUrl = url;
           } else {
             // Caso storage dê erro de permissão, converte para base64 seguro
