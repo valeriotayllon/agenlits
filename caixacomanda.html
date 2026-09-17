@@ -9,30 +9,9 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
-  <script>
-    function initTheme() {
-      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
-      if (savedTheme === 'light') document.documentElement.classList.add('light');
-      else document.documentElement.classList.remove('light');
-      updateThemeIcons();
-    }
-    function toggleTheme() {
-      const isLight = document.documentElement.classList.toggle('light');
-      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
-      updateThemeIcons();
-    }
-    function updateThemeIcons() {
-      const isLight = document.documentElement.classList.contains('light');
-      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
-        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
-      });
-    }
-    initTheme();
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
-      updateThemeIcons();
-    });
-  </script>
+  <script src="js/layout.js"></script>
+  <script src="js/supabase-client.js"></script>
+  
 </head>
 <body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
 
@@ -224,8 +203,7 @@
         setTimeout(() => nb.classList.add('hidden'), 4000);
       }
 
-      function formatBRL(val) {
-        return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      );
       }
 
       async function init() {
@@ -291,7 +269,7 @@
           .gte('starts_at', `${todayStr}T00:00:00`);
 
         const total = (data || []).reduce((acc, cur) => acc + (cur.price_cents || 0), 0);
-        document.getElementById('caixa-total-hoje').textContent = formatBRL(total / 100);
+        document.getElementById('caixa-total-hoje').textContent = formatBRL(total);
       }
 
       window.onSelectAppointment = () => {
@@ -394,35 +372,34 @@
       };
 
       window.calculateTotals = () => {
-        let totalServices = 0;
+        let totalServicesCents = 0;
         document.querySelectorAll('.srv-price').forEach(p => {
-          totalServices += parseFloat(p.value) || 0;
+          totalServicesCents += Math.round((parseFloat(p.value) || 0) * 100);
         });
 
-        let totalProducts = 0;
+        let totalProductsCents = 0;
         document.querySelectorAll('#products-list-rows > div').forEach(row => {
           const qty = parseInt(row.querySelector('.prd-qty').value) || 1;
           const price = parseFloat(row.querySelector('.prd-price').value) || 0;
-          totalProducts += (qty * price);
+          totalProductsCents += Math.round(qty * price * 100);
         });
 
-        const discount = parseFloat(document.getElementById('input-discount').value) || 0;
-        const finalTotal = Math.max(0, (totalServices + totalProducts) - discount);
+        const discountCents = Math.round((parseFloat(document.getElementById('input-discount').value) || 0) * 100);
+        const finalTotalCents = Math.max(0, (totalServicesCents + totalProductsCents) - discountCents);
 
-        document.getElementById('subtotal-services').textContent = formatBRL(totalServices);
-        document.getElementById('subtotal-products').textContent = formatBRL(totalProducts);
-        document.getElementById('total-comanda').textContent = formatBRL(finalTotal);
+        document.getElementById('subtotal-services').textContent = formatBRL(totalServicesCents);
+        document.getElementById('subtotal-products').textContent = formatBRL(totalProductsCents);
+        document.getElementById('total-comanda').textContent = formatBRL(finalTotalCents);
 
-        // Comissão do barbeiro
         const barberId = document.getElementById('select-barber').value;
         const barber = rawBarbers.find(b => b.id === barberId);
         const commPct = barber ? (barber.commission_percentage || 0) : 0;
-        const commValue = totalServices * (commPct / 100);
-        const shopNet = finalTotal - commValue;
+        const commValueCents = Math.round(totalServicesCents * (commPct / 100));
+        const shopNetCents = finalTotalCents - commValueCents;
 
         document.getElementById('barber-commission-pct').textContent = `${commPct}%`;
-        document.getElementById('barber-commission-val').textContent = formatBRL(commValue);
-        document.getElementById('shop-net-val').textContent = formatBRL(shopNet);
+        document.getElementById('barber-commission-val').textContent = formatBRL(commValueCents);
+        document.getElementById('shop-net-val').textContent = formatBRL(shopNetCents);
       };
 
       window.finalizeComanda = async () => {

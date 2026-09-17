@@ -9,30 +9,9 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
-  <script>
-    function initTheme() {
-      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
-      if (savedTheme === 'light') document.documentElement.classList.add('light');
-      else document.documentElement.classList.remove('light');
-      updateThemeIcons();
-    }
-    function toggleTheme() {
-      const isLight = document.documentElement.classList.toggle('light');
-      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
-      updateThemeIcons();
-    }
-    function updateThemeIcons() {
-      const isLight = document.documentElement.classList.contains('light');
-      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
-        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
-      });
-    }
-    initTheme();
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
-      updateThemeIcons();
-    });
-  </script>
+  <script src="js/layout.js"></script>
+  <script src="js/supabase-client.js"></script>
+  
 </head>
 <body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
 
@@ -116,8 +95,7 @@
         }[t]));
       }
 
-      function formatBRL(cents) {
-        return ((cents || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      );
       }
 
       async function init() {
