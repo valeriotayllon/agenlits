@@ -340,7 +340,8 @@
 
           try {
             const fileExt = file.name.split('.').pop();
-            const filePath = `avatars/${currentShop.id}-${Date.now()}.${fileExt}`;
+            const { data: { session: currentSession } } = await client.auth.getSession();
+            const filePath = `${currentSession.user.id}/avatar-${Date.now()}.${fileExt}`;
 
             const { error: uploadError } = await client.storage
               .from('barbershop-assets')

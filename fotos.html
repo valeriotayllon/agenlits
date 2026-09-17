@@ -294,7 +294,8 @@
 
         try {
           const ext = selectedFile.name.split('.').pop();
-          const fileName = `${currentShop.id}/galeria_${Date.now()}.${ext}`;
+          const { data: { session } } = await client.auth.getSession();
+          const fileName = `${session.user.id}/galeria_${Date.now()}.${ext}`;
 
           // Upload para o storage
           let publicUrl = '';
