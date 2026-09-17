@@ -13,9 +13,30 @@ function escapeHtml(str) {
   }[t]));
 }
 
-function formatBRL(centsOrVal) {
-  const val = typeof centsOrVal === 'number' && centsOrVal > 100 && Number.isInteger(centsOrVal) 
-    ? centsOrVal / 100 
-    : Number(centsOrVal || 0);
-  return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+/**
+ * Formata estritamente centavos inteiros para moeda Real brasileira (BRL).
+ * Sem adivinhação: 100 -> R$ 1,00 | 15000 -> R$ 150,00 | 0 -> R$ 0,00
+ * @param {number|string} cents - Valor expresso estritamente em centavos.
+ * @returns {string} Valor formatado em BRL.
+ */
+function formatBRL(cents) {
+  const c = typeof cents === 'number' ? Math.round(cents) : parseInt(cents || 0, 10);
+  return ((isNaN(c) ? 0 : c) / 100).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+/**
+ * Converte valor em reais (float ou string de input) para centavos inteiros.
+ * @param {number|string} valInReais - Ex: 150.50 ou "150,50"
+ * @returns {number} Centavos inteiros (ex: 15050)
+ */
+function toCents(valInReais) {
+  if (typeof valInReais === 'string') {
+    valInReais = parseFloat(valInReais.replace(/\./g, '').replace(',', '.'));
+  }
+  return Math.round((Number(valInReais) || 0) * 100);
 }
