@@ -330,14 +330,25 @@
                   </div>
                   <div class="text-[10px] text-brand-muted mt-0.5">Profissional: ${escapeHtml(barbeiro)}</div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-1.5 justify-end">
                   <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
                     ${escapeHtml(statusLabel)}
                   </span>
                   ${apt.client_phone ? `
                     <a href="https://wa.me/55${apt.client_phone.replace(/\D/g, '')}" target="_blank" class="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-black transition" title="Contatar no WhatsApp">
-                      <i class="ph-bold ph-whatsapp-logo text-sm"></i>
+                      <i class="ph-bold ph-whatsapp-logo text-xs"></i>
                     </a>
+                  ` : ''}
+                  ${apt.status !== 'done' && apt.status !== 'cancelled' ? `
+                    <button onclick="window.updateAppointmentStatus('${apt.id}', 'done')" class="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white transition cursor-pointer text-xs" title="Concluir Atendimento">
+                      <i class="ph-bold ph-check text-xs"></i>
+                    </button>
+                    <button onclick="window.updateAppointmentStatus('${apt.id}', 'no_show')" class="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-black transition cursor-pointer text-xs" title="Marcar No-Show (Falta)">
+                      <i class="ph-bold ph-user-minus text-xs"></i>
+                    </button>
+                    <button onclick="window.updateAppointmentStatus('${apt.id}', 'cancelled')" class="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition cursor-pointer text-xs" title="Cancelar Agendamento">
+                      <i class="ph-bold ph-x text-xs"></i>
+                    </button>
                   ` : ''}
                 </div>
               </div>
@@ -348,6 +359,38 @@
           container.innerHTML = '<p class="text-xs text-red-400 py-4 text-center">Falha ao buscar agendamentos.</p>';
         }
       }
+
+      
+      window.updateAppointmentStatus = async (appointmentId, newStatus) => {
+        const statusLabels = {
+          confirmed: 'confirmar este agendamento',
+          done: 'marcar este atendimento como CONCLUÍDO',
+          no_show: 'registrar FALTA (no-show) do cliente',
+          cancelled: 'CANCELAR este agendamento'
+        };
+        
+        let reason = null;
+        if (newStatus === 'cancelled') {
+          reason = prompt('Informe o motivo do cancelamento (opcional):') || 'Cancelado pelo estabelecimento';
+        } else {
+          if (!confirm(`Deseja realmente ${statusLabels[newStatus] || newStatus}?`)) return;
+        }
+
+        try {
+          const { data, error } = await client.rpc('change_appointment_status', {
+            p_appointment_id: appointmentId,
+            p_new_status: newStatus,
+            p_reason: reason
+          });
+
+          if (error) throw error;
+          showNotice('Status do agendamento atualizado com sucesso!');
+          if (currentShop) loadDashboardAppointments(currentShop.id);
+        } catch (err) {
+          console.error(err);
+          showNotice('Erro ao atualizar agendamento: ' + (err.message || 'Erro inesperado'), true);
+        }
+      };
 
       function showNotice(text, isError = false) {
         statusMsg.textContent = text;

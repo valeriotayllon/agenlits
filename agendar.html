@@ -297,7 +297,7 @@
                 <div class="font-bold text-sm text-brand-main">${s.name}</div>
                 <div class="text-[11px] text-brand-muted">${s.duration_minutes} minutos</div>
               </div>
-              <span class="text-sm font-extrabold text-brand-emerald">R$ ${parseFloat(s.price).toFixed(2).replace('.', ',')}</span>
+              <span class="text-sm font-extrabold text-brand-emerald">R$ ${(s.price_cents !== undefined && s.price_cents !== null ? (s.price_cents / 100) : (parseFloat(s.price) || 0)).toFixed(2).replace('.', ',')}</span>
             </div>
           `).join('');
         } else {

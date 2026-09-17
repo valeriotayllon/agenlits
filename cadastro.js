@@ -1,3 +1,45 @@
+    // Validação matemática de CPF (11 dígitos)
+    function validateCPF(cpf) {
+      cpf = (cpf || '').replace(/\D/g, '');
+      if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+      let sum = 0, rest;
+      for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+      rest = (sum * 10) % 11;
+      if (rest === 10 || rest === 11) rest = 0;
+      if (rest !== parseInt(cpf.substring(9, 10))) return false;
+      sum = 0;
+      for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+      rest = (sum * 10) % 11;
+      if (rest === 10 || rest === 11) rest = 0;
+      return rest === parseInt(cpf.substring(10, 11));
+    }
+
+    // Validação matemática de CNPJ (14 dígitos)
+    function validateCNPJ(cnpj) {
+      cnpj = (cnpj || '').replace(/\D/g, '');
+      if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
+      let size = cnpj.length - 2;
+      let numbers = cnpj.substring(0, size);
+      const digits = cnpj.substring(size);
+      let sum = 0, pos = size - 7;
+      for (let i = size; i >= 1; i--) {
+        sum += parseInt(numbers.charAt(size - i)) * pos--;
+        if (pos < 2) pos = 9;
+      }
+      let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+      if (result !== parseInt(digits.charAt(0))) return false;
+      size = size + 1;
+      numbers = cnpj.substring(0, size);
+      sum = 0;
+      pos = size - 7;
+      for (let i = size; i >= 1; i--) {
+        sum += parseInt(numbers.charAt(size - i)) * pos--;
+        if (pos < 2) pos = 9;
+      }
+      result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+      return result === parseInt(digits.charAt(1));
+    }
+
 (() => {
   const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
@@ -53,6 +95,24 @@
   });
 
   btnSubmit.addEventListener('click', async () => {
+      const rawDoc = cleanDoc;
+      if (docType === 'cpf' && !validateCPF(rawDoc)) {
+        return showNotice('CPF inválido. Por favor, verifique os dígitos.', true);
+      }
+      if (docType === 'cnpj' && !validateCNPJ(rawDoc)) {
+        return showNotice('CNPJ inválido. Por favor, verifique os dígitos.', true);
+      }
+
+      // Validação do slug via RPC
+      try {
+        const { data: slugCheck } = await client.rpc('check_slug_available', { p_slug: barbershopSlug });
+        if (slugCheck && !slugCheck.available) {
+          return showNotice(slugCheck.reason || 'Este link já está em uso.', true);
+        }
+      } catch (err) {
+        console.warn('Checagem de slug ignorada:', err);
+      }
+
     hideError();
     const isClient = window.getRegType ? window.getRegType() === 'client' : false;
 
