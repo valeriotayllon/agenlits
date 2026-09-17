@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Termos de Uso & Política de Privacidade (LGPD) — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="js/layout.js"></script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-2">
+      <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+    </a>
+    <a href="javascript:history.back()" class="btn-secondary-invert px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1">
+      <i class="ph-bold ph-arrow-left"></i> Voltar
+    </a>
+  </header>
+
+  <main class="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-10 space-y-6 text-xs sm:text-sm text-brand-muted leading-relaxed">
+    <div class="space-y-2 border-b border-brand-border pb-4">
+      <h1 class="text-2xl sm:text-3xl font-black text-brand-main">Termos de Uso & Política de Privacidade</h1>
+      <p class="text-xs text-brand-emerald">Conformidade estrita com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 - LGPD)</p>
+    </div>
+
+    <section class="space-y-3">
+      <h2 class="text-base font-bold text-brand-main">1. Identificação e Papéis na LGPD</h2>
+      <p>A plataforma <strong>agenlits</strong> opera como operadora de infraestrutura e software como serviço (SaaS) para agendamentos online e gestão de estabelecimentos. Os estabelecimentos cadastrados (barbearias, salões de beleza, clínicas e estúdios) são os <strong>Controladores</strong> dos dados pessoais coletados de seus respectivos clientes finais.</p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-base font-bold text-brand-main">2. Dados Coletados e Finalidade (Base Legal)</h2>
+      <p>Tratamos estritamente os dados essenciais para execução de contrato e legítimo interesse (Art. 7º, incisos V e IX da LGPD):</p>
+      <ul class="list-disc pl-5 space-y-1 text-xs">
+        <li><strong>Clientes finais:</strong> Nome e telefone/WhatsApp com a finalidade exclusiva de confirmação de agendamento, envio de lembretes preventivos de falta (no-show) e comunicação de cancelamentos ou remarcações.</li>
+        <li><strong>Lojistas e Donos:</strong> Nome, e-mail, senha criptografada, telefone, CPF ou CNPJ com a finalidade de emissão de cobranças da assinatura SaaS, conformidade fiscal e gestão do estabelecimento.</li>
+      </ul>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-base font-bold text-brand-main">3. Segurança, RLS e Isolamento de Dados</h2>
+      <p>A plataforma adota políticas de <em>Row Level Security (RLS)</em> no banco de dados para garantir o isolamento estrito entre inquilinos (multi-tenant). Nenhum lojista tem acesso aos clientes ou dados de concorrentes.</p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-base font-bold text-brand-main">4. Direitos dos Titulares e Exclusão</h2>
+      <p>Em respeito ao Artigo 18 da LGPD, os titulares podem a qualquer momento solicitar a correção, portabilidade ou eliminação total de seus dados pessoais entrando em contato através do e-mail <strong>privacidade@agenlits.com</strong> ou utilizando a opção de exclusão disponível nas configurações da conta.</p>
+    </section>
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Todos os direitos reservados.
+  </footer>
+</body>
+</html>

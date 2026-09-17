@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Configurações da Empresa & Fiscais — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="js/layout.js"></script>
+  <script src="js/supabase-client.js"></script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="painel.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+      </a>
+      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
+        Configurações da Empresa
+      </span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
+      <a href="painel.html" class="btn-secondary-invert flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold">
+        <i class="ph-bold ph-arrow-left"></i> Painel Principal
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8 space-y-6">
+    
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
+        <i class="ph-bold ph-sliders text-brand-emerald"></i> Configurações da Empresa & Fiscais
+      </h1>
+      <p class="text-xs text-brand-muted mt-1">Gerencie os dados fiscais de cobrança, faturamento, política de cancelamento e privacidade.</p>
+    </div>
+
+    <div id="cfg-notice" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
+
+    <!-- Dados Fiscais e Contato -->
+    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-7 shadow-xl space-y-4 text-xs">
+      <h2 class="text-sm font-bold flex items-center gap-2 pb-2 border-b border-brand-border">
+        <i class="ph-bold ph-buildings text-brand-emerald"></i> Informações Cadastrais & Fiscais
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold text-brand-muted uppercase mb-1">Nome Fantasia / Estabelecimento</label>
+          <input type="text" id="cfg-shop-name" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl focus:outline-none focus:border-brand-emerald" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-brand-muted uppercase mb-1">Link Público (Slug)</label>
+          <input type="text" id="cfg-shop-slug" disabled class="w-full px-3.5 py-2.5 bg-brand-darker/50 border border-brand-border rounded-xl text-brand-muted cursor-not-allowed font-mono" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-brand-muted uppercase mb-1">Tipo de Documento</label>
+          <select id="cfg-doc-type" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl focus:outline-none focus:border-brand-emerald">
+            <option value="cnpj">CNPJ (Pessoa Jurídica)</option>
+            <option value="cpf">CPF (Profissional Autônomo)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-brand-muted uppercase mb-1">Número do Documento</label>
+          <input type="text" id="cfg-doc-number" placeholder="Apenas números" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl font-mono focus:outline-none focus:border-brand-emerald" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-brand-muted uppercase mb-1">WhatsApp de Atendimento</label>
+          <input type="tel" id="cfg-shop-phone" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl focus:outline-none focus:border-brand-emerald" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-brand-muted uppercase mb-1">Antecedência Mínima para Cancelamento (Horas)</label>
+          <input type="number" id="cfg-cancel-hours" min="0" max="72" value="2" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl focus:outline-none focus:border-brand-emerald" />
+          <p class="text-[10px] text-brand-muted mt-1">Tempo mínimo que o cliente deve avisar antes para poder cancelar pelo app.</p>
+        </div>
+      </div>
+
+      <div class="pt-3 flex justify-end">
+        <button type="button" onclick="saveSettings()" id="btn-save-cfg" class="btn-emerald-invert px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-lg shadow-emerald-500/10">
+          Salvar Alterações <i class="ph-bold ph-check"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Zona de Perigo / LGPD -->
+    <div class="bg-red-950/20 border border-red-500/30 rounded-3xl p-6 sm:p-7 shadow-xl space-y-3 text-xs">
+      <h2 class="text-sm font-bold text-red-400 flex items-center gap-2 pb-2 border-b border-red-500/20">
+        <i class="ph-bold ph-warning"></i> Zona de Perigo & Exclusão de Conta (LGPD)
+      </h2>
+      <p class="text-brand-muted">Conforme o Artigo 18 da Lei Geral de Proteção de Dados (LGPD), você pode solicitar a exclusão de todos os seus dados cadastrais. Essa ação desativa imediatamente a sua loja e é irreversível.</p>
+      
+      <div class="pt-2">
+        <button type="button" onclick="deleteAccountRequest()" class="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer transition">
+          <i class="ph-bold ph-trash"></i> Excluir Minha Barbearia e Conta
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    (() => {
+      let currentShop = null;
+
+      function showNotice(text, isError = false) {
+        const nb = document.getElementById('cfg-notice');
+        nb.textContent = text;
+        nb.className = isError
+          ? 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-red-950/80 border border-red-500 text-red-200'
+          : 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-emerald-950/80 border border-emerald-500 text-emerald-200';
+        nb.classList.remove('hidden');
+        setTimeout(() => nb.classList.add('hidden'), 4000);
+      }
+
+      async function init() {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = 'login.html';
+
+        const { data: shop } = await client.from('barbershops').select('*').eq('owner_id', session.user.id).maybeSingle();
+        if (!shop) return window.location.href = 'cadastro.html';
+
+        currentShop = shop;
+        document.getElementById('cfg-shop-name').value = shop.name || '';
+        document.getElementById('cfg-shop-slug').value = shop.slug || '';
+        document.getElementById('cfg-doc-type').value = shop.document_type || 'cnpj';
+        document.getElementById('cfg-doc-number').value = shop.document_number || '';
+        document.getElementById('cfg-shop-phone').value = shop.phone || '';
+        document.getElementById('cfg-cancel-hours').value = shop.cancellation_window_hours ?? shop.cancel_lead_hours ?? 2;
+      }
+
+      window.saveSettings = async () => {
+        if (!currentShop) return;
+        const name = document.getElementById('cfg-shop-name').value.trim();
+        const docType = document.getElementById('cfg-doc-type').value;
+        const docNumber = document.getElementById('cfg-doc-number').value.trim().replace(/\D/g, '');
+        const phone = document.getElementById('cfg-shop-phone').value.trim();
+        const cancelHours = parseInt(document.getElementById('cfg-cancel-hours').value) || 2;
+
+        if (!name) return showNotice('O nome do estabelecimento é obrigatório.', true);
+
+        const btn = document.getElementById('btn-save-cfg');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Salvando...';
+
+        try {
+          const { error } = await client.from('barbershops').update({
+            name,
+            document_type: docType,
+            document_number: docNumber,
+            phone,
+            cancel_lead_hours: cancelHours,
+            cancellation_window_hours: cancelHours
+          }).eq('id', currentShop.id);
+
+          if (error) throw error;
+          showNotice('Configurações atualizadas com sucesso!');
+        } catch(err) {
+          showNotice('Erro ao salvar: ' + err.message, true);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = 'Salvar Alterações <i class="ph-bold ph-check"></i>';
+        }
+      };
+
+      window.deleteAccountRequest = async () => {
+        if (!confirm('ATENÇÃO: Deseja realmente excluir permanentemente a sua conta e os dados da sua loja? Esta ação não pode ser desfeita.')) return;
+        const confirmText = prompt('Digite EXCLUIR para confirmar:');
+        if (confirmText !== 'EXCLUIR') return alert('Ação cancelada.');
+
+        try {
+          await client.from('barbershops').delete().eq('id', currentShop.id);
+          await client.auth.signOut();
+          alert('Conta e dados da barbearia excluídos com sucesso.');
+          window.location.href = 'index.html';
+        } catch(err) {
+          alert('Erro ao excluir: ' + err.message);
+        }
+      };
+
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>
