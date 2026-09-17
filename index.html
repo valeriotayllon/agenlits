@@ -399,12 +399,24 @@
         `;
 
         try {
-          const { data: shops, error } = await client
-            .from('barbershops')
-            .select('*')
+          // Consulta segura na view pública sanitizada (sem CPF/CNPJ ou owner_id)
+          let shops = [];
+          const { data: viewShops, error: viewErr } = await client
+            .from('public_barbershops')
+            .select('id, name, slug, phone, avatar_url, photos, created_at')
             .order('created_at', { ascending: false });
 
-          if (error) throw error;
+          if (!viewErr && viewShops) {
+            shops = viewShops;
+          } else {
+            // Fallback seguro selecionando apenas colunas públicas permitidas
+            const { data: baseShops, error: baseErr } = await client
+              .from('barbershops')
+              .select('id, name, slug, phone, avatar_url, photos, created_at')
+              .order('created_at', { ascending: false });
+            if (baseErr) throw baseErr;
+            shops = baseShops || [];
+          }
 
           // Busca fotos cadastradas na galeria
           let photosByShop = {};

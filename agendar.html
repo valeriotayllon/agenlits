@@ -249,11 +249,28 @@
         const slug = urlParams.get('b');
       if (!slug) return window.location.replace('explorar.html');
 
-        const { data: shop, error: shopError } = await client
-          .from('barbershops')
-          .select('*')
+        // Busca segura na view pública sanitizada (sem CPF/CNPJ/owner_id)
+        let shop = null;
+        let shopError = null;
+
+        const { data: viewData, error: viewErr } = await client
+          .from('public_barbershops')
+          .select('id, name, slug, phone, avatar_url, photos')
           .eq('slug', slug)
           .maybeSingle();
+
+        if (!viewErr && viewData) {
+          shop = viewData;
+        } else {
+          // Fallback seguro selecionando apenas campos públicos estritos
+          const { data: baseData, error: baseErr } = await client
+            .from('barbershops')
+            .select('id, name, slug, phone, avatar_url, photos')
+            .eq('slug', slug)
+            .maybeSingle();
+          shop = baseData;
+          shopError = baseErr;
+        }
 
         if (shopError || !shop) {
           shopNameDisplay.textContent = 'Barbearia não encontrada';
