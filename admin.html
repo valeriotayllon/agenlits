@@ -277,6 +277,107 @@
         </div>
       </div>
 
+    
+    <!-- MODAL DE EDIÇÃO DE ESTABELECIMENTO -->
+    <div id="modal-edit-shop" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-lg p-6 sm:p-8 shadow-2xl space-y-5 relative">
+        <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-brand-emerald/10 text-brand-emerald flex items-center justify-center text-lg">
+              <i class="ph-bold ph-pencil-simple"></i>
+            </div>
+            <h3 class="text-base font-bold text-brand-main">Editar Estabelecimento</h3>
+          </div>
+          <button type="button" onclick="closeEditShopModal()" class="text-brand-muted hover:text-brand-main p-1 text-lg cursor-pointer">
+            <i class="ph-bold ph-x"></i>
+          </button>
+        </div>
+
+        <form id="form-edit-shop" onsubmit="return false;" class="space-y-4 text-xs">
+          <input type="hidden" id="edit-shop-id" />
+
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Nome do Estabelecimento</label>
+            <input type="text" id="edit-shop-name" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-brand-muted uppercase mb-1">Slug / Link exclusivo</label>
+              <div class="flex items-center rounded-xl bg-brand-darker border border-brand-border overflow-hidden focus-within:border-brand-emerald">
+                <span class="px-2 text-brand-muted text-[11px] font-mono select-none">/</span>
+                <input type="text" id="edit-shop-slug" class="w-full py-2.5 pr-2 bg-transparent text-xs text-brand-emerald font-mono focus:outline-none" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-bold text-brand-muted uppercase mb-1">Telefone / WhatsApp</label>
+              <input type="text" id="edit-shop-phone" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">URL da Imagem de Perfil / Logo</label>
+            <input type="text" id="edit-shop-avatar" placeholder="https://..." class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
+          </div>
+
+          <div class="pt-3 border-t border-brand-border flex items-center justify-end gap-2.5">
+            <button type="button" onclick="closeEditShopModal()" class="px-4 py-2.5 rounded-xl border border-brand-border hover:bg-brand-darker text-brand-muted hover:text-brand-main text-xs font-semibold cursor-pointer">
+              Cancelar
+            </button>
+            <button type="button" id="btn-save-shop-changes" onclick="saveShopChanges()" class="btn-emerald-invert px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+              Salvar Alterações <i class="ph-bold ph-check"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL DE EDIÇÃO DE CLIENTE -->
+    <div id="modal-edit-client" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-5 relative">
+        <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-brand-emerald/10 text-brand-emerald flex items-center justify-center text-lg">
+              <i class="ph-bold ph-pencil-simple"></i>
+            </div>
+            <h3 class="text-base font-bold text-brand-main">Editar Dados do Cliente</h3>
+          </div>
+          <button type="button" onclick="closeEditClientModal()" class="text-brand-muted hover:text-brand-main p-1 text-lg cursor-pointer">
+            <i class="ph-bold ph-x"></i>
+          </button>
+        </div>
+
+        <form id="form-edit-client" onsubmit="return false;" class="space-y-4 text-xs">
+          <input type="hidden" id="edit-client-id" />
+
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Nome Completo</label>
+            <input type="text" id="edit-client-name" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
+          </div>
+
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">E-mail</label>
+            <input type="email" id="edit-client-email" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
+          </div>
+
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Telefone / WhatsApp</label>
+            <input type="text" id="edit-client-phone" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
+          </div>
+
+          <div class="pt-3 border-t border-brand-border flex items-center justify-end gap-2.5">
+            <button type="button" onclick="closeEditClientModal()" class="px-4 py-2.5 rounded-xl border border-brand-border hover:bg-brand-darker text-brand-muted hover:text-brand-main text-xs font-semibold cursor-pointer">
+              Cancelar
+            </button>
+            <button type="button" id="btn-save-client-changes" onclick="saveClientChanges()" class="btn-emerald-invert px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+              Salvar Alterações <i class="ph-bold ph-check"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     </main>
 
     <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
@@ -471,10 +572,13 @@
               <td class="py-3.5 px-4 font-mono text-[11px] text-brand-emerald">/${s.slug || '-'}</td>
               <td class="py-3.5 px-4 text-brand-muted">${s.phone || '-'}</td>
               <td class="py-3.5 px-4 text-brand-muted">${dateStr}</td>
-              <td class="py-3.5 px-4 text-right space-x-2">
+                            <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
                 <a href="agendar.html?b=${s.slug}" target="_blank" class="p-1.5 rounded-lg bg-brand-darker hover:bg-brand-border border border-brand-border text-brand-main inline-flex items-center transition" title="Ver Página Pública">
                   <i class="ph ph-arrow-square-out text-sm"></i>
                 </a>
+                <button onclick="window.openEditShopModal('${s.id}')" class="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-brand-emerald inline-flex items-center transition cursor-pointer" title="Editar Estabelecimento">
+                  <i class="ph-bold ph-pencil-simple text-sm"></i>
+                </button>
                 <button onclick="window.deleteShop('${s.id}')" class="p-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 text-red-400 inline-flex items-center transition cursor-pointer" title="Excluir Estabelecimento">
                   <i class="ph ph-trash text-sm"></i>
                 </button>
@@ -509,7 +613,10 @@
               <td class="py-3.5 px-4 text-brand-muted">${c.email || '-'}</td>
               <td class="py-3.5 px-4 text-brand-muted">${c.phone || '-'}</td>
               <td class="py-3.5 px-4 text-brand-muted">${dateStr}</td>
-              <td class="py-3.5 px-4 text-right">
+                            <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+                <button onclick="window.openEditClientModal('${c.id}')" class="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-brand-emerald inline-flex items-center transition cursor-pointer" title="Editar Cliente">
+                  <i class="ph-bold ph-pencil-simple text-sm"></i>
+                </button>
                 <button onclick="window.deleteClient('${c.id}')" class="p-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 text-red-400 inline-flex items-center transition cursor-pointer" title="Remover Registro de Cliente">
                   <i class="ph ph-trash text-sm"></i>
                 </button>
@@ -596,6 +703,110 @@
       });
 
       // Inicializa checando se já há sessão ativa
+      
+      // Modal e Edição de Estabelecimento
+      window.openEditShopModal = (id) => {
+        const shop = rawShops.find(s => s.id === id);
+        if (!shop) return;
+
+        document.getElementById('edit-shop-id').value = shop.id;
+        document.getElementById('edit-shop-name').value = shop.name || '';
+        document.getElementById('edit-shop-slug').value = shop.slug || '';
+        document.getElementById('edit-shop-phone').value = shop.phone || '';
+        document.getElementById('edit-shop-avatar').value = shop.avatar_url || '';
+
+        document.getElementById('modal-edit-shop').classList.remove('hidden');
+      };
+
+      window.closeEditShopModal = () => {
+        document.getElementById('modal-edit-shop').classList.add('hidden');
+      };
+
+      window.saveShopChanges = async () => {
+        const id = document.getElementById('edit-shop-id').value;
+        const name = document.getElementById('edit-shop-name').value.trim();
+        const slug = document.getElementById('edit-shop-slug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+        const phone = document.getElementById('edit-shop-phone').value.trim();
+        const avatar_url = document.getElementById('edit-shop-avatar').value.trim();
+
+        if (!name) return showNotice('O nome do estabelecimento é obrigatório.', true);
+        if (!slug) return showNotice('O link/slug é obrigatório.', true);
+
+        const btn = document.getElementById('btn-save-shop-changes');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Salvando...';
+
+        try {
+          const { error } = await client.from('barbershops').update({
+            name,
+            slug,
+            phone,
+            avatar_url
+          }).eq('id', id);
+
+          if (error) throw error;
+
+          showNotice('Estabelecimento atualizado com sucesso!');
+          closeEditShopModal();
+          await loadAllData();
+        } catch (err) {
+          showNotice('Erro ao salvar alterações: ' + err.message, true);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = 'Salvar Alterações <i class="ph-bold ph-check"></i>';
+        }
+      };
+
+      // Modal e Edição de Cliente
+      window.openEditClientModal = (id) => {
+        const clientItem = rawClients.find(c => c.id === id);
+        if (!clientItem) return;
+
+        document.getElementById('edit-client-id').value = clientItem.id;
+        document.getElementById('edit-client-name').value = clientItem.name || '';
+        document.getElementById('edit-client-email').value = clientItem.email || '';
+        document.getElementById('edit-client-phone').value = clientItem.phone || '';
+
+        document.getElementById('modal-edit-client').classList.remove('hidden');
+      };
+
+      window.closeEditClientModal = () => {
+        document.getElementById('modal-edit-client').classList.add('hidden');
+      };
+
+      window.saveClientChanges = async () => {
+        const id = document.getElementById('edit-client-id').value;
+        const name = document.getElementById('edit-client-name').value.trim();
+        const email = document.getElementById('edit-client-email').value.trim();
+        const phone = document.getElementById('edit-client-phone').value.trim();
+
+        if (!name) return showNotice('O nome do cliente é obrigatório.', true);
+
+        const btn = document.getElementById('btn-save-client-changes');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Salvando...';
+
+        try {
+          const { error } = await client.from('clients').update({
+            name,
+            email,
+            phone
+          }).eq('id', id);
+
+          if (error) throw error;
+
+          showNotice('Dados do cliente atualizados com sucesso!');
+          closeEditClientModal();
+          await loadAllData();
+        } catch (err) {
+          showNotice('Erro ao salvar alterações: ' + err.message, true);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = 'Salvar Alterações <i class="ph-bold ph-check"></i>';
+        }
+      };
+
+
       document.addEventListener('DOMContentLoaded', checkAdminSession);
     })();
   </script>
