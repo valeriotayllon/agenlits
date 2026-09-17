@@ -9,64 +9,8 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
-  <script>
-    function initTheme() {
-      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
-      if (savedTheme === 'light') document.documentElement.classList.add('light');
-      else document.documentElement.classList.remove('light');
-      updateThemeIcons();
-    }
-    function toggleTheme() {
-      const isLight = document.documentElement.classList.toggle('light');
-      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
-      updateThemeIcons();
-    }
-    function updateThemeIcons() {
-      const isLight = document.documentElement.classList.contains('light');
-      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
-        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
-      });
-    }
-    initTheme();
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
-      updateThemeIcons();
-    });
-  </script>
-
-<script>
-  // Redirecionamento inteligente ao clicar na logo para usuários com sessão ativa
-  (async function setupLogoRedirect() {
-    try {
-      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
-      if (!window.supabase) return;
-      const client = (window._agenlitsClient = window._agenlitsClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
-      const { data: { session } } = await client.auth.getSession();
-      
-      if (session && session.user) {
-        const { data: shop } = await client
-          .from('barbershops')
-          .select('id')
-          .eq('owner_id', session.user.id)
-          .maybeSingle();
-
-        const destination = shop ? 'painel.html' : 'cliente.html';
-
-        document.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('a[href="index.html"], a[href="painel.html"], a[href="/"]').forEach(link => {
-            if (link.querySelector('img[src*="fonte escura.png"]') || link.querySelector('img[alt*="agenlits"]')) {
-              link.href = destination;
-            }
-          });
-        });
-      }
-    } catch (e) {
-      console.error('Erro no link dinâmico da logo:', e);
-    }
-  })();
-</script>
-
+  <script src="js/layout.js"></script>
+  <script src="js/supabase-client.js"></script>
 </head>
 <body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-emerald-500 selection:text-black">
 
@@ -81,84 +25,96 @@
     </div>
 
     <div class="flex items-center gap-2 sm:gap-4">
-      <a href="perfil.html" class="p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Configurações de Perfil">
-        <i class="ph-bold ph-gear text-lg text-brand-emerald"></i>
+      <a href="perfil.html" class="p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Configurações do Perfil">
+        <i class="ph-bold ph-user-gear text-base sm:text-lg"></i>
       </a>
 
       <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
-        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+        <i class="ph-bold ph-sun text-base sm:text-lg text-emerald-400"></i>
       </button>
 
-      <div class="text-right hidden sm:block">
-        <div id="user-display-name" class="text-xs font-bold truncate max-w-[140px]">Carregando...</div>
-        <div id="user-display-email" class="text-[11px] text-brand-muted truncate max-w-[140px]">...</div>
+      <div class="text-right hidden md:block">
+        <div id="user-display-name" class="font-bold text-xs leading-none">Carregando...</div>
+        <div id="user-display-email" class="text-[10px] text-brand-muted font-mono mt-1 leading-none">...</div>
       </div>
 
-      <button id="btn-logout" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition cursor-pointer">
-        <i class="ph-bold ph-sign-out text-base"></i>
-        <span class="hidden xs:inline">Sair</span>
+      <button id="btn-logout" class="p-2 sm:px-3 sm:py-2 rounded-xl border border-brand-border bg-brand-card hover:border-red-500 hover:text-red-400 transition text-xs flex items-center gap-1.5 cursor-pointer" title="Sair da conta">
+        <i class="ph-bold ph-sign-out text-base sm:text-lg"></i>
+        <span class="hidden sm:inline font-semibold">Sair</span>
       </button>
     </div>
   </header>
 
-  <main class="flex-1 max-w-7xl mx-auto w-full px-3.5 sm:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
+  <main class="flex-1 max-w-6xl mx-auto w-full px-3.5 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
     
-    <div id="avatar-status-msg" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
+    <!-- Banner de Boas-Vindas & Link Público -->
+    <div class="bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-4 sm:p-7 relative overflow-hidden shadow-xl">
+      <div class="absolute -right-16 -top-16 w-56 h-56 bg-brand-emerald/10 rounded-full blur-3xl pointer-events-none"></div>
 
-    <div class="bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-4 sm:p-8 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 sm:gap-6 shadow-xl">
-      
-      <div class="flex items-center gap-4 sm:gap-5">
-        <div class="relative group shrink-0">
-          <div id="avatar-container" class="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-brand-darker border-2 border-brand-border overflow-hidden flex items-center justify-center shadow-lg transition duration-200 group-hover:border-brand-emerald">
-            <img id="shop-avatar-img" src="" alt="Foto de perfil" class="hidden w-full h-full object-cover" />
-            <i id="shop-avatar-icon" class="ph ph-storefront text-2xl sm:text-4xl text-brand-emerald"></i>
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 relative z-10">
+        
+        <div class="flex items-center gap-3 sm:gap-4">
+          <div class="relative group shrink-0">
+            <div id="shop-avatar-container" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-brand-darker border border-brand-border flex items-center justify-center text-brand-emerald font-extrabold text-xl overflow-hidden shadow-inner cursor-pointer" onclick="document.getElementById('avatar-file-input').click()">
+              <img id="shop-avatar-img" src="" alt="Foto" class="w-full h-full object-cover hidden" />
+              <i id="shop-avatar-icon" class="ph-bold ph-storefront text-2xl text-brand-emerald"></i>
+              <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition rounded-2xl">
+                <i class="ph-bold ph-camera text-white text-base"></i>
+              </div>
+            </div>
+            <input type="file" id="avatar-file-input" accept="image/*" class="hidden" />
           </div>
 
-          <label for="avatar-file-input" class="absolute -bottom-1.5 -right-1.5 sm:-bottom-2 sm:-right-2 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-brand-emerald text-brand-darker flex items-center justify-center shadow-md cursor-pointer hover:scale-110 active:scale-95 transition" title="Alterar foto de perfil">
-            <i class="ph-bold ph-camera text-sm sm:text-base text-[#272D2D]"></i>
-          </label>
-          <input type="file" id="avatar-file-input" accept="image/png, image/jpeg, image/webp" class="hidden" />
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] sm:text-xs text-brand-emerald font-bold tracking-wider uppercase">Visão Geral</span>
+            </div>
+            <h1 id="shop-name-title" class="text-xl sm:text-2xl lg:text-3xl font-black mt-0.5 tracking-tight text-brand-main">Minha Barbearia</h1>
+          </div>
         </div>
 
-        <div class="min-w-0 flex-1">
-          <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-brand-emerald">Visão Geral</span>
-          <h1 id="shop-name-title" class="text-lg sm:text-3xl font-extrabold truncate mt-0.5">Sua Barbearia</h1>
+        <!-- Box Link Público -->
+        <div class="w-full lg:w-auto bg-brand-darker border border-brand-border rounded-xl sm:rounded-2xl p-3 sm:p-3.5 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+          <div class="text-left flex-1 min-w-0">
+            <div class="text-[10px] text-brand-muted uppercase font-bold tracking-wider">Link Público de Agendamento</div>
+            <div id="public-link-text" class="text-xs font-mono text-brand-emerald font-semibold truncate select-all mt-0.5">
+              Carregando link...
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button id="btn-copy-link" class="btn-emerald-invert flex-1 sm:flex-initial px-3 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+              <i class="ph-bold ph-copy"></i> Copiar
+            </button>
+            <a id="btn-visit-page" href="#" target="_blank" class="btn-secondary-invert flex-1 sm:flex-initial px-3 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5">
+              <i class="ph-bold ph-arrow-square-out"></i> Abrir
+            </a>
+          </div>
         </div>
+
       </div>
 
-      <div class="w-full md:w-auto bg-brand-darker border border-brand-border rounded-xl sm:rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
-        <div class="min-w-0">
-          <div class="text-[10px] sm:text-[11px] uppercase font-bold text-brand-muted">Link público de agendamento</div>
-          <div id="public-link-text" class="text-xs font-mono text-brand-emerald truncate mt-0.5">3lits-agenlits.vercel.app/agendar.html?b=...</div>
-        </div>
-        <div class="flex items-center gap-2 mt-1 sm:mt-0">
-          <button id="btn-copy-link" class="btn-emerald-invert flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 shrink-0">
-            <i class="ph-bold ph-copy"></i> Copiar
-          </button>
-          <a id="btn-visit-page" href="#" target="_blank" class="btn-secondary-invert flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 shrink-0">
-            <i class="ph-bold ph-arrow-square-out"></i> Abrir
-          </a>
-        </div>
-      </div>
+      <div id="avatar-status-msg" class="hidden mt-3 text-xs p-2.5 rounded-xl"></div>
     </div>
 
+    <!-- Cards de Métricas Principais -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      
       <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
         <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
           <span class="text-[10px] sm:text-xs font-semibold uppercase">Agendamentos</span>
-          <i class="ph ph-calendar-check text-base sm:text-xl text-brand-emerald"></i>
+          <i class="ph ph-calendar text-base sm:text-xl text-brand-emerald"></i>
         </div>
-        <div class="text-xl sm:text-2xl font-extrabold">0</div>
+        <div id="metric-appointments-today" class="text-xl sm:text-2xl font-extrabold">0</div>
         <span class="text-[10px] sm:text-[11px] text-brand-muted block truncate">Hoje</span>
       </div>
 
       <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
         <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
           <span class="text-[10px] sm:text-xs font-semibold uppercase">Barbeiros</span>
-          <i class="ph ph-users-three text-base sm:text-xl text-brand-emerald"></i>
+          <i class="ph ph-users text-base sm:text-xl text-brand-emerald"></i>
         </div>
         <div id="metric-barbers" class="text-xl sm:text-2xl font-extrabold">0</div>
-        <span class="text-[10px] sm:text-[11px] text-brand-emerald block truncate">Equipe ativa</span>
+        <span class="text-[10px] sm:text-[11px] text-brand-muted block truncate">Equipe ativa</span>
       </div>
 
       <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
@@ -175,20 +131,29 @@
           <span class="text-[10px] sm:text-xs font-semibold uppercase">Plataforma</span>
           <i class="ph ph-shield-check text-base sm:text-xl text-brand-emerald"></i>
         </div>
-        <div class="text-xs sm:text-sm font-bold text-brand-emerald mt-1">Grátis Ativo</div>
-        <span class="text-[10px] sm:text-[11px] text-brand-muted block truncate">14 dias teste</span>
+        <div id="metric-plan-status" class="text-xs sm:text-sm font-bold text-brand-emerald mt-1">Plano Pro</div>
+        <a href="planos.html" class="text-[10px] sm:text-[11px] text-brand-emerald hover:underline block truncate" id="metric-plan-desc">Ver detalhes do plano &rarr;</a>
       </div>
+
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
-      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-5 sm:p-6">
-        <div class="flex items-center justify-between pb-3 sm:pb-4 border-b border-brand-border mb-4">
+    <!-- Grid Principal: Próximos Agendamentos e Atalhos do SaaS -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Próximos Agendamentos (2 Colunas) -->
+      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-brand-border">
           <h2 class="text-sm sm:text-base font-bold flex items-center gap-2">
-            <i class="ph-bold ph-calendar text-brand-emerald"></i> Próximos Agendamentos
+            <i class="ph-bold ph-clock-countdown text-brand-emerald"></i> Próximos Agendamentos
           </h2>
-          <a href="agendar.html" target="_blank" class="btn-emerald-invert px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1">
-            + Novo
-          </a>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="openWalkinModal()" class="btn-emerald-invert px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-500/10">
+              <i class="ph-bold ph-plus-circle"></i> Novo Balcão
+            </button>
+            <a href="agendar.html" target="_blank" class="btn-secondary-invert px-2.5 py-1.5 rounded-xl text-xs flex items-center gap-1" title="Ver tela pública de agendamento">
+              <i class="ph-bold ph-arrow-square-out"></i>
+            </a>
+          </div>
         </div>
 
         <div id="dashboard-appointments-list" class="space-y-3">
@@ -199,14 +164,15 @@
         </div>
       </div>
 
+      <!-- Menu de Gestão Completo do SaaS (1 Coluna) -->
       <div class="bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-4">
         <h2 class="text-sm sm:text-base font-bold pb-3 border-b border-brand-border flex items-center gap-2">
           <i class="ph-bold ph-squares-four text-brand-emerald"></i> Gestão do Estabelecimento
         </h2>
 
-        <div class="space-y-2.5 text-xs sm:text-sm">
+        <div class="space-y-2 text-xs sm:text-sm">
           
-          <!-- PRIORIDADE 1: CAIXA E COMANDA -->
+          <!-- CAIXA E COMANDA -->
           <a href="caixacomanda.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group border-emerald-500/30 bg-emerald-500/5">
             <div class="flex items-center gap-2.5 sm:gap-3">
               <i class="ph-bold ph-receipt text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
@@ -215,7 +181,7 @@
             <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold uppercase">Caixa</span>
           </a>
 
-          <!-- PRIORIDADE 2: RELATÓRIOS E FATURAMENTO -->
+          <!-- RELATÓRIOS E FATURAMENTO -->
           <a href="relatorios.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
             <div class="flex items-center gap-2.5 sm:gap-3">
               <i class="ph-bold ph-chart-line-up text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
@@ -224,7 +190,7 @@
             <i class="ph-bold ph-caret-right text-xs"></i>
           </a>
 
-          <!-- PRIORIDADE 3: CRM DE CLIENTES -->
+          <!-- CRM DE CLIENTES -->
           <a href="clientes-loja.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
             <div class="flex items-center gap-2.5 sm:gap-3">
               <i class="ph-bold ph-address-book text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
@@ -233,7 +199,7 @@
             <i class="ph-bold ph-caret-right text-xs"></i>
           </a>
 
-          <!-- PRIORIDADE 4: EQUIPE & BARBEIROS -->
+          <!-- EQUIPE & BARBEIROS -->
           <a href="equipe.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
             <div class="flex items-center gap-2.5 sm:gap-3">
               <i class="ph-bold ph-identification-badge text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
@@ -278,6 +244,7 @@
             <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-brand-emerald border border-emerald-500/20 font-bold">Pro</span>
           </a>
 
+          <!-- CONFIGURAÇÕES DA EMPRESA & DADOS FISCAIS -->
           <a href="configuracoes.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
             <div class="flex items-center gap-2.5 sm:gap-3">
               <i class="ph-bold ph-sliders text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
@@ -293,258 +260,84 @@
               <span>Exportar Dados (CSV)</span>
             </div>
             <i class="ph-bold ph-caret-right text-xs"></i>
-          </button>ang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Painel da Barbearia — agenlits</title>
-  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="style.css" />
-  <script>
-    function initTheme() {
-      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
-      if (savedTheme === 'light') document.documentElement.classList.add('light');
-      else document.documentElement.classList.remove('light');
-      updateThemeIcons();
-    }
-    function toggleTheme() {
-      const isLight = document.documentElement.classList.toggle('light');
-      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
-      updateThemeIcons();
-    }
-    function updateThemeIcons() {
-      const isLight = document.documentElement.classList.contains('light');
-      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
-        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
-      });
-    }
-    initTheme();
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
-      updateThemeIcons();
-    });
-  </script>
-
-<script>
-  // Redirecionamento inteligente ao clicar na logo para usuários com sessão ativa
-  (async function setupLogoRedirect() {
-    try {
-      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
-      if (!window.supabase) return;
-      const client = (window._agenlitsClient = window._agenlitsClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
-      const { data: { session } } = await client.auth.getSession();
-      
-      if (session && session.user) {
-        const { data: shop } = await client
-          .from('barbershops')
-          .select('id')
-          .eq('owner_id', session.user.id)
-          .maybeSingle();
-
-        const destination = shop ? 'painel.html' : 'cliente.html';
-
-        document.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('a[href="index.html"], a[href="painel.html"], a[href="/"]').forEach(link => {
-            if (link.querySelector('img[src*="fonte escura.png"]') || link.querySelector('img[alt*="agenlits"]')) {
-              link.href = destination;
-            }
-          });
-        });
-      }
-    } catch (e) {
-      console.error('Erro no link dinâmico da logo:', e);
-    }
-  })();
-</script>
-
-</head>
-<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-emerald-500 selection:text-black">
-
-  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-3.5 sm:px-8 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2.5 sm:gap-4">
-      <a href="painel.html" class="flex items-center gap-2">
-        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
-      </a>
-      <span class="hidden sm:inline-block px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
-        Painel de Gestão
-      </span>
-    </div>
-
-    <div class="flex items-center gap-2 sm:gap-4">
-      <a href="perfil.html" class="p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Configurações de Perfil">
-        <i class="ph-bold ph-gear text-lg text-brand-emerald"></i>
-      </a>
-
-      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
-        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
-      </button>
-
-      <div class="text-right hidden sm:block">
-        <div id="user-display-name" class="text-xs font-bold truncate max-w-[140px]">Carregando...</div>
-        <div id="user-display-email" class="text-[11px] text-brand-muted truncate max-w-[140px]">...</div>
-      </div>
-
-      <button id="btn-logout" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition cursor-pointer">
-        <i class="ph-bold ph-sign-out text-base"></i>
-        <span class="hidden xs:inline">Sair</span>
-      </button>
-    </div>
-  </header>
-
-  <main class="flex-1 max-w-7xl mx-auto w-full px-3.5 sm:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
-    
-    <div id="avatar-status-msg" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
-
-    <div class="bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-4 sm:p-8 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 sm:gap-6 shadow-xl">
-      
-      <div class="flex items-center gap-4 sm:gap-5">
-        <div class="relative group shrink-0">
-          <div id="avatar-container" class="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-brand-darker border-2 border-brand-border overflow-hidden flex items-center justify-center shadow-lg transition duration-200 group-hover:border-brand-emerald">
-            <img id="shop-avatar-img" src="" alt="Foto de perfil" class="hidden w-full h-full object-cover" />
-            <i id="shop-avatar-icon" class="ph ph-storefront text-2xl sm:text-4xl text-brand-emerald"></i>
-          </div>
-
-          <label for="avatar-file-input" class="absolute -bottom-1.5 -right-1.5 sm:-bottom-2 sm:-right-2 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-brand-emerald text-brand-darker flex items-center justify-center shadow-md cursor-pointer hover:scale-110 active:scale-95 transition" title="Alterar foto de perfil">
-            <i class="ph-bold ph-camera text-sm sm:text-base text-[#272D2D]"></i>
-          </label>
-          <input type="file" id="avatar-file-input" accept="image/png, image/jpeg, image/webp" class="hidden" />
-        </div>
-
-        <div class="min-w-0 flex-1">
-          <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-brand-emerald">Visão Geral</span>
-          <h1 id="shop-name-title" class="text-lg sm:text-3xl font-extrabold truncate mt-0.5">Sua Barbearia</h1>
-        </div>
-      </div>
-
-      <div class="w-full md:w-auto bg-brand-darker border border-brand-border rounded-xl sm:rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
-        <div class="min-w-0">
-          <div class="text-[10px] sm:text-[11px] uppercase font-bold text-brand-muted">Link público de agendamento</div>
-          <div id="public-link-text" class="text-xs font-mono text-brand-emerald truncate mt-0.5">3lits-agenlits.vercel.app/agendar.html?b=...</div>
-        </div>
-        <div class="flex items-center gap-2 mt-1 sm:mt-0">
-          <button id="btn-copy-link" class="btn-emerald-invert flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 shrink-0">
-            <i class="ph-bold ph-copy"></i> Copiar
           </button>
-          <a id="btn-visit-page" href="#" target="_blank" class="btn-secondary-invert flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 shrink-0">
-            <i class="ph-bold ph-arrow-square-out"></i> Abrir
-          </a>
+
         </div>
       </div>
+
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
-        <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
-          <span class="text-[10px] sm:text-xs font-semibold uppercase">Agendamentos</span>
-          <i class="ph ph-calendar-check text-base sm:text-xl text-brand-emerald"></i>
-        </div>
-        <div class="text-xl sm:text-2xl font-extrabold">0</div>
-        <span class="text-[10px] sm:text-[11px] text-brand-muted block truncate">Hoje</span>
-      </div>
-
-      <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
-        <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
-          <span class="text-[10px] sm:text-xs font-semibold uppercase">Barbeiros</span>
-          <i class="ph ph-users-three text-base sm:text-xl text-brand-emerald"></i>
-        </div>
-        <div id="metric-barbers" class="text-xl sm:text-2xl font-extrabold">0</div>
-        <span class="text-[10px] sm:text-[11px] text-brand-emerald block truncate">Equipe ativa</span>
-      </div>
-
-      <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
-        <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
-          <span class="text-[10px] sm:text-xs font-semibold uppercase">Serviços</span>
-          <i class="ph ph-scissors text-base sm:text-xl text-brand-emerald"></i>
-        </div>
-        <div id="metric-services" class="text-xl sm:text-2xl font-extrabold">0</div>
-        <span class="text-[10px] sm:text-[11px] text-brand-muted block truncate">Cadastrados</span>
-      </div>
-
-      <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
-        <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
-          <span class="text-[10px] sm:text-xs font-semibold uppercase">Plataforma</span>
-          <i class="ph ph-shield-check text-base sm:text-xl text-brand-emerald"></i>
-        </div>
-        <div class="text-xs sm:text-sm font-bold text-brand-emerald mt-1">Grátis Ativo</div>
-        <span class="text-[10px] sm:text-[11px] text-brand-muted block truncate">14 dias teste</span>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
-      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-5 sm:p-6">
-        <div class="flex items-center justify-between pb-3 sm:pb-4 border-b border-brand-border mb-4">
-          <h2 class="text-sm sm:text-base font-bold flex items-center gap-2">
-            <i class="ph-bold ph-calendar text-brand-emerald"></i> Próximos Agendamentos
-          </h2>
-          <a href="agendar.html" target="_blank" class="btn-emerald-invert px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1">
-            + Novo
-          </a>
-        </div>
-
-        <div id="dashboard-appointments-list" class="space-y-3">
-          <div class="py-10 text-center text-brand-muted space-y-2.5">
-            <i class="ph ph-circle-notch animate-spin text-xl text-brand-emerald"></i>
-            <p class="text-xs">Carregando agendamentos do estabelecimento...</p>
+    <!-- MODAL DE AGENDAMENTO DE BALCÃO (WALK-IN) -->
+    <div id="modal-walkin" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-4 relative">
+        <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-brand-emerald/10 text-brand-emerald flex items-center justify-center text-lg">
+              <i class="ph-bold ph-user-plus"></i>
+            </div>
+            <h3 class="text-sm sm:text-base font-bold text-brand-main">Agendamento Manual de Balcão</h3>
           </div>
+          <button type="button" onclick="closeWalkinModal()" class="text-brand-muted hover:text-brand-main p-1 text-lg cursor-pointer">
+            <i class="ph-bold ph-x"></i>
+          </button>
         </div>
-      </div>
 
-      <div class="bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-4">
-        <h2 class="text-sm sm:text-base font-bold pb-3 border-b border-brand-border flex items-center gap-2">
-          <i class="ph-bold ph-gear text-brand-emerald"></i> Configurações Rápidas
-        </h2>
+        <form id="form-walkin" onsubmit="return false;" class="space-y-3.5 text-xs">
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Nome do Cliente</label>
+            <input type="text" id="walkin-client-name" required placeholder="Nome completo" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main focus:outline-none focus:border-brand-emerald transition" />
+          </div>
 
-        <div class="space-y-2.5 text-xs sm:text-sm">
-          <a href="fotos.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
-            <div class="flex items-center gap-2.5 sm:gap-3">
-              <i class="ph-bold ph-images text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
-              <span>Fotos & Portfólio</span>
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">WhatsApp / Telefone</label>
+            <input type="tel" id="walkin-client-phone" required placeholder="(85) 99999-9999" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main focus:outline-none focus:border-brand-emerald transition" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-brand-muted uppercase mb-1">Serviço</label>
+              <select id="walkin-service-select" class="w-full px-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main focus:outline-none focus:border-brand-emerald">
+                <option value="">Selecione o serviço...</option>
+              </select>
             </div>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-brand-emerald border border-emerald-500/20 font-bold">Novo</span>
-          </a>
-
-          <a href="servicos.html"  class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
-            <div class="flex items-center gap-2.5 sm:gap-3">
-              <i class="ph ph-scissors text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
-              <span>Serviços & Preços</span>
+            <div>
+              <label class="block font-bold text-brand-muted uppercase mb-1">Profissional</label>
+              <select id="walkin-barber-select" class="w-full px-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main focus:outline-none focus:border-brand-emerald">
+                <option value="">Qualquer disponível</option>
+              </select>
             </div>
-            <i class="ph-bold ph-caret-right text-xs"></i>
-          </a>
+          </div>
 
-          <a href="horarios.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
-            <div class="flex items-center gap-2.5 sm:gap-3">
-              <i class="ph ph-clock text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
-              <span>Horários de Atendimento</span>
-            </div>
-            <i class="ph-bold ph-caret-right text-xs"></i>
-          </a>
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Data & Horário</label>
+            <input type="datetime-local" id="walkin-datetime" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main focus:outline-none focus:border-brand-emerald" />
+          </div>
 
-          <a href="barbeiros.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
-            <div class="flex items-center gap-2.5 sm:gap-3">
-              <i class="ph ph-user-plus text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
-              <span>Cadastrar Barbeiros</span>
-            </div>
-            <i class="ph-bold ph-caret-right text-xs"></i>
-          </a>
-        </div>
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Observações do Atendimento</label>
+            <input type="text" id="walkin-notes" placeholder="Ex: Cliente prefere máquina 2, alérgico a pomada..." class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main focus:outline-none focus:border-brand-emerald" />
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2">
+            <button type="button" onclick="closeWalkinModal()" class="px-4 py-2.5 rounded-xl border border-brand-border hover:bg-brand-darker text-brand-muted hover:text-brand-main text-xs font-semibold cursor-pointer">
+              Cancelar
+            </button>
+            <button type="button" id="btn-save-walkin" onclick="submitWalkinBooking()" class="btn-emerald-invert px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+              Confirmar Balcão <i class="ph-bold ph-check"></i>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
+
   </main>
 
-  <footer class="border-t border-brand-border py-4 text-center text-[11px] text-brand-muted">
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
     &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
   </footer>
 
   <script>
     (() => {
-      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
-      const client = (window._agenlitsClient = window._agenlitsClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
-
       let currentShop = null;
 
       const userNameEl = document.getElementById('user-display-name');
@@ -561,21 +354,38 @@
       const fileInput = document.getElementById('avatar-file-input');
       const statusMsg = document.getElementById('avatar-status-msg');
 
-      
-      function escapeHtml(str) {
-        return String(str || '').replace(/[&<>'"]/g, t => ({
-          '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-        }[t]));
+      function showNotice(text, isError = false) {
+        statusMsg.textContent = text;
+        statusMsg.className = isError 
+          ? 'mt-3 p-3.5 rounded-xl text-xs flex items-center gap-2 bg-red-950/80 border border-red-500 text-red-200'
+          : 'mt-3 p-3.5 rounded-xl text-xs flex items-center gap-2 bg-emerald-950/80 border border-emerald-500 text-emerald-200';
+        statusMsg.classList.remove('hidden');
+        setTimeout(() => statusMsg.classList.add('hidden'), 4000);
       }
 
+      function updateAvatarUI(url) {
+        if (url) {
+          shopAvatarImg.src = url;
+          shopAvatarImg.classList.remove('hidden');
+          shopAvatarIcon.classList.add('hidden');
+        } else {
+          shopAvatarImg.classList.add('hidden');
+          shopAvatarIcon.classList.remove('hidden');
+        }
+      }
+
+      // ==========================================
+      // BUSCA RESILIENTE DE AGENDAMENTOS
+      // ==========================================
       async function loadDashboardAppointments(barbershopId) {
         const container = document.getElementById('dashboard-appointments-list');
         if (!container) return;
 
         try {
+          // Seleciona com compatibilidade garantida de colunas
           const { data: appointments, error } = await client
             .from('appointments')
-            .select('id, starts_at, status, client_name, client_phone, services(name, price), barbers(name)')
+            .select('id, starts_at, status, client_name, client_phone, price_cents, services(name), barbers(name)')
             .eq('barbershop_id', barbershopId)
             .gte('starts_at', new Date().toISOString())
             .order('starts_at', { ascending: true })
@@ -624,14 +434,20 @@
                   </div>
                   <div class="text-[10px] text-brand-muted mt-0.5">Profissional: ${escapeHtml(barbeiro)}</div>
                 </div>
+
                 <div class="flex flex-wrap items-center gap-1.5 justify-end">
                   <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
                     ${escapeHtml(statusLabel)}
                   </span>
                   ${apt.client_phone ? `
-                    <a href="https://wa.me/55${apt.client_phone.replace(/\D/g, '')}" target="_blank" class="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-black transition" title="Contatar no WhatsApp">
-                      <i class="ph-bold ph-whatsapp-logo text-xs"></i>
-                    </a>
+                    <div class="flex items-center gap-1">
+                      <button onclick="window.sendWhatsAppMessage('${escapeHtml(apt.client_phone)}', 'confirm', '${escapeHtml(cliente)}', '${escapeHtml(servico)}', '${dataHora.split(' ')[0]}', '${dataHora.split(' ')[1] || ''}')" class="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-black transition cursor-pointer text-xs" title="Enviar Confirmação WhatsApp">
+                        <i class="ph-bold ph-whatsapp-logo text-xs"></i>
+                      </button>
+                      <button onclick="window.sendWhatsAppMessage('${escapeHtml(apt.client_phone)}', 'reminder', '${escapeHtml(cliente)}', '${escapeHtml(servico)}', '${dataHora.split(' ')[0]}', '${dataHora.split(' ')[1] || ''}')" class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500 hover:text-black transition cursor-pointer text-xs" title="Enviar Lembrete 24h">
+                        <i class="ph-bold ph-bell-ringing text-xs"></i>
+                      </button>
+                    </div>
                   ` : ''}
                   ${apt.status !== 'done' && apt.status !== 'cancelled' ? `
                     <button onclick="window.updateAppointmentStatus('${apt.id}', 'done')" class="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white transition cursor-pointer text-xs" title="Concluir Atendimento">
@@ -650,11 +466,13 @@
           }).join('');
         } catch (err) {
           console.error('Erro ao carregar agendamentos do dashboard:', err);
-          container.innerHTML = '<p class="text-xs text-red-400 py-4 text-center">Falha ao buscar agendamentos.</p>';
+          container.innerHTML = `<div class="p-4 rounded-xl bg-red-950/40 border border-red-500/40 text-center space-y-1">
+            <p class="text-xs text-red-400 font-bold">Falha ao buscar agendamentos.</p>
+            <p class="text-[10px] text-red-300">${escapeHtml(err.message || 'Erro de conexão.')}</p>
+          </div>`;
         }
       }
 
-      
       window.updateAppointmentStatus = async (appointmentId, newStatus) => {
         const statusLabels = {
           confirmed: 'confirmar este agendamento',
@@ -686,25 +504,135 @@
         }
       };
 
-      function showNotice(text, isError = false) {
-        statusMsg.textContent = text;
-        statusMsg.className = isError 
-          ? 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-red-950/80 border border-red-500 text-red-200'
-          : 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-emerald-950/80 border border-emerald-500 text-emerald-200';
-        statusMsg.classList.remove('hidden');
-        setTimeout(() => statusMsg.classList.add('hidden'), 4000);
-      }
+      // ==========================================
+      // RECURSOS SAAS: BALCÃO, WHATSAPP & EXPORTAÇÃO
+      // ==========================================
+      window.openWalkinModal = async () => {
+        if (!currentShop) return;
+        const sSelect = document.getElementById('walkin-service-select');
+        const bSelect = document.getElementById('walkin-barber-select');
+        
+        sSelect.innerHTML = '<option value="">Selecione o serviço...</option>';
+        bSelect.innerHTML = '<option value="">Qualquer disponível</option>';
 
-      function updateAvatarUI(url) {
-        if (url) {
-          shopAvatarImg.src = url;
-          shopAvatarImg.classList.remove('hidden');
-          shopAvatarIcon.classList.add('hidden');
-        } else {
-          shopAvatarImg.classList.add('hidden');
-          shopAvatarIcon.classList.remove('hidden');
+        const { data: services } = await client.from('services').select('id, name, price_cents, duration_minutes').eq('barbershop_id', currentShop.id).eq('is_active', true);
+        if (services) {
+          services.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = `${s.name} - R$ ${(s.price_cents / 100).toFixed(2).replace('.', ',')}`;
+            sSelect.appendChild(opt);
+          });
         }
-      }
+
+        const { data: barbers } = await client.from('barbers').select('id, name').eq('barbershop_id', currentShop.id).eq('is_active', true);
+        if (barbers) {
+          barbers.forEach(b => {
+            const opt = document.createElement('option');
+            opt.value = b.id;
+            opt.textContent = b.name;
+            bSelect.appendChild(opt);
+          });
+        }
+
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('walkin-datetime').value = now.toISOString().slice(0, 16);
+
+        document.getElementById('modal-walkin').classList.remove('hidden');
+      };
+
+      window.closeWalkinModal = () => {
+        document.getElementById('modal-walkin').classList.add('hidden');
+      };
+
+      window.submitWalkinBooking = async () => {
+        const clientName = document.getElementById('walkin-client-name').value.trim();
+        const clientPhone = document.getElementById('walkin-client-phone').value.trim();
+        const serviceId = document.getElementById('walkin-service-select').value;
+        const barberId = document.getElementById('walkin-barber-select').value || null;
+        const datetimeVal = document.getElementById('walkin-datetime').value;
+        const notes = document.getElementById('walkin-notes').value.trim() || null;
+
+        if (!clientName || !clientPhone || !serviceId || !datetimeVal) {
+          return alert('Preencha nome, telefone, serviço e horário do cliente.');
+        }
+
+        const btn = document.getElementById('btn-save-walkin');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Agendando...';
+
+        try {
+          const startsAt = new Date(datetimeVal).toISOString();
+          const { data, error } = await client.rpc('create_walkin_appointment', {
+            p_barbershop_id: currentShop.id,
+            p_barber_id: barberId,
+            p_service_id: serviceId,
+            p_client_name: clientName,
+            p_client_phone: clientPhone,
+            p_starts_at: startsAt,
+            p_notes: notes
+          });
+
+          if (error) throw error;
+
+          alert('✅ Agendamento de balcão confirmado com sucesso!');
+          closeWalkinModal();
+          loadDashboardAppointments(currentShop.id);
+        } catch(err) {
+          alert('Erro ao registrar balcão: ' + (err.message || 'Erro inesperado'));
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = 'Confirmar Balcão <i class="ph-bold ph-check"></i>';
+        }
+      };
+
+      window.sendWhatsAppMessage = (phone, type, clientName, serviceName, dateStr, timeStr) => {
+        const cleanPhone = (phone || '').replace(/\D/g, '');
+        if (!cleanPhone) return alert('Cliente sem número de telefone informado.');
+
+        let msg = '';
+        if (type === 'confirm') {
+          msg = `Olá ${clientName}! Seu agendamento para *${serviceName}* na *${currentShop?.name || 'barbearia'}* está confirmado para o dia *${dateStr} às ${timeStr}*. Te esperamos! 💈✂️`;
+        } else if (type === 'reminder') {
+          msg = `Olá ${clientName}! Lembrando do seu atendimento amanhã (*${dateStr} às ${timeStr}*) na *${currentShop?.name || 'barbearia'}* para *${serviceName}*. Até logo!`;
+        } else if (type === 'cancel') {
+          msg = `Olá ${clientName}, informamos que o agendamento de *${serviceName}* marcado para *${dateStr} às ${timeStr}* foi cancelado. Se desejar remarcar, acesse nosso link: 3lits-agenlits.vercel.app/agendar.html?b=${currentShop?.slug || ''}`;
+        }
+
+        const url = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+      };
+
+      window.exportShopAppointmentsCSV = async () => {
+        if (!currentShop) return;
+        try {
+          const { data: appts, error } = await client
+            .from('appointments')
+            .select('id, client_name, client_phone, starts_at, price_cents, status, services(name), barbers(name)')
+            .eq('barbershop_id', currentShop.id)
+            .order('starts_at', { ascending: false });
+
+          if (error || !appts || appts.length === 0) return alert('Nenhum agendamento para exportar.');
+
+          let csv = 'ID;Cliente;Telefone;Data;Horario;Servico;Profissional;Valor_BRL;Status\n';
+          appts.forEach(a => {
+            const d = a.starts_at ? new Date(a.starts_at) : null;
+            const dt = d ? d.toLocaleDateString('pt-BR') : '-';
+            const hr = d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '-';
+            const val = ((a.price_cents || 0) / 100).toFixed(2);
+            csv += `"${a.id}";"${a.client_name || ''}";"${a.client_phone || ''}";"${dt}";"${hr}";"${a.services?.name || ''}";"${a.barbers?.name || 'Geral'}";${val};"${a.status}"\n`;
+          });
+
+          const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `relatorio_clientes_agenlits_${currentShop.slug}_${new Date().toISOString().split('T')[0]}.csv`;
+          link.click();
+        } catch(e) {
+          alert('Erro ao exportar dados: ' + e.message);
+        }
+      };
 
       document.addEventListener('DOMContentLoaded', async () => {
         const { data: { session } } = await client.auth.getSession();
@@ -722,7 +650,6 @@
 
           if (barbershop) {
             currentShop = barbershop;
-            loadDashboardAppointments(barbershop.id);
             shopNameTitle.textContent = barbershop.name;
             const fullUrl = '3lits-agenlits.vercel.app/agendar.html?b=' + barbershop.slug;
             publicLinkText.textContent = fullUrl;
@@ -738,11 +665,40 @@
               setTimeout(() => btnCopyLink.innerHTML = '<i class="ph-bold ph-copy"></i> Copiar', 2500);
             });
 
-            const { count: sCount } = await client.from('services').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershop.id);
-            const { count: bCount } = await client.from('barbers').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershop.id);
+            // Contadores
+            const { count: sCount } = await client.from('services').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershop.id).eq('is_active', true);
+            const { count: bCount } = await client.from('barbers').select('*', { count: 'exact', head: true }).eq('barbershop_id', barbershop.id).eq('is_active', true);
+
+            // Agendamentos hoje
+            const todayStr = new Date().toLocaleDateString('sv-SE');
+            const { count: aTodayCount } = await client
+              .from('appointments')
+              .select('*', { count: 'exact', head: true })
+              .eq('barbershop_id', barbershop.id)
+              .gte('starts_at', `${todayStr}T00:00:00`)
+              .lte('starts_at', `${todayStr}T23:59:59`);
 
             if (metricServices) metricServices.textContent = sCount || 0;
             if (metricBarbers) metricBarbers.textContent = bCount || 0;
+            const metricAppts = document.getElementById('metric-appointments-today');
+            if (metricAppts) metricAppts.textContent = aTodayCount || 0;
+
+            const pStatus = document.getElementById('metric-plan-status');
+            const pDesc = document.getElementById('metric-plan-desc');
+            if (pStatus && pDesc) {
+              if (barbershop.plan === 'pro') {
+                pStatus.textContent = 'Plano PRO Ativo';
+                pDesc.textContent = 'Gerenciar assinatura';
+              } else {
+                const trialDate = barbershop.trial_ends_at ? new Date(barbershop.trial_ends_at) : new Date(Date.now() + 14*86400000);
+                const daysLeft = Math.max(0, Math.ceil((trialDate.getTime() - Date.now()) / (1000 * 3600 * 24)));
+                pStatus.textContent = `Trial (${daysLeft} dias)`;
+                pDesc.textContent = 'Fazer upgrade agora';
+              }
+            }
+
+            // Carrega agendamentos
+            loadDashboardAppointments(barbershop.id);
           }
         } catch (err) {
           console.error(err);
@@ -790,11 +746,11 @@
           }
         });
 
-        // Logout direto sem pop-up de confirm
         btnLogout.addEventListener('click', async () => {
           btnLogout.disabled = true;
           btnLogout.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i>';
-          localStorage.removeItem('agenlits_user_type'); await client.auth.signOut();
+          localStorage.removeItem('agenlits_user_type');
+          await client.auth.signOut();
           window.location.href = 'login.html';
         });
       });
