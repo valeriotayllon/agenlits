@@ -325,17 +325,62 @@
         selectedService = { id, name, price, duration };
         document.querySelectorAll('.service-card').forEach(c => c.classList.remove('border-brand-emerald', 'bg-brand-emerald/10'));
         element.classList.add('border-brand-emerald', 'bg-brand-emerald/10');
+        populateTimes();
       };
 
       window.chooseBarber = (id, name, element) => {
         selectedBarber = { id, name };
         document.querySelectorAll('.barber-card').forEach(c => c.classList.remove('border-brand-emerald', 'bg-brand-emerald/10'));
         element.classList.add('border-brand-emerald', 'bg-brand-emerald/10');
+        populateTimes();
       };
 
-      function populateTimes() {
-        const times = ['09:00', '09:40', '10:20', '11:00', '11:40', '13:00', '13:40', '14:20', '15:00', '15:40', '16:20', '17:00', '17:40', '18:20'];
-        timeSelect.innerHTML = '<option value="">Escolha o horário</option>' + times.map(t => `<option value="${t}">${t}</option>`).join('');
+async function populateTimes() {
+        if (!currentShop || !currentShop.id) return;
+
+        if (!selectedService) {
+          timeSelect.innerHTML = '<option value="">⚠️ Escolha primeiro o serviço acima</option>';
+          return;
+        }
+
+        const chosenDate = dateInput.value;
+        if (!chosenDate) {
+          timeSelect.innerHTML = '<option value="">Selecione uma data</option>';
+          return;
+        }
+
+        timeSelect.disabled = true;
+        timeSelect.innerHTML = '<option value="">⏳ Verificando disponibilidade real...</option>';
+
+        try {
+          const { data: slots, error } = await client.rpc('get_available_slots', {
+            p_shop_id: currentShop.id,
+            p_barber_id: selectedBarber ? selectedBarber.id : null,
+            p_service_id: selectedService.id,
+            p_date: chosenDate
+          });
+
+          if (error) {
+            console.warn('Falha na RPC get_available_slots:', error.message);
+            // Fallback elegante caso a migration ainda não tenha sido executada
+            timeSelect.innerHTML = '<option value="">Erro ao carregar horários. Tente outra data.</option>';
+            return;
+          }
+
+          if (!slots || slots.length === 0) {
+            timeSelect.innerHTML = '<option value="">🚫 Nenhum horário livre nesta data (fechado ou lotado)</option>';
+            return;
+          }
+
+          timeSelect.innerHTML = '<option value="">Selecione o horário desejado (' + slots.length + ' disponíveis)</option>' +
+            slots.map(s => `<option value="${s.slot_time}">${s.slot_time}</option>`).join('');
+
+        } catch (err) {
+          console.error('Erro ao buscar slots:', err);
+          timeSelect.innerHTML = '<option value="">Erro ao consultar agenda</option>';
+        } finally {
+          timeSelect.disabled = false;
+        }
       }
 
       dateInput.addEventListener('change', populateTimes);
