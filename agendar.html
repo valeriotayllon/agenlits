@@ -341,6 +341,12 @@
         btnConfirm.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Confirmando...';
 
         try {
+                  if (!currentShop || !currentShop.id) {
+          alert('Erro: Dados do estabelecimento não carregados. Recarregue a página.');
+          btnConfirm.disabled = false;
+          btnConfirm.innerHTML = 'Confirmar Meu Agendamento <i class="ph-bold ph-check"></i>';
+          return;
+        }
           const selectedDate = dateInput.value;
           const selectedTime = timeSelect.value;
           const startsAt = new Date(`${selectedDate}T${selectedTime}:00`).toISOString();
@@ -354,7 +360,7 @@
 
           // Tentativa via RPC transacional anti-overlap
           const { data: rpcRes, error: rpcErr } = await client.rpc('book_appointment', {
-            p_barbershop_id: currentShopId,
+            p_barbershop_id: currentShop.id,
             p_barber_id: selectedBarber ? selectedBarber.id : null,
             p_service_id: selectedService.id,
             p_client_name: clientName,
@@ -369,7 +375,7 @@
             const duration = selectedService.duration_minutes || 30;
             const endsAt = new Date(new Date(startsAt).getTime() + duration * 60000).toISOString();
             const { error: insErr } = await client.from('appointments').insert([{
-              barbershop_id: currentShopId,
+              barbershop_id: currentShop.id,
               barber_id: selectedBarber ? selectedBarber.id : null,
               service_id: selectedService.id,
               client_id: clientId,
@@ -461,6 +467,72 @@
         `).join('');
       }
 
+
+      
+      // ==========================================
+      // TESTE DE FUMAÇA (SMOKE TEST E2E)
+      // Execute window.smokeTestBooking() no Console do DevTools
+      // ==========================================
+      window.smokeTestBooking = async function() {
+        console.group('🧪 Smoke Test: Fluxo de Agendamento');
+        try {
+          if (!currentShop || !currentShop.id) {
+            throw new Error('currentShop não carregado ou sem ID.');
+          }
+          console.log('✅ Estabelecimento validado:', currentShop.name, '(ID:', currentShop.id, ')');
+
+          if (!allServices || allServices.length === 0) {
+            throw new Error('Nenhum serviço disponível para testar.');
+          }
+          const testService = allServices[0];
+          console.log('✅ Serviço de teste:', testService.name, '(ID:', testService.id, ')');
+
+          const testDate = dateInput.value || new Date().toLocaleDateString('sv-SE');
+          const testTime = '14:00';
+          const startsAt = new Date(`${testDate}T${testTime}:00`).toISOString();
+
+          console.log('⏳ Disparando RPC book_appointment...');
+          const { data, error } = await client.rpc('book_appointment', {
+            p_barbershop_id: currentShop.id,
+            p_barber_id: null,
+            p_service_id: testService.id,
+            p_client_name: 'Teste de Fumaça E2E',
+            p_client_phone: '(85) 99999-0000',
+            p_starts_at: startsAt,
+            p_client_id: null,
+            p_notes: 'Agendamento de teste automatizado via smokeTest'
+          });
+
+          if (error) {
+            console.warn('⚠️ RPC retornou erro ou não existe ainda, testando fallback direto...', error.message);
+            const duration = testService.duration_minutes || 30;
+            const endsAt = new Date(new Date(startsAt).getTime() + duration * 60000).toISOString();
+            const { data: insData, error: insErr } = await client.from('appointments').insert([{
+              barbershop_id: currentShop.id,
+              barber_id: null,
+              service_id: testService.id,
+              client_name: 'Teste de Fumaça E2E (Fallback)',
+              client_phone: '(85) 99999-0000',
+              starts_at: startsAt,
+              ends_at: endsAt,
+              price_cents: Math.round((testService.price || 0) * 100),
+              status: 'confirmed',
+              notes: 'Teste de fumaça'
+            }]).select();
+
+            if (insErr) throw insErr;
+            console.log('✅ Inserção direta confirmada:', insData);
+          } else {
+            console.log('✅ RPC executada com sucesso:', data);
+          }
+
+          console.log('🎉 TESTE DE FUMAÇA CONCLUÍDO COM SUCESSO: O agendamento foi salvo no banco!');
+        } catch (err) {
+          console.error('❌ FALHA NO SMOKE TEST:', err);
+        } finally {
+          console.groupEnd();
+        }
+      };
 
       document.addEventListener('DOMContentLoaded', init);
     })();

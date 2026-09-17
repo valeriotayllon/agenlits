@@ -36,34 +36,34 @@
 </head>
 <body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
 
-  <!-- ================= TELA DE LOGIN DO ADMINISTRADOR (BLOQUEIO INICIAL) ================= -->
+  <!-- ================= TELA DE LOGIN DO ADMINISTRADOR (AUTENTICAÇÃO REAL SUPABASE) ================= -->
   <div id="admin-auth-screen" class="flex-1 flex flex-col items-center justify-center p-4">
     <div class="w-full max-w-sm bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 text-center relative overflow-hidden">
       
       <div class="absolute -top-16 -right-16 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
       <div class="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center mx-auto text-2xl shadow-inner">
-        <i class="ph-bold ph-lock-key"></i>
+        <i class="ph-bold ph-shield-check"></i>
       </div>
 
       <div>
-        <h1 class="text-xl font-extrabold tracking-tight">Área Restrita</h1>
-        <p class="text-xs text-brand-muted mt-1">Acesso exclusivo à administração da plataforma.</p>
+        <h1 class="text-xl font-extrabold tracking-tight">Administração da Plataforma</h1>
+        <p class="text-xs text-brand-muted mt-1">Autenticação obrigatória com credenciais de administrador.</p>
       </div>
 
-      <div id="auth-error-box" class="hidden p-3 rounded-xl bg-red-950/80 border border-red-500 text-red-200 text-xs flex items-center gap-2 text-left">
-        <i class="ph-bold ph-warning-circle text-base shrink-0 text-red-400"></i>
-        <span id="auth-error-text">Usuário ou senha incorretos.</span>
+      <div id="auth-error-box" class="hidden p-3.5 rounded-xl bg-red-950/80 border border-red-500 text-red-200 text-xs flex items-start gap-2 text-left">
+        <i class="ph-bold ph-warning-circle text-base shrink-0 text-red-400 mt-0.5"></i>
+        <span id="auth-error-text">Credenciais inválidas.</span>
       </div>
 
       <form id="admin-auth-form" onsubmit="return false;" class="space-y-3.5 text-left">
         <div>
-          <label class="block text-[11px] font-bold text-brand-muted uppercase mb-1">Usuário</label>
+          <label class="block text-[11px] font-bold text-brand-muted uppercase mb-1">E-mail de Administrador</label>
           <div class="relative">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted">
-              <i class="ph ph-user text-base"></i>
+              <i class="ph ph-envelope-simple text-base"></i>
             </span>
-            <input type="text" id="admin-user-input" required placeholder="Digite seu login" autocomplete="off" class="w-full pl-9 pr-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs text-brand-main focus:outline-none focus:border-brand-emerald transition" />
+            <input type="email" id="admin-email-input" required placeholder="admin@agenlits.com" autocomplete="email" class="w-full pl-9 pr-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs text-brand-main focus:outline-none focus:border-brand-emerald transition" />
           </div>
         </div>
 
@@ -71,9 +71,9 @@
           <label class="block text-[11px] font-bold text-brand-muted uppercase mb-1">Senha</label>
           <div class="relative">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-brand-muted">
-              <i class="ph ph-password text-base"></i>
+              <i class="ph ph-lock text-base"></i>
             </span>
-            <input type="password" id="admin-pass-input" required placeholder="••••••••" autocomplete="off" class="w-full pl-9 pr-9 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs text-brand-main focus:outline-none focus:border-brand-emerald transition" />
+            <input type="password" id="admin-pass-input" required placeholder="••••••••" autocomplete="current-password" class="w-full pl-9 pr-9 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs text-brand-main focus:outline-none focus:border-brand-emerald transition" />
             <button type="button" id="toggle-admin-pass" class="absolute inset-y-0 right-0 flex items-center pr-3 text-brand-muted hover:text-brand-main">
               <i class="ph ph-eye text-base"></i>
             </button>
@@ -81,7 +81,7 @@
         </div>
 
         <button type="button" id="btn-admin-submit-login" class="btn-emerald-invert w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 mt-2 cursor-pointer shadow-lg shadow-emerald-500/10">
-          Acessar Painel <i class="ph-bold ph-arrow-right"></i>
+          <span>Autenticar no Supabase</span> <i class="ph-bold ph-sign-in"></i>
         </button>
       </form>
 
@@ -93,7 +93,7 @@
     </div>
   </div>
 
-  <!-- ================= PAINEL DE CONTROLE (SÓ APARECE APÓS AUTENTICADO) ================= -->
+  <!-- ================= PAINEL DE CONTROLE (LIBERADO APENAS SE is_platform_admin() = true) ================= -->
   <div id="admin-dashboard-screen" class="hidden flex-1 flex flex-col justify-between">
     
     <!-- CABEÇALHO DO ADMIN -->
@@ -108,7 +108,7 @@
       </div>
 
       <div class="flex items-center gap-3">
-        <span class="text-xs text-brand-muted font-medium hidden sm:inline">Logado como: <strong class="text-brand-main">valeriotayllon</strong></span>
+        <span class="text-xs text-brand-muted font-medium hidden sm:inline">Admin: <strong id="admin-logged-user-email" class="text-brand-main font-mono">-</strong></span>
         <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
           <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
         </button>
@@ -127,7 +127,7 @@
           <h1 class="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
             <i class="ph-bold ph-chart-polar text-brand-emerald"></i> Controle Geral de Usuários
           </h1>
-          <p class="text-xs text-brand-muted mt-1">Gerencie todos os clientes, salões, barbearias e agendamentos cadastrados no agenlits.</p>
+          <p class="text-xs text-brand-muted mt-1">Gerencie estabelecimentos, clientes e agendamentos com autorização direta do banco de dados.</p>
         </div>
 
         <button type="button" onclick="loadAllData()" class="btn-secondary-invert self-start sm:self-auto px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 cursor-pointer">
@@ -162,18 +162,18 @@
             <i class="ph ph-calendar-check text-xl text-brand-emerald"></i>
           </div>
           <div id="stat-appointments" class="text-2xl sm:text-3xl font-black text-brand-main">0</div>
-          <span class="text-[11px] text-brand-muted">Reservas realizadas</span>
+          <span class="text-[11px] text-brand-muted">Reservas registradas</span>
         </div>
 
         <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
           <div class="flex items-center justify-between text-brand-muted mb-2">
-            <span class="text-xs font-semibold uppercase tracking-wider">Status do Sistema</span>
-            <i class="ph ph-activity text-xl text-emerald-400"></i>
+            <span class="text-xs font-semibold uppercase tracking-wider">Autorização RLS</span>
+            <i class="ph ph-shield-check text-xl text-emerald-400"></i>
           </div>
           <div class="text-sm font-black text-emerald-400 mt-2 flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> 100% Operacional
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span> Token Admin Válido
           </div>
-          <span class="text-[11px] text-brand-muted">Supabase & Vercel</span>
+          <span class="text-[11px] text-brand-muted">is_platform_admin() = true</span>
         </div>
 
       </div>
@@ -192,7 +192,7 @@
           </button>
         </div>
 
-        <!-- Barra de Pesquisa Rápida da Tabela Ativa -->
+        <!-- Barra de Pesquisa Rápida -->
         <div class="relative w-full sm:w-72">
           <i class="ph ph-magnifying-glass absolute left-3.5 top-2.5 text-base text-brand-muted"></i>
           <input type="text" id="admin-search-input" placeholder="Buscar na tabela..." class="w-full pl-10 pr-3.5 py-2 bg-brand-card border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald transition" />
@@ -277,106 +277,105 @@
         </div>
       </div>
 
-    
-    <!-- MODAL DE EDIÇÃO DE ESTABELECIMENTO -->
-    <div id="modal-edit-shop" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-lg p-6 sm:p-8 shadow-2xl space-y-5 relative">
-        <div class="flex items-center justify-between pb-3 border-b border-brand-border">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-brand-emerald/10 text-brand-emerald flex items-center justify-center text-lg">
-              <i class="ph-bold ph-pencil-simple"></i>
+      <!-- MODAL DE EDIÇÃO DE ESTABELECIMENTO -->
+      <div id="modal-edit-shop" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-lg p-6 sm:p-8 shadow-2xl space-y-5 relative">
+          <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-brand-emerald/10 text-brand-emerald flex items-center justify-center text-lg">
+                <i class="ph-bold ph-pencil-simple"></i>
+              </div>
+              <h3 class="text-base font-bold text-brand-main">Editar Estabelecimento</h3>
             </div>
-            <h3 class="text-base font-bold text-brand-main">Editar Estabelecimento</h3>
-          </div>
-          <button type="button" onclick="closeEditShopModal()" class="text-brand-muted hover:text-brand-main p-1 text-lg cursor-pointer">
-            <i class="ph-bold ph-x"></i>
-          </button>
-        </div>
-
-        <form id="form-edit-shop" onsubmit="return false;" class="space-y-4 text-xs">
-          <input type="hidden" id="edit-shop-id" />
-
-          <div>
-            <label class="block font-bold text-brand-muted uppercase mb-1">Nome do Estabelecimento</label>
-            <input type="text" id="edit-shop-name" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
+            <button type="button" onclick="closeEditShopModal()" class="text-brand-muted hover:text-brand-main p-1 text-lg cursor-pointer">
+              <i class="ph-bold ph-x"></i>
+            </button>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <form id="form-edit-shop" onsubmit="return false;" class="space-y-4 text-xs">
+            <input type="hidden" id="edit-shop-id" />
+
             <div>
-              <label class="block font-bold text-brand-muted uppercase mb-1">Slug / Link exclusivo</label>
-              <div class="flex items-center rounded-xl bg-brand-darker border border-brand-border overflow-hidden focus-within:border-brand-emerald">
-                <span class="px-2 text-brand-muted text-[11px] font-mono select-none">/</span>
-                <input type="text" id="edit-shop-slug" class="w-full py-2.5 pr-2 bg-transparent text-xs text-brand-emerald font-mono focus:outline-none" />
+              <label class="block font-bold text-brand-muted uppercase mb-1">Nome do Estabelecimento</label>
+              <input type="text" id="edit-shop-name" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block font-bold text-brand-muted uppercase mb-1">Slug / Link exclusivo</label>
+                <div class="flex items-center rounded-xl bg-brand-darker border border-brand-border overflow-hidden focus-within:border-brand-emerald">
+                  <span class="px-2 text-brand-muted text-[11px] font-mono select-none">/</span>
+                  <input type="text" id="edit-shop-slug" class="w-full py-2.5 pr-2 bg-transparent text-xs text-brand-emerald font-mono focus:outline-none" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block font-bold text-brand-muted uppercase mb-1">Telefone / WhatsApp</label>
+                <input type="text" id="edit-shop-phone" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
               </div>
             </div>
 
             <div>
-              <label class="block font-bold text-brand-muted uppercase mb-1">Telefone / WhatsApp</label>
-              <input type="text" id="edit-shop-phone" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
+              <label class="block font-bold text-brand-muted uppercase mb-1">URL da Imagem de Perfil / Logo</label>
+              <input type="text" id="edit-shop-avatar" placeholder="https://..." class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
             </div>
-          </div>
 
-          <div>
-            <label class="block font-bold text-brand-muted uppercase mb-1">URL da Imagem de Perfil / Logo</label>
-            <input type="text" id="edit-shop-avatar" placeholder="https://..." class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
-          </div>
-
-          <div class="pt-3 border-t border-brand-border flex items-center justify-end gap-2.5">
-            <button type="button" onclick="closeEditShopModal()" class="px-4 py-2.5 rounded-xl border border-brand-border hover:bg-brand-darker text-brand-muted hover:text-brand-main text-xs font-semibold cursor-pointer">
-              Cancelar
-            </button>
-            <button type="button" id="btn-save-shop-changes" onclick="saveShopChanges()" class="btn-emerald-invert px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer">
-              Salvar Alterações <i class="ph-bold ph-check"></i>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL DE EDIÇÃO DE CLIENTE -->
-    <div id="modal-edit-client" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-5 relative">
-        <div class="flex items-center justify-between pb-3 border-b border-brand-border">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-brand-emerald/10 text-brand-emerald flex items-center justify-center text-lg">
-              <i class="ph-bold ph-pencil-simple"></i>
+            <div class="pt-3 border-t border-brand-border flex items-center justify-end gap-2.5">
+              <button type="button" onclick="closeEditShopModal()" class="px-4 py-2.5 rounded-xl border border-brand-border hover:bg-brand-darker text-brand-muted hover:text-brand-main text-xs font-semibold cursor-pointer">
+                Cancelar
+              </button>
+              <button type="button" id="btn-save-shop-changes" onclick="saveShopChanges()" class="btn-emerald-invert px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+                Salvar Alterações <i class="ph-bold ph-check"></i>
+              </button>
             </div>
-            <h3 class="text-base font-bold text-brand-main">Editar Dados do Cliente</h3>
-          </div>
-          <button type="button" onclick="closeEditClientModal()" class="text-brand-muted hover:text-brand-main p-1 text-lg cursor-pointer">
-            <i class="ph-bold ph-x"></i>
-          </button>
+          </form>
         </div>
-
-        <form id="form-edit-client" onsubmit="return false;" class="space-y-4 text-xs">
-          <input type="hidden" id="edit-client-id" />
-
-          <div>
-            <label class="block font-bold text-brand-muted uppercase mb-1">Nome Completo</label>
-            <input type="text" id="edit-client-name" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
-          </div>
-
-          <div>
-            <label class="block font-bold text-brand-muted uppercase mb-1">E-mail</label>
-            <input type="email" id="edit-client-email" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
-          </div>
-
-          <div>
-            <label class="block font-bold text-brand-muted uppercase mb-1">Telefone / WhatsApp</label>
-            <input type="text" id="edit-client-phone" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
-          </div>
-
-          <div class="pt-3 border-t border-brand-border flex items-center justify-end gap-2.5">
-            <button type="button" onclick="closeEditClientModal()" class="px-4 py-2.5 rounded-xl border border-brand-border hover:bg-brand-darker text-brand-muted hover:text-brand-main text-xs font-semibold cursor-pointer">
-              Cancelar
-            </button>
-            <button type="button" id="btn-save-client-changes" onclick="saveClientChanges()" class="btn-emerald-invert px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer">
-              Salvar Alterações <i class="ph-bold ph-check"></i>
-            </button>
-          </div>
-        </form>
       </div>
-    </div>
+
+      <!-- MODAL DE EDIÇÃO DE CLIENTE -->
+      <div id="modal-edit-client" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-5 relative">
+          <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-brand-emerald/10 text-brand-emerald flex items-center justify-center text-lg">
+                <i class="ph-bold ph-pencil-simple"></i>
+              </div>
+              <h3 class="text-base font-bold text-brand-main">Editar Dados do Cliente</h3>
+            </div>
+            <button type="button" onclick="closeEditClientModal()" class="text-brand-muted hover:text-brand-main p-1 text-lg cursor-pointer">
+              <i class="ph-bold ph-x"></i>
+            </button>
+          </div>
+
+          <form id="form-edit-client" onsubmit="return false;" class="space-y-4 text-xs">
+            <input type="hidden" id="edit-client-id" />
+
+            <div>
+              <label class="block font-bold text-brand-muted uppercase mb-1">Nome Completo</label>
+              <input type="text" id="edit-client-name" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
+            </div>
+
+            <div>
+              <label class="block font-bold text-brand-muted uppercase mb-1">E-mail</label>
+              <input type="email" id="edit-client-email" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
+            </div>
+
+            <div>
+              <label class="block font-bold text-brand-muted uppercase mb-1">Telefone / WhatsApp</label>
+              <input type="text" id="edit-client-phone" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main text-xs focus:outline-none focus:border-brand-emerald transition" />
+            </div>
+
+            <div class="pt-3 border-t border-brand-border flex items-center justify-end gap-2.5">
+              <button type="button" onclick="closeEditClientModal()" class="px-4 py-2.5 rounded-xl border border-brand-border hover:bg-brand-darker text-brand-muted hover:text-brand-main text-xs font-semibold cursor-pointer">
+                Cancelar
+              </button>
+              <button type="button" id="btn-save-client-changes" onclick="saveClientChanges()" class="btn-emerald-invert px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+                Salvar Alterações <i class="ph-bold ph-check"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
 
     </main>
 
@@ -387,25 +386,21 @@
 
   <script>
     (() => {
-      // Credenciais exclusivas do Administrador
-      const ADMIN_VALID_USER = "valeriotayllon";
-      const ADMIN_VALID_PASS = "192169";
-
       const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
       const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       const authScreen = document.getElementById('admin-auth-screen');
       const dashboardScreen = document.getElementById('admin-dashboard-screen');
-      const userInput = document.getElementById('admin-user-input');
+      const emailInput = document.getElementById('admin-email-input');
       const passInput = document.getElementById('admin-pass-input');
       const btnLogin = document.getElementById('btn-admin-submit-login');
       const btnLogout = document.getElementById('btn-admin-logout');
       const errorBox = document.getElementById('auth-error-box');
       const errorText = document.getElementById('auth-error-text');
       const togglePassBtn = document.getElementById('toggle-admin-pass');
+      const loggedEmailEl = document.getElementById('admin-logged-user-email');
 
-      // Alternar visualização da senha
       if (togglePassBtn) {
         togglePassBtn.addEventListener('click', () => {
           const isPass = passInput.type === 'password';
@@ -414,44 +409,88 @@
         });
       }
 
-      function checkAdminSession() {
-        const isAuth = sessionStorage.getItem('agenlits_admin_session') === 'true';
-        if (isAuth) {
+      // Validação de Sessão Real via Supabase Auth + RPC is_platform_admin()
+      async function checkAdminSession() {
+        try {
+          const { data: { session } } = await client.auth.getSession();
+          if (!session || !session.user) {
+            authScreen.classList.remove('hidden');
+            dashboardScreen.classList.add('hidden');
+            return;
+          }
+
+          // Checar se o usuário atual é platform_admin no banco
+          const { data: isAdmin, error } = await client.rpc('is_platform_admin');
+
+          if (error || !isAdmin) {
+            console.warn('Usuário autenticado não é platform_admin:', session.user.email);
+            await client.auth.signOut();
+            authScreen.classList.remove('hidden');
+            dashboardScreen.classList.add('hidden');
+            errorText.textContent = 'Acesso Negado: O usuário (' + session.user.email + ') não possui privilégios de administrador da plataforma.';
+            errorBox.classList.remove('hidden');
+            return;
+          }
+
+          // Acesso autorizado pelo banco
+          loggedEmailEl.textContent = session.user.email;
           authScreen.classList.add('hidden');
           dashboardScreen.classList.remove('hidden');
           loadAllData();
-        } else {
+        } catch(e) {
+          console.error(e);
           authScreen.classList.remove('hidden');
           dashboardScreen.classList.add('hidden');
         }
       }
 
-      function handleAdminAuth() {
-        const u = (userInput.value || '').trim();
-        const p = (passInput.value || '').trim();
+      async function handleAdminAuth() {
+        errorBox.classList.add('hidden');
+        const email = (emailInput.value || '').trim();
+        const password = (passInput.value || '').trim();
 
-        if (u === ADMIN_VALID_USER && p === ADMIN_VALID_PASS) {
-          errorBox.classList.add('hidden');
-          sessionStorage.setItem('agenlits_admin_session', 'true');
-          checkAdminSession();
-        } else {
-          errorText.textContent = 'Usuário ou senha de administrador incorretos.';
+        if (!email || !password) {
+          errorText.textContent = 'Preencha o e-mail e a senha.';
           errorBox.classList.remove('hidden');
+          return;
+        }
+
+        btnLogin.disabled = true;
+        btnLogin.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Autenticando...';
+
+        try {
+          const { data, error } = await client.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+
+          // Valida privilégio no Postgres
+          const { data: isAdmin, error: rpcError } = await client.rpc('is_platform_admin');
+          if (rpcError || !isAdmin) {
+            await client.auth.signOut();
+            throw new Error('Acesso negado: Este e-mail não está cadastrado na tabela platform_admins do Supabase.');
+          }
+
+          await checkAdminSession();
+        } catch(err) {
+          errorText.textContent = err.message || 'Falha ao autenticar administrador.';
+          errorBox.classList.remove('hidden');
+        } finally {
+          btnLogin.disabled = false;
+          btnLogin.innerHTML = '<span>Autenticar no Supabase</span> <i class="ph-bold ph-sign-in"></i>';
         }
       }
 
       btnLogin.addEventListener('click', handleAdminAuth);
-      userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAdminAuth(); });
+      emailInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAdminAuth(); });
       passInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAdminAuth(); });
 
       if (btnLogout) {
-        btnLogout.addEventListener('click', () => {
-          sessionStorage.removeItem('agenlits_admin_session');
-          checkAdminSession();
+        btnLogout.addEventListener('click', async () => {
+          await client.auth.signOut();
+          window.location.reload();
         });
       }
 
-      // ---------------- LÓGICA DO PAINEL APÓS AUTENTICADO ----------------
+      // ---------------- GESTÃO DE DADOS (EXECUTADA COM JWT ADMIN AUTENTICADO) ----------------
       let currentTab = 'shops';
       let rawShops = [];
       let rawClients = [];
@@ -572,7 +611,7 @@
               <td class="py-3.5 px-4 font-mono text-[11px] text-brand-emerald">/${s.slug || '-'}</td>
               <td class="py-3.5 px-4 text-brand-muted">${s.phone || '-'}</td>
               <td class="py-3.5 px-4 text-brand-muted">${dateStr}</td>
-                            <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+              <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
                 <a href="agendar.html?b=${s.slug}" target="_blank" class="p-1.5 rounded-lg bg-brand-darker hover:bg-brand-border border border-brand-border text-brand-main inline-flex items-center transition" title="Ver Página Pública">
                   <i class="ph ph-arrow-square-out text-sm"></i>
                 </a>
@@ -613,7 +652,7 @@
               <td class="py-3.5 px-4 text-brand-muted">${c.email || '-'}</td>
               <td class="py-3.5 px-4 text-brand-muted">${c.phone || '-'}</td>
               <td class="py-3.5 px-4 text-brand-muted">${dateStr}</td>
-                            <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+              <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
                 <button onclick="window.openEditClientModal('${c.id}')" class="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-brand-emerald inline-flex items-center transition cursor-pointer" title="Editar Cliente">
                   <i class="ph-bold ph-pencil-simple text-sm"></i>
                 </button>
@@ -641,7 +680,7 @@
         tbody.innerHTML = filtered.map(a => `
           <tr class="hover:bg-brand-darker/40 transition">
             <td class="py-3.5 px-4 font-bold text-brand-main font-mono">
-              ${a.date ? a.date.split('-').reverse().join('/') : '-'} às ${a.time || '-'}
+              ${a.starts_at ? new Date(a.starts_at).toLocaleDateString('pt-BR') : '-'} às ${a.starts_at ? new Date(a.starts_at).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'}) : '-'}
             </td>
             <td class="py-3.5 px-4 text-brand-main font-semibold">${a.client_name || a.client_phone || '-'}</td>
             <td class="py-3.5 px-4 text-brand-muted">${a.barbershops?.name || 'Estabelecimento'}</td>
@@ -696,14 +735,6 @@
         }
       };
 
-      searchInput.addEventListener('input', () => {
-        if (currentTab === 'shops') renderShopsTable();
-        else if (currentTab === 'clients') renderClientsTable();
-        else renderAppointmentsTable();
-      });
-
-      // Inicializa checando se já há sessão ativa
-      
       // Modal e Edição de Estabelecimento
       window.openEditShopModal = (id) => {
         const shop = rawShops.find(s => s.id === id);
@@ -806,6 +837,11 @@
         }
       };
 
+      searchInput.addEventListener('input', () => {
+        if (currentTab === 'shops') renderShopsTable();
+        else if (currentTab === 'clients') renderClientsTable();
+        else renderAppointmentsTable();
+      });
 
       document.addEventListener('DOMContentLoaded', checkAdminSession);
     })();
