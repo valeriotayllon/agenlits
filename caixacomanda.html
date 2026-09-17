@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Comanda & Caixa — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
+    }
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
+    });
+  </script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="painel.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+      </a>
+      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
+        Frente de Caixa & Comandas
+      </span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
+      <a href="painel.html" class="btn-secondary-invert flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold">
+        <i class="ph-bold ph-arrow-left"></i> Painel Principal
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
+          <i class="ph-bold ph-receipt text-brand-emerald"></i> Fechamento de Comanda
+        </h1>
+        <p class="text-xs text-brand-muted mt-1">Adicione serviços, produtos vendidos, forma de pagamento e calcule a comissão líquida do profissional na hora.</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-brand-muted">Caixa do dia:</span>
+        <span id="caixa-total-hoje" class="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-brand-emerald font-black text-xs border border-emerald-500/20">
+          R$ 0,00
+        </span>
+      </div>
+    </div>
+
+    <div id="caixa-notice" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Formulário de Comanda (2 Colunas) -->
+      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-3xl p-5 sm:p-7 shadow-xl space-y-5">
+        <h2 class="text-sm font-bold flex items-center gap-2 pb-2 border-b border-brand-border">
+          <i class="ph-bold ph-shopping-bag-open text-brand-emerald"></i> Itens do Atendimento
+        </h2>
+
+        <!-- Seleção de Agendamento Aberto ou Venda Avulsa -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Vincular Agendamento de Hoje</label>
+            <select id="select-appointment" onchange="onSelectAppointment()" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main focus:outline-none focus:border-brand-emerald">
+              <option value="">Atendimento Avulso / Balcão</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Nome do Cliente</label>
+            <input type="text" id="comanda-client-name" placeholder="Nome do cliente" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main focus:outline-none focus:border-brand-emerald" />
+          </div>
+
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Profissional Responsável</label>
+            <select id="select-barber" onchange="calculateTotals()" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main focus:outline-none focus:border-brand-emerald">
+              <option value="">Selecione o profissional...</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Telefone / WhatsApp</label>
+            <input type="tel" id="comanda-client-phone" placeholder="(85) 99999-9999" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main focus:outline-none focus:border-brand-emerald" />
+          </div>
+        </div>
+
+        <!-- Adicionar Serviço na Comanda -->
+        <div class="pt-3 border-t border-brand-border space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase text-brand-muted">Serviços Prestados</span>
+            <button type="button" onclick="addServiceRow()" class="text-xs text-brand-emerald hover:underline flex items-center gap-1 font-bold">
+              <i class="ph-bold ph-plus"></i> Adicionar Serviço
+            </button>
+          </div>
+          <div id="services-list-rows" class="space-y-2"></div>
+        </div>
+
+        <!-- Adicionar Produtos Extras (Pomada, Cerveja, etc) -->
+        <div class="pt-3 border-t border-brand-border space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase text-brand-muted">Produtos Consumidos / Adicionais</span>
+            <button type="button" onclick="addProductRow()" class="text-xs text-brand-emerald hover:underline flex items-center gap-1 font-bold">
+              <i class="ph-bold ph-plus"></i> Adicionar Produto
+            </button>
+          </div>
+          <div id="products-list-rows" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- Resumo Financeiro da Comanda (1 Coluna) -->
+      <div class="bg-brand-card border border-brand-border rounded-3xl p-5 sm:p-7 shadow-xl space-y-5 flex flex-col justify-between">
+        <div class="space-y-4">
+          <h2 class="text-sm font-bold flex items-center gap-2 pb-2 border-b border-brand-border">
+            <i class="ph-bold ph-calculator text-brand-emerald"></i> Resumo da Comanda
+          </h2>
+
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between text-brand-muted">
+              <span>Total em Serviços:</span>
+              <span id="subtotal-services" class="font-mono font-bold text-brand-main">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between text-brand-muted">
+              <span>Total em Produtos:</span>
+              <span id="subtotal-products" class="font-mono font-bold text-brand-main">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between text-brand-muted">
+              <span>Desconto:</span>
+              <input type="number" id="input-discount" value="0" min="0" oninput="calculateTotals()" class="w-20 px-2 py-1 bg-brand-darker border border-brand-border rounded text-right font-mono text-xs focus:outline-none focus:border-brand-emerald" />
+            </div>
+
+            <div class="pt-2 border-t border-brand-border flex justify-between items-baseline">
+              <span class="text-sm font-bold text-brand-main">Total a Cobrar:</span>
+              <span id="total-comanda" class="text-2xl font-black text-brand-emerald font-mono">R$ 0,00</span>
+            </div>
+          </div>
+
+          <!-- Comissão do Profissional -->
+          <div class="p-3 rounded-2xl bg-brand-darker border border-brand-border text-xs space-y-1">
+            <div class="flex justify-between text-brand-muted">
+              <span>Taxa de Comissão:</span>
+              <span id="barber-commission-pct" class="font-bold text-brand-main">0%</span>
+            </div>
+            <div class="flex justify-between text-amber-400 font-bold">
+              <span>Comissão do Barbeiro:</span>
+              <span id="barber-commission-val" class="font-mono">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between text-brand-muted text-[10px]">
+              <span>Líquido Barbearia:</span>
+              <span id="shop-net-val" class="font-mono">R$ 0,00</span>
+            </div>
+          </div>
+
+          <!-- Forma de Pagamento -->
+          <div class="space-y-1.5 text-xs">
+            <label class="block font-bold text-brand-muted uppercase">Forma de Pagamento</label>
+            <select id="select-payment-method" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-brand-main font-bold focus:outline-none focus:border-brand-emerald">
+              <option value="pix">Pix (Imediato)</option>
+              <option value="credit_card">Cartão de Crédito</option>
+              <option value="debit_card">Cartão de Débito</option>
+              <option value="cash">Dinheiro em Espécie</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="button" id="btn-finish-comanda" onclick="finalizeComanda()" class="btn-emerald-invert w-full py-3.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20">
+          <span>Fechar Comanda & Receber</span> <i class="ph-bold ph-check"></i>
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+      const client = (window._agenlitsClient = window._agenlitsClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+
+      let currentShopId = null;
+      let rawBarbers = [];
+      let rawServices = [];
+      let rawProducts = [];
+      let openAppointments = [];
+
+      function showNotice(text, isError = false) {
+        const nb = document.getElementById('caixa-notice');
+        nb.textContent = text;
+        nb.className = isError
+          ? 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-red-950/80 border border-red-500 text-red-200'
+          : 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-emerald-950/80 border border-emerald-500 text-emerald-200';
+        nb.classList.remove('hidden');
+        setTimeout(() => nb.classList.add('hidden'), 4000);
+      }
+
+      function formatBRL(val) {
+        return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      }
+
+      async function init() {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = 'login.html';
+
+        const { data: shop } = await client.from('barbershops').select('id').eq('owner_id', session.user.id).maybeSingle();
+        if (!shop) return window.location.href = 'cadastro.html';
+        currentShopId = shop.id;
+
+        // Carregar Barbeiros
+        const { data: barbers } = await client.from('barbers').select('id, name, commission_percentage').eq('barbershop_id', currentShopId).eq('is_active', true);
+        rawBarbers = barbers || [];
+        const bSel = document.getElementById('select-barber');
+        rawBarbers.forEach(b => {
+          const opt = document.createElement('option');
+          opt.value = b.id;
+          opt.textContent = `${b.name} (${b.commission_percentage || 0}% comissão)`;
+          bSel.appendChild(opt);
+        });
+
+        // Carregar Serviços
+        const { data: services } = await client.from('services').select('id, name, price_cents').eq('barbershop_id', currentShopId).eq('is_active', true);
+        rawServices = services || [];
+
+        // Carregar Produtos
+        const { data: products } = await client.from('products').select('id, name, price_cents, stock_quantity').eq('barbershop_id', currentShopId).eq('is_active', true);
+        rawProducts = products || [];
+
+        // Carregar Agendamentos de Hoje com status 'confirmed' ou 'pending'
+        const todayStr = new Date().toLocaleDateString('sv-SE');
+        const { data: appts } = await client
+          .from('appointments')
+          .select('id, client_name, client_phone, starts_at, price_cents, service_id, barber_id, services(name), barbers(name)')
+          .eq('barbershop_id', currentShopId)
+          .gte('starts_at', `${todayStr}T00:00:00`)
+          .lte('starts_at', `${todayStr}T23:59:59`)
+          .in('status', ['confirmed', 'pending'])
+          .order('starts_at', { ascending: true });
+
+        openAppointments = appts || [];
+        const aptSel = document.getElementById('select-appointment');
+        openAppointments.forEach(a => {
+          const opt = document.createElement('option');
+          opt.value = a.id;
+          const hr = new Date(a.starts_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          opt.textContent = `${hr} - ${a.client_name} (${a.services?.name || 'Serviço'})`;
+          aptSel.appendChild(opt);
+        });
+
+        // Primeira linha de serviço padrão
+        addServiceRow();
+        loadTodayTotal();
+      }
+
+      async function loadTodayTotal() {
+        const todayStr = new Date().toLocaleDateString('sv-SE');
+        const { data } = await client
+          .from('appointments')
+          .select('price_cents')
+          .eq('barbershop_id', currentShopId)
+          .eq('status', 'done')
+          .gte('starts_at', `${todayStr}T00:00:00`);
+
+        const total = (data || []).reduce((acc, cur) => acc + (cur.price_cents || 0), 0);
+        document.getElementById('caixa-total-hoje').textContent = formatBRL(total / 100);
+      }
+
+      window.onSelectAppointment = () => {
+        const aptId = document.getElementById('select-appointment').value;
+        if (!aptId) return;
+
+        const apt = openAppointments.find(a => a.id === aptId);
+        if (!apt) return;
+
+        document.getElementById('comanda-client-name').value = apt.client_name || '';
+        document.getElementById('comanda-client-phone').value = apt.client_phone || '';
+
+        if (apt.barber_id) {
+          document.getElementById('select-barber').value = apt.barber_id;
+        }
+
+        // Limpa e coloca o serviço do agendamento
+        const sContainer = document.getElementById('services-list-rows');
+        sContainer.innerHTML = '';
+        addServiceRow(apt.service_id);
+      };
+
+      window.addServiceRow = (preSelectedId = '') => {
+        const container = document.getElementById('services-list-rows');
+        const rowId = 'srv_' + Date.now() + Math.random().toString(36).substr(2, 4);
+
+        const div = document.createElement('div');
+        div.id = rowId;
+        div.className = 'flex items-center gap-2';
+
+        div.innerHTML = `
+          <select onchange="calculateTotals()" class="srv-select flex-1 px-3 py-2 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald">
+            <option value="">Selecione um serviço...</option>
+            ${rawServices.map(s => `
+              <option value="${s.id}" data-price="${(s.price_cents || 0) / 100}" ${s.id === preSelectedId ? 'selected' : ''}>
+                ${s.name} - R$ ${((s.price_cents || 0) / 100).toFixed(2).replace('.', ',')}
+              </option>
+            `).join('')}
+          </select>
+          <input type="number" step="0.01" value="" placeholder="Preço" oninput="calculateTotals()" class="srv-price w-24 px-3 py-2 bg-brand-darker border border-brand-border rounded-xl text-xs font-mono text-right focus:outline-none focus:border-brand-emerald" />
+          <button type="button" onclick="document.getElementById('${rowId}').remove(); calculateTotals();" class="p-2 text-brand-muted hover:text-red-400 text-sm">
+            <i class="ph ph-trash"></i>
+          </button>
+        `;
+
+        container.appendChild(div);
+
+        // Preenche o valor padrão do serviço
+        const sel = div.querySelector('.srv-select');
+        const inp = div.querySelector('.srv-price');
+        sel.addEventListener('change', () => {
+          const opt = sel.options[sel.selectedIndex];
+          if (opt && opt.dataset.price) inp.value = opt.dataset.price;
+          calculateTotals();
+        });
+
+        if (preSelectedId) {
+          const opt = sel.options[sel.selectedIndex];
+          if (opt && opt.dataset.price) inp.value = opt.dataset.price;
+        }
+
+        calculateTotals();
+      };
+
+      window.addProductRow = () => {
+        const container = document.getElementById('products-list-rows');
+        const rowId = 'prd_' + Date.now() + Math.random().toString(36).substr(2, 4);
+
+        const div = document.createElement('div');
+        div.id = rowId;
+        div.className = 'flex items-center gap-2';
+
+        div.innerHTML = `
+          <select onchange="calculateTotals()" class="prd-select flex-1 px-3 py-2 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald">
+            <option value="">Selecione um produto (pomada, óleo, etc)...</option>
+            ${rawProducts.map(p => `
+              <option value="${p.id}" data-price="${(p.price_cents || 0) / 100}">
+                ${p.name} - R$ ${((p.price_cents || 0) / 100).toFixed(2).replace('.', ',')} (Estoque: ${p.stock_quantity || 0})
+              </option>
+            `).join('')}
+          </select>
+          <input type="number" value="1" min="1" oninput="calculateTotals()" placeholder="Qtd" class="prd-qty w-16 px-2 py-2 bg-brand-darker border border-brand-border rounded-xl text-xs text-center focus:outline-none focus:border-brand-emerald" />
+          <input type="number" step="0.01" value="" placeholder="Preço" oninput="calculateTotals()" class="prd-price w-24 px-3 py-2 bg-brand-darker border border-brand-border rounded-xl text-xs font-mono text-right focus:outline-none focus:border-brand-emerald" />
+          <button type="button" onclick="document.getElementById('${rowId}').remove(); calculateTotals();" class="p-2 text-brand-muted hover:text-red-400 text-sm">
+            <i class="ph ph-trash"></i>
+          </button>
+        `;
+
+        container.appendChild(div);
+
+        const sel = div.querySelector('.prd-select');
+        const inp = div.querySelector('.prd-price');
+        sel.addEventListener('change', () => {
+          const opt = sel.options[sel.selectedIndex];
+          if (opt && opt.dataset.price) inp.value = opt.dataset.price;
+          calculateTotals();
+        });
+
+        calculateTotals();
+      };
+
+      window.calculateTotals = () => {
+        let totalServices = 0;
+        document.querySelectorAll('.srv-price').forEach(p => {
+          totalServices += parseFloat(p.value) || 0;
+        });
+
+        let totalProducts = 0;
+        document.querySelectorAll('#products-list-rows > div').forEach(row => {
+          const qty = parseInt(row.querySelector('.prd-qty').value) || 1;
+          const price = parseFloat(row.querySelector('.prd-price').value) || 0;
+          totalProducts += (qty * price);
+        });
+
+        const discount = parseFloat(document.getElementById('input-discount').value) || 0;
+        const finalTotal = Math.max(0, (totalServices + totalProducts) - discount);
+
+        document.getElementById('subtotal-services').textContent = formatBRL(totalServices);
+        document.getElementById('subtotal-products').textContent = formatBRL(totalProducts);
+        document.getElementById('total-comanda').textContent = formatBRL(finalTotal);
+
+        // Comissão do barbeiro
+        const barberId = document.getElementById('select-barber').value;
+        const barber = rawBarbers.find(b => b.id === barberId);
+        const commPct = barber ? (barber.commission_percentage || 0) : 0;
+        const commValue = totalServices * (commPct / 100);
+        const shopNet = finalTotal - commValue;
+
+        document.getElementById('barber-commission-pct').textContent = `${commPct}%`;
+        document.getElementById('barber-commission-val').textContent = formatBRL(commValue);
+        document.getElementById('shop-net-val').textContent = formatBRL(shopNet);
+      };
+
+      window.finalizeComanda = async () => {
+        const clientName = document.getElementById('comanda-client-name').value.trim() || 'Cliente Balcão';
+        const clientPhone = document.getElementById('comanda-client-phone').value.trim() || '';
+        const barberId = document.getElementById('select-barber').value || null;
+        const aptId = document.getElementById('select-appointment').value || null;
+        const paymentMethod = document.getElementById('select-payment-method').value;
+
+        // Pega o primeiro serviço para vincular caso seja avulso
+        const firstSrvId = document.querySelector('.srv-select')?.value || rawServices[0]?.id;
+        if (!firstSrvId) return showNotice('Adicione ao menos um serviço na comanda.', true);
+
+        let totalFinal = 0;
+        document.querySelectorAll('.srv-price').forEach(p => totalFinal += parseFloat(p.value) || 0);
+        document.querySelectorAll('#products-list-rows > div').forEach(row => {
+          const qty = parseInt(row.querySelector('.prd-qty').value) || 1;
+          const price = parseFloat(row.querySelector('.prd-price').value) || 0;
+          totalFinal += (qty * price);
+        });
+        const discount = parseFloat(document.getElementById('input-discount').value) || 0;
+        totalFinal = Math.max(0, totalFinal - discount);
+
+        const totalCents = Math.round(totalFinal * 100);
+
+        const btn = document.getElementById('btn-finish-comanda');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Finalizando Caixa...';
+
+        try {
+          if (aptId) {
+            // Atualiza agendamento existente para 'done'
+            await client.from('appointments').update({
+              status: 'done',
+              price_cents: totalCents,
+              barber_id: barberId,
+              notes: `Pago via ${paymentMethod.toUpperCase()}`
+            }).eq('id', aptId);
+          } else {
+            // Insere novo agendamento avulso já finalizado
+            await client.from('appointments').insert([{
+              barbershop_id: currentShopId,
+              barber_id: barberId,
+              service_id: firstSrvId,
+              client_name: clientName,
+              client_phone: clientPhone,
+              starts_at: new Date().toISOString(),
+              ends_at: new Date().toISOString(),
+              price_cents: totalCents,
+              status: 'done',
+              notes: `Venda avulsa via ${paymentMethod.toUpperCase()}`
+            }]);
+          }
+
+          showNotice('🎉 Atendimento e comanda fechados com sucesso no caixa!');
+          setTimeout(() => window.location.href = 'painel.html', 1500);
+        } catch(e) {
+          showNotice('Erro ao fechar comanda: ' + e.message, true);
+          btn.disabled = false;
+          btn.innerHTML = '<span>Fechar Comanda & Receber</span> <i class="ph-bold ph-check"></i>';
+        }
+      };
+
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Clientes da Loja (CRM) — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
+    }
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
+    });
+  </script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="painel.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+      </a>
+      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
+        CRM de Clientes
+      </span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
+      <a href="painel.html" class="btn-secondary-invert flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold">
+        <i class="ph-bold ph-arrow-left"></i> Painel Principal
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
+          <i class="ph-bold ph-address-book text-brand-emerald"></i> Carteira de Clientes
+        </h1>
+        <p class="text-xs text-brand-muted mt-1">Histórico completo de visitas, frequência, valor total investido (LTV) e mensagens personalizadas de retorno para corte.</p>
+      </div>
+
+      <div class="relative w-full sm:w-72">
+        <i class="ph ph-magnifying-glass absolute left-3.5 top-2.5 text-base text-brand-muted"></i>
+        <input type="text" id="crm-search-input" placeholder="Buscar por nome ou WhatsApp..." class="w-full pl-10 pr-3.5 py-2 bg-brand-card border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald transition" />
+      </div>
+    </div>
+
+    <!-- Tabela do CRM -->
+    <div class="bg-brand-card border border-brand-border rounded-3xl overflow-hidden shadow-xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-brand-border bg-brand-darker/60 text-brand-muted uppercase font-bold text-[10px]">
+              <th class="py-3 px-4">Cliente</th>
+              <th class="py-3 px-4">WhatsApp</th>
+              <th class="py-3 px-4 text-center">Total de Visitas</th>
+              <th class="py-3 px-4 text-center">Última Visita</th>
+              <th class="py-3 px-4 text-right">Total Investido (LTV)</th>
+              <th class="py-3 px-4 text-right">Ações de Retenção</th>
+            </tr>
+          </thead>
+          <tbody id="crm-clients-tbody" class="divide-y divide-brand-border">
+            <tr>
+              <td colspan="6" class="py-12 text-center text-brand-muted">Carregando carteira de clientes...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+      const client = (window._agenlitsClient = window._agenlitsClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+
+      let currentShop = null;
+      let aggregatedClients = [];
+
+      function escapeHtml(str) {
+        return String(str || '').replace(/[&<>'"]/g, t => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[t]));
+      }
+
+      function formatBRL(cents) {
+        return ((cents || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      }
+
+      async function init() {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = 'login.html';
+
+        const { data: shop } = await client.from('barbershops').select('*').eq('owner_id', session.user.id).maybeSingle();
+        if (!shop) return window.location.href = 'cadastro.html';
+        currentShop = shop;
+
+        loadCRMData();
+      }
+
+      async function loadCRMData() {
+        const tbody = document.getElementById('crm-clients-tbody');
+        
+        // Busca todos os agendamentos já registrados na barbearia para agrupar por cliente
+        const { data: appts, error } = await client
+          .from('appointments')
+          .select('id, client_name, client_phone, starts_at, price_cents, status')
+          .eq('barbershop_id', currentShop.id)
+          .order('starts_at', { ascending: false });
+
+        if (error || !appts || appts.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-center text-brand-muted">Nenhum cliente com histórico de visitas ainda.</td></tr>';
+          return;
+        }
+
+        // Agrupamento em memória por Telefone ou Nome
+        const map = {};
+        appts.forEach(a => {
+          const key = (a.client_phone || a.client_name || 'anon').trim();
+          if (!map[key]) {
+            map[key] = {
+              name: a.client_name || 'Cliente',
+              phone: a.client_phone || '',
+              totalVisits: 0,
+              lastVisit: a.starts_at,
+              totalLTVCents: 0
+            };
+          }
+
+          if (a.status === 'done' || a.status === 'confirmed') {
+            map[key].totalVisits += 1;
+            map[key].totalLTVCents += (a.price_cents || 0);
+          }
+        });
+
+        aggregatedClients = Object.values(map);
+        renderTable();
+      }
+
+      function renderTable() {
+        const query = document.getElementById('crm-search-input').value.trim().toLowerCase();
+        const tbody = document.getElementById('crm-clients-tbody');
+
+        const filtered = aggregatedClients.filter(c => 
+          !query || c.name.toLowerCase().includes(query) || c.phone.includes(query)
+        );
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-brand-muted">Nenhum cliente encontrado com esse filtro.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(c => {
+          const lastDate = c.lastVisit ? new Date(c.lastVisit) : null;
+          const lastDateStr = lastDate ? lastDate.toLocaleDateString('pt-BR') : '-';
+          
+          // Cálculo de dias desde a última visita
+          const daysAgo = lastDate ? Math.floor((Date.now() - lastDate.getTime()) / (1000 * 3600 * 24)) : 0;
+          const badgeDays = daysAgo > 25 
+            ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Há ${daysAgo} dias (Hora de voltar!)</span>`
+            : `<span class="text-brand-muted text-[11px]">Há ${daysAgo} dias</span>`;
+
+          const cleanPhone = c.phone.replace(/\D/g, '');
+          const recallMsg = encodeURIComponent(`Olá ${c.name}! Tudo bem? Notamos que já faz cerca de ${daysAgo} dias desde o seu último atendimento na ${currentShop.name}. Que tal agendar seu horário para essa semana? Acesse nosso link: 3lits-agenlits.vercel.app/agendar.html?b=${currentShop.slug}`);
+
+          return `
+            <tr class="hover:bg-brand-darker/40 transition">
+              <td class="py-3.5 px-4 font-bold text-brand-main flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-brand-darker border border-brand-border flex items-center justify-center font-bold text-brand-emerald text-xs">
+                  ${escapeHtml(c.name.charAt(0))}
+                </div>
+                <span>${escapeHtml(c.name)}</span>
+              </td>
+              <td class="py-3.5 px-4 text-brand-muted font-mono">${escapeHtml(c.phone || '-')}</td>
+              <td class="py-3.5 px-4 text-center font-bold text-brand-main">${c.totalVisits}</td>
+              <td class="py-3.5 px-4 text-center">
+                <div>${lastDateStr}</div>
+                <div class="mt-0.5">${badgeDays}</div>
+              </td>
+              <td class="py-3.5 px-4 text-right font-mono font-bold text-brand-emerald">${formatBRL(c.totalLTVCents)}</td>
+              <td class="py-3.5 px-4 text-right">
+                ${cleanPhone ? `
+                  <a href="https://wa.me/55${cleanPhone}?text=${recallMsg}" target="_blank" class="btn-secondary-invert px-3 py-1.5 rounded-xl text-xs inline-flex items-center gap-1.5 text-emerald-400 hover:text-black hover:bg-brand-emerald transition shadow-sm">
+                    <i class="ph-bold ph-whatsapp-logo text-sm"></i> Chamar de Volta
+                  </a>
+                ` : '<span class="text-brand-muted text-[10px]">Sem WhatsApp</span>'}
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('crm-search-input').addEventListener('input', renderTable);
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>

@@ -201,6 +201,292 @@
 
       <div class="bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-4">
         <h2 class="text-sm sm:text-base font-bold pb-3 border-b border-brand-border flex items-center gap-2">
+          <i class="ph-bold ph-squares-four text-brand-emerald"></i> Gestão do Estabelecimento
+        </h2>
+
+        <div class="space-y-2.5 text-xs sm:text-sm">
+          
+          <!-- PRIORIDADE 1: CAIXA E COMANDA -->
+          <a href="caixacomanda.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group border-emerald-500/30 bg-emerald-500/5">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <i class="ph-bold ph-receipt text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
+              <span class="font-bold text-brand-main">Frente de Caixa & Comanda</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold uppercase">Caixa</span>
+          </a>
+
+          <!-- PRIORIDADE 2: RELATÓRIOS E FATURAMENTO -->
+          <a href="relatorios.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <i class="ph-bold ph-chart-line-up text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
+              <span>Relatórios & DRE</span>
+            </div>
+            <i class="ph-bold ph-caret-right text-xs"></i>
+          </a>
+
+          <!-- PRIORIDADE 3: CRM DE CLIENTES -->
+          <a href="clientes-loja.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <i class="ph-bold ph-address-book text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
+              <span>Carteira de Clientes (CRM)</span>
+            </div>
+            <i class="ph-bold ph-caret-right text-xs"></i>
+          </a>
+
+          <!-- PRIORIDADE 4: EQUIPE & BARBEIROS -->
+          <a href="equipe.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <i class="ph-bold ph-identification-badge text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
+              <span>Equipe & Comissões</span>
+            </div>
+            <i class="ph-bold ph-caret-right text-xs"></i>
+          </a>
+
+          <!-- SERVIÇOS & PREÇOS -->
+          <a href="servicos.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <i class="ph ph-scissors text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
+              <span>Serviços & Preços</span>
+            </div>
+            <i class="ph-bold ph-caret-right text-xs"></i>
+          </a>
+
+          <!-- HORÁRIOS DE FUNCIONAMENTO -->
+          <a href="horarios.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <i class="ph ph-clock text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
+              <span>Horários de Funcionamento</span>
+            </div>
+            <i class="ph-bold ph-caret-right text-xs"></i>
+          </a>
+
+          <!-- FOTOS & PORTFÓLIO -->
+          <a href="fotos.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <i class="ph-bold ph-images text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
+              <span>Fotos & Portfólio</span>
+            </div>
+            <i class="ph-bold ph-caret-right text-xs"></i>
+          </a>
+
+          <!-- PLANOS & ASSINATURA -->
+          <a href="planos.html" class="btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group border-brand-emerald/20">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <i class="ph-bold ph-crown text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
+              <span>Planos & Assinatura</span>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-brand-emerald border border-emerald-500/20 font-bold">Pro</span>
+          </a>
+
+          <!-- EXPORTAÇÃO CSV -->
+          <button type="button" onclick="exportShopAppointmentsCSV()" class="w-full btn-secondary-invert p-3 sm:p-3.5 rounded-xl sm:rounded-2xl flex items-center justify-between group cursor-pointer text-left">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <i class="ph-bold ph-download-simple text-base sm:text-lg text-brand-emerald group-hover:text-inherit"></i>
+              <span>Exportar Dados (CSV)</span>
+            </div>
+            <i class="ph-bold ph-caret-right text-xs"></i>
+          </button>ang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Painel da Barbearia — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
+    }
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
+    });
+  </script>
+
+<script>
+  // Redirecionamento inteligente ao clicar na logo para usuários com sessão ativa
+  (async function setupLogoRedirect() {
+    try {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+      if (!window.supabase) return;
+      const client = (window._agenlitsClient = window._agenlitsClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+      const { data: { session } } = await client.auth.getSession();
+      
+      if (session && session.user) {
+        const { data: shop } = await client
+          .from('barbershops')
+          .select('id')
+          .eq('owner_id', session.user.id)
+          .maybeSingle();
+
+        const destination = shop ? 'painel.html' : 'cliente.html';
+
+        document.addEventListener('DOMContentLoaded', () => {
+          document.querySelectorAll('a[href="index.html"], a[href="painel.html"], a[href="/"]').forEach(link => {
+            if (link.querySelector('img[src*="fonte escura.png"]') || link.querySelector('img[alt*="agenlits"]')) {
+              link.href = destination;
+            }
+          });
+        });
+      }
+    } catch (e) {
+      console.error('Erro no link dinâmico da logo:', e);
+    }
+  })();
+</script>
+
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-emerald-500 selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-3.5 sm:px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2.5 sm:gap-4">
+      <a href="painel.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+      </a>
+      <span class="hidden sm:inline-block px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
+        Painel de Gestão
+      </span>
+    </div>
+
+    <div class="flex items-center gap-2 sm:gap-4">
+      <a href="perfil.html" class="p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Configurações de Perfil">
+        <i class="ph-bold ph-gear text-lg text-brand-emerald"></i>
+      </a>
+
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
+
+      <div class="text-right hidden sm:block">
+        <div id="user-display-name" class="text-xs font-bold truncate max-w-[140px]">Carregando...</div>
+        <div id="user-display-email" class="text-[11px] text-brand-muted truncate max-w-[140px]">...</div>
+      </div>
+
+      <button id="btn-logout" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-white bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 transition cursor-pointer">
+        <i class="ph-bold ph-sign-out text-base"></i>
+        <span class="hidden xs:inline">Sair</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl mx-auto w-full px-3.5 sm:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
+    
+    <div id="avatar-status-msg" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
+
+    <div class="bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-4 sm:p-8 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-5 sm:gap-6 shadow-xl">
+      
+      <div class="flex items-center gap-4 sm:gap-5">
+        <div class="relative group shrink-0">
+          <div id="avatar-container" class="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-brand-darker border-2 border-brand-border overflow-hidden flex items-center justify-center shadow-lg transition duration-200 group-hover:border-brand-emerald">
+            <img id="shop-avatar-img" src="" alt="Foto de perfil" class="hidden w-full h-full object-cover" />
+            <i id="shop-avatar-icon" class="ph ph-storefront text-2xl sm:text-4xl text-brand-emerald"></i>
+          </div>
+
+          <label for="avatar-file-input" class="absolute -bottom-1.5 -right-1.5 sm:-bottom-2 sm:-right-2 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-brand-emerald text-brand-darker flex items-center justify-center shadow-md cursor-pointer hover:scale-110 active:scale-95 transition" title="Alterar foto de perfil">
+            <i class="ph-bold ph-camera text-sm sm:text-base text-[#272D2D]"></i>
+          </label>
+          <input type="file" id="avatar-file-input" accept="image/png, image/jpeg, image/webp" class="hidden" />
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-brand-emerald">Visão Geral</span>
+          <h1 id="shop-name-title" class="text-lg sm:text-3xl font-extrabold truncate mt-0.5">Sua Barbearia</h1>
+        </div>
+      </div>
+
+      <div class="w-full md:w-auto bg-brand-darker border border-brand-border rounded-xl sm:rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+        <div class="min-w-0">
+          <div class="text-[10px] sm:text-[11px] uppercase font-bold text-brand-muted">Link público de agendamento</div>
+          <div id="public-link-text" class="text-xs font-mono text-brand-emerald truncate mt-0.5">3lits-agenlits.vercel.app/agendar.html?b=...</div>
+        </div>
+        <div class="flex items-center gap-2 mt-1 sm:mt-0">
+          <button id="btn-copy-link" class="btn-emerald-invert flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 shrink-0">
+            <i class="ph-bold ph-copy"></i> Copiar
+          </button>
+          <a id="btn-visit-page" href="#" target="_blank" class="btn-secondary-invert flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 shrink-0">
+            <i class="ph-bold ph-arrow-square-out"></i> Abrir
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
+        <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
+          <span class="text-[10px] sm:text-xs font-semibold uppercase">Agendamentos</span>
+          <i class="ph ph-calendar-check text-base sm:text-xl text-brand-emerald"></i>
+        </div>
+        <div class="text-xl sm:text-2xl font-extrabold">0</div>
+        <span class="text-[10px] sm:text-[11px] text-brand-muted block truncate">Hoje</span>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
+        <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
+          <span class="text-[10px] sm:text-xs font-semibold uppercase">Barbeiros</span>
+          <i class="ph ph-users-three text-base sm:text-xl text-brand-emerald"></i>
+        </div>
+        <div id="metric-barbers" class="text-xl sm:text-2xl font-extrabold">0</div>
+        <span class="text-[10px] sm:text-[11px] text-brand-emerald block truncate">Equipe ativa</span>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
+        <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
+          <span class="text-[10px] sm:text-xs font-semibold uppercase">Serviços</span>
+          <i class="ph ph-scissors text-base sm:text-xl text-brand-emerald"></i>
+        </div>
+        <div id="metric-services" class="text-xl sm:text-2xl font-extrabold">0</div>
+        <span class="text-[10px] sm:text-[11px] text-brand-muted block truncate">Cadastrados</span>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-xl sm:rounded-2xl p-4 sm:p-5">
+        <div class="flex items-center justify-between text-brand-muted mb-1.5 sm:mb-2">
+          <span class="text-[10px] sm:text-xs font-semibold uppercase">Plataforma</span>
+          <i class="ph ph-shield-check text-base sm:text-xl text-brand-emerald"></i>
+        </div>
+        <div class="text-xs sm:text-sm font-bold text-brand-emerald mt-1">Grátis Ativo</div>
+        <span class="text-[10px] sm:text-[11px] text-brand-muted block truncate">14 dias teste</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
+      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-5 sm:p-6">
+        <div class="flex items-center justify-between pb-3 sm:pb-4 border-b border-brand-border mb-4">
+          <h2 class="text-sm sm:text-base font-bold flex items-center gap-2">
+            <i class="ph-bold ph-calendar text-brand-emerald"></i> Próximos Agendamentos
+          </h2>
+          <a href="agendar.html" target="_blank" class="btn-emerald-invert px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1">
+            + Novo
+          </a>
+        </div>
+
+        <div id="dashboard-appointments-list" class="space-y-3">
+          <div class="py-10 text-center text-brand-muted space-y-2.5">
+            <i class="ph ph-circle-notch animate-spin text-xl text-brand-emerald"></i>
+            <p class="text-xs">Carregando agendamentos do estabelecimento...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-4">
+        <h2 class="text-sm sm:text-base font-bold pb-3 border-b border-brand-border flex items-center gap-2">
           <i class="ph-bold ph-gear text-brand-emerald"></i> Configurações Rápidas
         </h2>
 

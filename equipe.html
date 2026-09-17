@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Equipe & Barbeiros — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
+    }
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
+    });
+  </script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="painel.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+      </a>
+      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
+        Gestão de Equipe & Logins
+      </span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
+      <a href="painel.html" class="btn-secondary-invert flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold">
+        <i class="ph-bold ph-arrow-left"></i> Painel Principal
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 space-y-6">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
+          <i class="ph-bold ph-identification-badge text-brand-emerald"></i> Onboarding de Profissionais
+        </h1>
+        <p class="text-xs text-brand-muted mt-1">Cadastre barbeiros, defina porcentagens de comissão, jornadas e vincule um login para ver apenas a própria agenda.</p>
+      </div>
+
+      <button type="button" onclick="openBarberModal()" class="btn-emerald-invert px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-lg shadow-emerald-500/10">
+        <i class="ph-bold ph-user-plus"></i> Novo Profissional
+      </button>
+    </div>
+
+    <div id="equipe-notice" class="hidden p-3.5 rounded-xl text-xs flex items-center gap-2"></div>
+
+    <!-- Lista de Barbeiros Cadastrados -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="team-cards-grid">
+      <div class="col-span-2 py-12 text-center text-brand-muted text-xs">Carregando profissionais da equipe...</div>
+    </div>
+
+  </main>
+
+  <!-- MODAL DE CADASTRO / EDIÇÃO DE PROFISSIONAL -->
+  <div id="modal-barber-edit" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-md p-6 sm:p-7 shadow-2xl space-y-4 relative">
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+        <h3 class="text-base font-bold text-brand-main" id="barber-modal-title">Novo Profissional</h3>
+        <button type="button" onclick="closeBarberModal()" class="text-brand-muted hover:text-brand-main p-1 text-lg">
+          <i class="ph-bold ph-x"></i>
+        </button>
+      </div>
+
+      <form id="form-barber" onsubmit="return false;" class="space-y-3 text-xs">
+        <input type="hidden" id="barber-id" />
+
+        <div>
+          <label class="block font-bold text-brand-muted uppercase mb-1">Nome do Barbeiro / Profissional</label>
+          <input type="text" id="barber-name" required placeholder="Nome completo" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl focus:outline-none focus:border-brand-emerald" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-brand-muted uppercase mb-1">Telefone / WhatsApp</label>
+          <input type="tel" id="barber-phone" placeholder="(85) 99999-9999" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl focus:outline-none focus:border-brand-emerald" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Comissão (%)</label>
+            <input type="number" id="barber-commission" value="50" min="0" max="100" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl font-bold text-brand-emerald focus:outline-none focus:border-brand-emerald" />
+          </div>
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Status</label>
+            <select id="barber-active" class="w-full px-3 py-2.5 bg-brand-darker border border-brand-border rounded-xl focus:outline-none focus:border-brand-emerald">
+              <option value="true">Ativo na Agenda</option>
+              <option value="false">Inativo / Férias</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Início Turno</label>
+            <input type="time" id="barber-work-start" value="08:00" class="w-full px-3 py-2 bg-brand-darker border border-brand-border rounded-xl focus:outline-none focus:border-brand-emerald" />
+          </div>
+          <div>
+            <label class="block font-bold text-brand-muted uppercase mb-1">Fim Turno</label>
+            <input type="time" id="barber-work-end" value="19:00" class="w-full px-3 py-2 bg-brand-darker border border-brand-border rounded-xl focus:outline-none focus:border-brand-emerald" />
+          </div>
+        </div>
+
+        <!-- E-mail para Login Exclusivo -->
+        <div class="pt-2 border-t border-brand-border">
+          <label class="block font-bold text-brand-muted uppercase mb-1">E-mail para Login (Acesso à própria agenda)</label>
+          <input type="email" id="barber-login-email" placeholder="barbeiro@exemplo.com" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl focus:outline-none focus:border-brand-emerald" />
+          <p class="text-[10px] text-brand-muted mt-1">Ao cadastrar o e-mail, o barbeiro poderá logar e ver apenas a sua agenda diária.</p>
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2">
+          <button type="button" onclick="closeBarberModal()" class="px-4 py-2.5 rounded-xl border border-brand-border hover:bg-brand-darker text-brand-muted text-xs font-semibold">Cancelar</button>
+          <button type="button" id="btn-save-barber" onclick="saveBarber()" class="btn-emerald-invert px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+            Salvar Profissional <i class="ph-bold ph-check"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+      const client = (window._agenlitsClient = window._agenlitsClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+
+      let currentShopId = null;
+      let rawBarbers = [];
+
+      function showNotice(text, isError = false) {
+        const nb = document.getElementById('equipe-notice');
+        nb.textContent = text;
+        nb.className = isError
+          ? 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-red-950/80 border border-red-500 text-red-200'
+          : 'p-3.5 rounded-xl text-xs flex items-center gap-2 bg-emerald-950/80 border border-emerald-500 text-emerald-200';
+        nb.classList.remove('hidden');
+        setTimeout(() => nb.classList.add('hidden'), 4000);
+      }
+
+      function escapeHtml(str) {
+        return String(str || '').replace(/[&<>'"]/g, t => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[t]));
+      }
+
+      async function init() {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = 'login.html';
+
+        const { data: shop } = await client.from('barbershops').select('id').eq('owner_id', session.user.id).maybeSingle();
+        if (!shop) return window.location.href = 'cadastro.html';
+        currentShopId = shop.id;
+
+        loadBarbers();
+      }
+
+      async function loadBarbers() {
+        const grid = document.getElementById('team-cards-grid');
+        const { data: barbers, error } = await client
+          .from('barbers')
+          .select('*')
+          .eq('barbershop_id', currentShopId)
+          .order('name', { ascending: true });
+
+        if (error || !barbers || barbers.length === 0) {
+          grid.innerHTML = '<div class="col-span-2 py-12 text-center text-brand-muted text-xs">Nenhum profissional cadastrado na equipe ainda. Clique no botão acima para adicionar.</div>';
+          return;
+        }
+
+        rawBarbers = barbers;
+        grid.innerHTML = barbers.map(b => `
+          <div class="p-5 rounded-3xl bg-brand-card border border-brand-border flex items-center justify-between shadow-sm hover:border-brand-emerald/40 transition">
+            <div class="flex items-center gap-3.5">
+              <div class="w-12 h-12 rounded-2xl bg-brand-darker border border-brand-border flex items-center justify-center font-bold text-base text-brand-emerald">
+                ${b.avatar_url ? `<img src="${b.avatar_url}" class="w-full h-full object-cover rounded-2xl" />` : escapeHtml(b.name.charAt(0))}
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-brand-main">${escapeHtml(b.name)}</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold ${b.is_active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}">
+                    ${b.is_active ? 'Ativo' : 'Inativo'}
+                  </span>
+                </div>
+                <div class="text-xs text-brand-muted mt-0.5">${escapeHtml(b.phone || 'Sem telefone')}</div>
+                <div class="text-[11px] text-brand-emerald font-semibold mt-1">
+                  Comissão: ${b.commission_percentage || 0}% • Turno: ${b.work_start || '08:00'} às ${b.work_end || '19:00'}
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="editBarber('${b.id}')" class="p-2 rounded-xl bg-brand-darker hover:bg-brand-border border border-brand-border text-brand-muted hover:text-white transition" title="Editar">
+                <i class="ph-bold ph-pencil-simple text-sm"></i>
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      window.openBarberModal = () => {
+        document.getElementById('barber-modal-title').textContent = 'Novo Profissional';
+        document.getElementById('barber-id').value = '';
+        document.getElementById('barber-name').value = '';
+        document.getElementById('barber-phone').value = '';
+        document.getElementById('barber-commission').value = '50';
+        document.getElementById('barber-active').value = 'true';
+        document.getElementById('barber-work-start').value = '08:00';
+        document.getElementById('barber-work-end').value = '19:00';
+        document.getElementById('barber-login-email').value = '';
+        document.getElementById('modal-barber-edit').classList.remove('hidden');
+      };
+
+      window.closeBarberModal = () => {
+        document.getElementById('modal-barber-edit').classList.add('hidden');
+      };
+
+      window.editBarber = (id) => {
+        const b = rawBarbers.find(x => x.id === id);
+        if (!b) return;
+
+        document.getElementById('barber-modal-title').textContent = 'Editar Profissional';
+        document.getElementById('barber-id').value = b.id;
+        document.getElementById('barber-name').value = b.name || '';
+        document.getElementById('barber-phone').value = b.phone || '';
+        document.getElementById('barber-commission').value = b.commission_percentage || 50;
+        document.getElementById('barber-active').value = b.is_active ? 'true' : 'false';
+        document.getElementById('barber-work-start').value = b.work_start || '08:00';
+        document.getElementById('barber-work-end').value = b.work_end || '19:00';
+        document.getElementById('modal-barber-edit').classList.remove('hidden');
+      };
+
+      window.saveBarber = async () => {
+        const id = document.getElementById('barber-id').value;
+        const name = document.getElementById('barber-name').value.trim();
+        const phone = document.getElementById('barber-phone').value.trim();
+        const commission = parseFloat(document.getElementById('barber-commission').value) || 0;
+        const isActive = document.getElementById('barber-active').value === 'true';
+        const workStart = document.getElementById('barber-work-start').value || '08:00';
+        const workEnd = document.getElementById('barber-work-end').value || '19:00';
+
+        if (!name) return showNotice('O nome do profissional é obrigatório.', true);
+
+        const btn = document.getElementById('btn-save-barber');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Salvando...';
+
+        try {
+          if (id) {
+            await client.from('barbers').update({
+              name,
+              phone,
+              commission_percentage: commission,
+              is_active: isActive,
+              work_start: workStart,
+              work_end: workEnd
+            }).eq('id', id);
+          } else {
+            await client.from('barbers').insert([{
+              barbershop_id: currentShopId,
+              name,
+              phone,
+              commission_percentage: commission,
+              is_active: isActive,
+              work_start: workStart,
+              work_end: workEnd
+            }]);
+          }
+
+          showNotice('Profissional salvo com sucesso!');
+          closeBarberModal();
+          loadBarbers();
+        } catch(err) {
+          showNotice('Erro ao salvar profissional: ' + err.message, true);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = 'Salvar Profissional <i class="ph-bold ph-check"></i>';
+        }
+      };
+
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>

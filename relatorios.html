@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Relatórios & Performance — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('agenlits_theme') || 'dark';
+      if (savedTheme === 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      updateThemeIcons();
+    }
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('agenlits_theme', isLight ? 'light' : 'dark');
+      updateThemeIcons();
+    }
+    function updateThemeIcons() {
+      const isLight = document.documentElement.classList.contains('light');
+      document.querySelectorAll('.theme-toggle-btn i').forEach(icon => {
+        icon.className = isLight ? 'ph-bold ph-moon text-lg text-slate-800' : 'ph-bold ph-sun text-lg text-emerald-400';
+      });
+    }
+    initTheme();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
+      updateThemeIcons();
+    });
+  </script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="painel.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+      </a>
+      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
+        Relatórios Gerenciais
+      </span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
+      <a href="painel.html" class="btn-secondary-invert flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold">
+        <i class="ph-bold ph-arrow-left"></i> Painel Principal
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
+          <i class="ph-bold ph-chart-line-up text-brand-emerald"></i> Relatórios de Performance
+        </h1>
+        <p class="text-xs text-brand-muted mt-1">Visão consolidada de faturamento, ticket médio por atendimento, faltas (no-show) e extrato de comissões.</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <select id="report-period-select" onchange="loadReportData()" class="px-3.5 py-2 bg-brand-card border border-brand-border rounded-xl text-xs font-semibold focus:outline-none focus:border-brand-emerald transition">
+          <option value="today">Hoje</option>
+          <option value="week">Últimos 7 dias</option>
+          <option value="month" selected>Este Mês</option>
+          <option value="year">Este Ano</option>
+          <option value="all">Histórico Completo</option>
+        </select>
+        <button onclick="exportReportCSV()" class="btn-secondary-invert px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer">
+          <i class="ph-bold ph-file-csv"></i> Exportar CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Cards de Indicadores Chave (KPIs) -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center justify-between text-brand-muted mb-1.5">
+          <span class="text-xs font-semibold uppercase tracking-wider">Faturamento Concluído</span>
+          <i class="ph ph-wallet text-xl text-brand-emerald"></i>
+        </div>
+        <div id="kpi-faturamento" class="text-2xl sm:text-3xl font-black text-brand-emerald font-mono">R$ 0,00</div>
+        <span class="text-[11px] text-brand-muted">Receita líquida realizada</span>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center justify-between text-brand-muted mb-1.5">
+          <span class="text-xs font-semibold uppercase tracking-wider">Ticket Médio</span>
+          <i class="ph ph-receipt text-xl text-brand-main"></i>
+        </div>
+        <div id="kpi-ticket" class="text-2xl sm:text-3xl font-black text-brand-main font-mono">R$ 0,00</div>
+        <span class="text-[11px] text-brand-muted">Gasto médio por cliente</span>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center justify-between text-brand-muted mb-1.5">
+          <span class="text-xs font-semibold uppercase tracking-wider">Taxa de No-Show</span>
+          <i class="ph ph-user-x text-xl text-red-400"></i>
+        </div>
+        <div id="kpi-noshow-rate" class="text-2xl sm:text-3xl font-black text-red-400 font-mono">0%</div>
+        <span class="text-[11px] text-brand-muted" id="kpi-noshow-count">0 faltas registradas</span>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div class="flex items-center justify-between text-brand-muted mb-1.5">
+          <span class="text-xs font-semibold uppercase tracking-wider">Comissões a Pagar</span>
+          <i class="ph ph-hand-coins text-xl text-amber-400"></i>
+        </div>
+        <div id="kpi-comissoes" class="text-2xl sm:text-3xl font-black text-amber-400 font-mono">R$ 0,00</div>
+        <span class="text-[11px] text-brand-muted">Total devido à equipe</span>
+      </div>
+
+    </div>
+
+    <!-- Duas Colunas: Extrato da Equipe & Ranking de Serviços -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
+        <h2 class="text-sm font-bold flex items-center gap-2 pb-2 border-b border-brand-border">
+          <i class="ph-bold ph-chart-bar text-brand-emerald"></i> Extrato de Produção & Comissões por Barbeiro
+        </h2>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="text-brand-muted border-b border-brand-border uppercase text-[10px] font-bold">
+                <th class="py-2.5">Barbeiro</th>
+                <th class="py-2.5 text-center">Atendimentos</th>
+                <th class="py-2.5 text-right">Faturado</th>
+                <th class="py-2.5 text-center">% Comissão</th>
+                <th class="py-2.5 text-right">Comissão</th>
+                <th class="py-2.5 text-right">Líquido Barbearia</th>
+              </tr>
+            </thead>
+            <tbody id="table-relatorio-equipe" class="divide-y divide-brand-border">
+              <tr>
+                <td colspan="6" class="py-8 text-center text-brand-muted">Carregando dados da equipe...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
+        <h2 class="text-sm font-bold flex items-center gap-2 pb-2 border-b border-brand-border">
+          <i class="ph-bold ph-trophy text-brand-emerald"></i> Serviços Mais Realizados
+        </h2>
+        <div id="relatorio-top-servicos" class="space-y-3">
+          <p class="text-xs text-brand-muted py-6 text-center">Carregando serviços...</p>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://fdoceyjcibzdfiqvdzkv.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
+      const client = (window._agenlitsClient = window._agenlitsClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
+
+      let currentShopId = null;
+      let lastReport = null;
+
+      function escapeHtml(str) {
+        return String(str || '').replace(/[&<>'"]/g, t => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[t]));
+      }
+
+      function formatBRL(cents) {
+        return ((cents || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      }
+
+      async function loadReportData() {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = 'login.html';
+
+        if (!currentShopId) {
+          const { data: shop } = await client.from('barbershops').select('id').eq('owner_id', session.user.id).maybeSingle();
+          if (!shop) return window.location.href = 'cadastro.html';
+          currentShopId = shop.id;
+        }
+
+        const period = document.getElementById('report-period-select').value;
+        const now = new Date();
+        let start = new Date();
+
+        if (period === 'today') {
+          start.setHours(0,0,0,0);
+        } else if (period === 'week') {
+          start.setDate(now.getDate() - 7);
+        } else if (period === 'month') {
+          start = new Date(now.getFullYear(), now.getMonth(), 1);
+        } else if (period === 'year') {
+          start = new Date(now.getFullYear(), 0, 1);
+        } else {
+          start = new Date(2020, 0, 1);
+        }
+
+        try {
+          const { data: rep, error } = await client.rpc('get_financial_report', {
+            p_barbershop_id: currentShopId,
+            p_start_date: start.toISOString(),
+            p_end_date: now.toISOString()
+          });
+
+          if (error) throw error;
+          lastReport = rep;
+
+          const revCents = rep.gross_revenue_cents || 0;
+          const completed = rep.total_completed || 0;
+          const noShow = rep.total_no_show || 0;
+          const totalSched = completed + noShow + (rep.total_cancelled || 0);
+
+          document.getElementById('kpi-faturamento').textContent = formatBRL(revCents);
+
+          // Ticket Médio
+          const ticket = completed > 0 ? Math.round(revCents / completed) : 0;
+          document.getElementById('kpi-ticket').textContent = formatBRL(ticket);
+
+          // Taxa de No-Show
+          const noShowRate = (completed + noShow) > 0 ? Math.round((noShow / (completed + noShow)) * 100) : 0;
+          document.getElementById('kpi-noshow-rate').textContent = `${noShowRate}%`;
+          document.getElementById('kpi-noshow-count').textContent = `${noShow} faltas de ${completed + noShow} confirmados`;
+
+          // Total de Comissões
+          let sumComm = 0;
+          if (rep.barbers_commissions) {
+            sumComm = rep.barbers_commissions.reduce((acc, b) => acc + (b.commission_due_cents || 0), 0);
+          }
+          document.getElementById('kpi-comissoes').textContent = formatBRL(sumComm);
+
+          // Tabela de Barbeiros
+          const tbody = document.getElementById('table-relatorio-equipe');
+          if (!rep.barbers_commissions || rep.barbers_commissions.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-brand-muted">Nenhum registro no período.</td></tr>';
+          } else {
+            tbody.innerHTML = rep.barbers_commissions.map(b => {
+              const shopNet = (b.total_produced_cents || 0) - (b.commission_due_cents || 0);
+              return `
+                <tr class="hover:bg-brand-darker/50 transition">
+                  <td class="py-3 font-bold text-brand-main">${escapeHtml(b.barber_name)}</td>
+                  <td class="py-3 text-center text-brand-muted">${b.appointments_count || 0}</td>
+                  <td class="py-3 text-right font-mono">${formatBRL(b.total_produced_cents)}</td>
+                  <td class="py-3 text-center text-brand-emerald font-bold">${b.commission_percentage || 0}%</td>
+                  <td class="py-3 text-right font-mono text-amber-400 font-bold">${formatBRL(b.commission_due_cents)}</td>
+                  <td class="py-3 text-right font-mono text-brand-emerald font-bold">${formatBRL(shopNet)}</td>
+                </tr>
+              `;
+            }).join('');
+          }
+
+          // Top Serviços
+          const sList = document.getElementById('relatorio-top-servicos');
+          if (!rep.top_services || rep.top_services.length === 0) {
+            sList.innerHTML = '<p class="text-xs text-brand-muted py-6 text-center">Nenhum serviço realizado no período.</p>';
+          } else {
+            sList.innerHTML = rep.top_services.map((s, idx) => `
+              <div class="flex items-center justify-between p-3 rounded-2xl bg-brand-darker border border-brand-border">
+                <div class="flex items-center gap-2.5">
+                  <span class="w-6 h-6 rounded-lg bg-brand-emerald/10 text-brand-emerald text-xs font-black flex items-center justify-center">${idx + 1}</span>
+                  <div>
+                    <div class="font-bold text-xs text-brand-main">${escapeHtml(s.name)}</div>
+                    <div class="text-[10px] text-brand-muted">${s.sales_count} atendimentos</div>
+                  </div>
+                </div>
+                <div class="text-xs font-bold font-mono text-brand-emerald">${formatBRL(s.revenue_cents)}</div>
+              </div>
+            `).join('');
+          }
+
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      window.exportReportCSV = () => {
+        if (!lastReport || !lastReport.barbers_commissions) return alert('Carregue os dados antes de exportar.');
+        let csv = 'Barbeiro;Atendimentos;Faturado_BRL;Comissao_Pct;Comissao_BRL;Liquido_Loja_BRL\n';
+        lastReport.barbers_commissions.forEach(b => {
+          const net = ((b.total_produced_cents - b.commission_due_cents) / 100).toFixed(2);
+          csv += `"${b.barber_name}";${b.appointments_count};${(b.total_produced_cents/100).toFixed(2)};${b.commission_percentage}%;${(b.commission_due_cents/100).toFixed(2)};${net}\n`;
+        });
+        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `relatorio_gerencial_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+      };
+
+      window.loadReportData = loadReportData;
+      document.addEventListener('DOMContentLoaded', loadReportData);
+    })();
+  </script>
+</body>
+</html>
