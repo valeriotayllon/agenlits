@@ -390,6 +390,12 @@
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkb2NleWpjaWJ6ZGZpcXZkemt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzODkyOTEsImV4cCI6MjEwNDk2NTI5MX0.v6Jj0Fn7u1HEAHl-zq5SZTmGxCIeHXs2a-vTSgtFm-A';
       const client = (window._agenlitsClient = window._agenlitsClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
 
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>'"]/g, t => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[t]));
+    }
+
       const authScreen = document.getElementById('admin-auth-screen');
       const dashboardScreen = document.getElementById('admin-dashboard-screen');
       const emailInput = document.getElementById('admin-email-input');
@@ -605,11 +611,11 @@
                   <div class="w-8 h-8 rounded-lg overflow-hidden bg-brand-darker border border-brand-border shrink-0">
                     ${s.avatar_url ? `<img src="${s.avatar_url}" class="w-full h-full object-cover"/>` : '<i class="ph ph-storefront p-2 text-brand-emerald"></i>'}
                   </div>
-                  <span>${s.name}</span>
+                  <span>${escapeHtml(s.name)}</span>
                 </div>
               </td>
-              <td class="py-3.5 px-4 font-mono text-[11px] text-brand-emerald">/${s.slug || '-'}</td>
-              <td class="py-3.5 px-4 text-brand-muted">${s.phone || '-'}</td>
+              <td class="py-3.5 px-4 font-mono text-[11px] text-brand-emerald">/${escapeHtml(s.slug || '-')}</td>
+              <td class="py-3.5 px-4 text-brand-muted">${escapeHtml(s.phone || '-')}</td>
               <td class="py-3.5 px-4 text-brand-muted">${dateStr}</td>
               <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
                 <a href="agendar.html?b=${s.slug}" target="_blank" class="p-1.5 rounded-lg bg-brand-darker hover:bg-brand-border border border-brand-border text-brand-main inline-flex items-center transition" title="Ver Página Pública">
@@ -645,11 +651,11 @@
             <tr class="hover:bg-brand-darker/40 transition">
               <td class="py-3.5 px-4 font-bold text-brand-main flex items-center gap-2">
                 <div class="w-7 h-7 rounded-full bg-brand-darker border border-brand-border flex items-center justify-center text-brand-emerald font-bold text-xs">
-                  ${(c.name || 'C')[0].toUpperCase()}
+                  ${escapeHtml((c.name || 'C')[0].toUpperCase())}
                 </div>
-                <span>${c.name || 'Cliente'}</span>
+                <span>${escapeHtml(c.name || 'Cliente')}</span>
               </td>
-              <td class="py-3.5 px-4 text-brand-muted">${c.email || '-'}</td>
+              <td class="py-3.5 px-4 text-brand-muted">${escapeHtml(c.email || '-')}</td>
               <td class="py-3.5 px-4 text-brand-muted">${c.phone || '-'}</td>
               <td class="py-3.5 px-4 text-brand-muted">${dateStr}</td>
               <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
