@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Explorar Serviços — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="js/layout.js"></script>
+  <script src="js/supabase-client.js"></script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="cliente.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+      </a>
+      <span class="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
+        Catálogo de Serviços
+      </span>
+    </div>
+
+    <div class="flex items-center gap-2.5">
+      <button type="button" class="theme-toggle-btn h-9 w-9 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer shrink-0" title="Alternar tema">
+        <i class="ph-bold ph-sun text-base text-emerald-400"></i>
+      </button>
+      <a href="cliente.html" class="h-9 px-3.5 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-xs font-semibold flex items-center gap-1.5 transition">
+        <i class="ph-bold ph-arrow-left"></i> Meus Agendamentos
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+    
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <span class="text-xs uppercase font-bold text-brand-emerald tracking-wider">Marketplace de Beleza & Bem-estar</span>
+        <h1 class="text-2xl sm:text-3xl font-black mt-1 text-brand-main">Encontre e Agende Serviços</h1>
+        <p class="text-xs text-brand-muted mt-1">Descubra os melhores cortes, tratamentos e serviços disponíveis perto de você.</p>
+      </div>
+    </div>
+
+    <!-- Barra de Pesquisa e Filtro de Categorias -->
+    <div class="bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl space-y-3.5">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="relative flex-1">
+          <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-muted text-base"></i>
+          <input 
+            type="text" 
+            id="search-services-input" 
+            placeholder="Buscar por serviço, corte, barba, escova..." 
+            class="w-full pl-10 pr-4 py-2.5 bg-brand-darker border border-brand-border rounded-xl text-xs focus:outline-none focus:border-brand-emerald text-brand-main transition"
+          />
+        </div>
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0" id="categories-filter-container">
+          <button type="button" class="btn-cat-filter px-3.5 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-black" data-cat="all">
+            Todos
+          </button>
+          <button type="button" class="btn-cat-filter px-3.5 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main border border-brand-border bg-brand-card transition" data-cat="Cabelo">
+            Cabelo
+          </button>
+          <button type="button" class="btn-cat-filter px-3.5 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main border border-brand-border bg-brand-card transition" data-cat="Barba">
+            Barba
+          </button>
+          <button type="button" class="btn-cat-filter px-3.5 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main border border-brand-border bg-brand-card transition" data-cat="Combo">
+            Combos
+          </button>
+          <button type="button" class="btn-cat-filter px-3.5 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main border border-brand-border bg-brand-card transition" data-cat="Tratamento">
+            Tratamentos
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid de Serviços Carregados do Banco -->
+    <div id="services-catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+      <div class="col-span-full py-16 text-center text-brand-muted space-y-3">
+        <i class="ph ph-circle-notch animate-spin text-3xl text-brand-emerald mx-auto"></i>
+        <p class="text-xs font-semibold">Carregando catálogo de serviços disponíveis...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    (() => {
+      let rawServices = [];
+      let currentFilter = 'all';
+
+      async function loadCatalog() {
+        const grid = document.getElementById('services-catalog-grid');
+
+        try {
+          // Busca serviços ativos vinculados às barbearias cadastradas
+          const { data, error } = await client
+            .from('services')
+            .select('id, name, category, price_cents, duration_minutes, barbershops(name, slug, avatar_url, phone)')
+            .eq('is_active', true)
+            .order('name', { ascending: true });
+
+          if (error) throw error;
+          rawServices = data || [];
+          renderServices();
+        } catch (err) {
+          console.error(err);
+          grid.innerHTML = `
+            <div class="col-span-full py-12 text-center text-red-400 bg-red-950/20 border border-red-900/40 rounded-2xl p-6">
+              <i class="ph-bold ph-warning-circle text-2xl mb-2"></i>
+              <p class="text-xs font-semibold">Falha ao carregar catálogo de serviços.</p>
+              <p class="text-[11px] text-brand-muted mt-1">${escapeHtml(err.message)}</p>
+            </div>
+          `;
+        }
+      }
+
+      function renderServices() {
+        const grid = document.getElementById('services-catalog-grid');
+        const searchVal = (document.getElementById('search-services-input').value || '').toLowerCase().trim();
+
+        const filtered = rawServices.filter(s => {
+          const matchCat = (currentFilter === 'all') || (s.category && s.category.toLowerCase().includes(currentFilter.toLowerCase()));
+          const matchSearch = s.name.toLowerCase().includes(searchVal) || 
+                              (s.barbershops?.name && s.barbershops.name.toLowerCase().includes(searchVal));
+          return matchCat && matchSearch;
+        });
+
+        if (!filtered.length) {
+          grid.innerHTML = `
+            <div class="col-span-full py-16 text-center text-brand-muted bg-brand-card border border-brand-border rounded-3xl p-8 space-y-2">
+              <i class="ph-bold ph-scissors text-3xl text-brand-muted mx-auto"></i>
+              <p class="text-sm font-bold text-brand-main">Nenhum serviço encontrado.</p>
+              <p class="text-xs">Tente ajustar a busca ou escolher outra categoria.</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = filtered.map(s => {
+          const shopName = s.barbershops?.name || 'Estabelecimento';
+          const shopSlug = s.barbershops?.slug || '';
+          const bookingUrl = shopSlug ? `agendar.html?b=${encodeURIComponent(shopSlug)}` : '#';
+
+          return `
+            <div class="bg-brand-card border border-brand-border rounded-2xl sm:rounded-3xl p-5 hover:border-brand-emerald/50 transition flex flex-col justify-between shadow-lg space-y-4">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-darker border border-brand-border text-brand-emerald uppercase">
+                    ${escapeHtml(s.category || 'Geral')}
+                  </span>
+                  <span class="text-[11px] text-brand-muted flex items-center gap-1 font-medium">
+                    <i class="ph ph-clock"></i> ${s.duration_minutes} min
+                  </span>
+                </div>
+
+                <div>
+                  <h3 class="font-black text-sm sm:text-base text-brand-main leading-tight">${escapeHtml(s.name)}</h3>
+                  <p class="text-xs text-brand-muted font-medium flex items-center gap-1.5 mt-1 truncate">
+                    <i class="ph ph-storefront text-brand-emerald"></i> ${escapeHtml(shopName)}
+                  </p>
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-brand-border/60 flex items-center justify-between gap-3">
+                <div>
+                  <span class="text-[10px] text-brand-muted block uppercase font-bold">A partir de</span>
+                  <span class="text-base sm:text-lg font-black text-brand-emerald font-mono">${formatBRL(s.price_cents)}</span>
+                </div>
+
+                <a href="${bookingUrl}" class="btn-emerald-invert px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-500/10 hover:scale-105 transition">
+                  <span>Agendar</span> <i class="ph-bold ph-caret-right text-xs"></i>
+                </a>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('search-services-input').addEventListener('input', renderServices);
+
+      document.querySelectorAll('.btn-cat-filter').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.btn-cat-filter').forEach(b => {
+            b.className = 'btn-cat-filter px-3.5 py-2 rounded-xl text-xs font-semibold text-brand-muted hover:text-brand-main border border-brand-border bg-brand-card transition';
+          });
+          btn.className = 'btn-cat-filter px-3.5 py-2 rounded-xl text-xs font-bold transition bg-brand-emerald text-black';
+          currentFilter = btn.dataset.cat;
+          renderServices();
+        });
+      });
+
+      document.addEventListener('DOMContentLoaded', loadCatalog);
+    })();
+  </script>
+</body>
+</html>
