@@ -250,6 +250,20 @@
           }
 
           if (currentType === 'owner') {
+            // Verifica se é barbeiro/profissional da equipe primeiro
+            const { data: barberProfile } = await supabaseAuthClient
+              .from('barbers')
+              .select('id, name')
+              .eq('user_id', user.id)
+              .maybeSingle();
+
+            if (barberProfile) {
+              localStorage.setItem('agenlits_user_type', 'barber');
+              window.location.href = 'barbeiro-agenda.html';
+              return;
+            }
+
+            // Se não for barbeiro, verifica se é dono de barbearia
             const { data: shop } = await supabaseAuthClient
               .from('barbershops')
               .select('id, name')
@@ -258,7 +272,7 @@
 
             if (!shop) {
               await supabaseAuthClient.auth.signOut();
-              showError('Nenhuma barbearia vinculada a esta conta. Cadastre seu estabelecimento na aba de cadastro.');
+              showError('Nenhum estabelecimento ou perfil profissional vinculado a esta conta.');
               btnLogin.disabled = false;
               btnLogin.innerHTML = `<span id="btn-login-text">${btnLoginText.textContent}</span> <i class="ph-bold ph-sign-in"></i>`;
               return;

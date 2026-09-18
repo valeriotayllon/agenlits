@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Minha Agenda — agenlits Barbeiros</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="js/layout.js"></script>
+  <script src="js/supabase-client.js"></script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+      </a>
+      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
+        Espaço do Profissional
+      </span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
+      <button id="btn-logout" class="btn-secondary-invert px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
+        <i class="ph-bold ph-sign-out"></i> Sair
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8 space-y-6">
+    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-2xl bg-brand-emerald/10 text-brand-emerald flex items-center justify-center text-2xl font-bold">
+          <i class="ph-bold ph-scissors"></i>
+        </div>
+        <div>
+          <h1 id="barber-name-display" class="text-xl font-black text-brand-main">Carregando...</h1>
+          <p id="barber-shop-display" class="text-xs text-brand-muted">Verificando estabelecimento...</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="barber-comm-display" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-darker border border-brand-border text-brand-emerald font-mono">
+          Comissão: ...%
+        </span>
+      </div>
+    </div>
+
+    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 shadow-xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+        <h2 class="text-base font-bold flex items-center gap-2">
+          <i class="ph-bold ph-calendar text-brand-emerald"></i> Meus Agendamentos
+        </h2>
+        <span class="text-xs text-brand-muted font-mono" id="today-date-indicator"></span>
+      </div>
+
+      <div id="barber-appointments-list" class="space-y-3">
+        <div class="py-12 text-center text-brand-muted space-y-2">
+          <i class="ph ph-circle-notch animate-spin text-2xl text-brand-emerald"></i>
+          <p class="text-xs">Carregando seus agendamentos...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Gestão de Atendimento para Profissionais.
+  </footer>
+
+  <script>
+    (() => {
+      let currentBarber = null;
+
+      async function init() {
+        document.getElementById('today-date-indicator').textContent = new Date().toLocaleDateString('pt-BR', { dateStyle: 'full' });
+
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = 'login.html';
+
+        const { data: barber, error } = await client
+          .from('barbers')
+          .select('id, name, commission_percentage, barbershops(id, name)')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+
+        if (error || !barber) {
+          alert('Sua conta não está vinculada a nenhum perfil de profissional ativo.');
+          await client.auth.signOut();
+          return window.location.href = 'login.html';
+        }
+
+        currentBarber = barber;
+        document.getElementById('barber-name-display').textContent = barber.name;
+        document.getElementById('barber-shop-display').textContent = barber.barbershops?.name || 'Barbearia';
+        document.getElementById('barber-comm-display').textContent = `Comissão: ${barber.commission_percentage || 0}%`;
+
+        loadAppointments();
+      }
+
+      async function loadAppointments() {
+        const container = document.getElementById('barber-appointments-list');
+        try {
+          const { data: appts, error } = await client
+            .from('appointments')
+            .select('id, starts_at, status, client_name, client_phone, price_cents, services(name)')
+            .eq('barber_id', currentBarber.id)
+            .order('starts_at', { ascending: true });
+
+          if (error) throw error;
+
+          if (!appts || appts.length === 0) {
+            container.innerHTML = `
+              <div class="py-12 text-center text-brand-muted space-y-2">
+                <i class="ph-bold ph-calendar-x text-2xl text-brand-muted"></i>
+                <p class="text-xs font-semibold">Nenhum atendimento agendado para você no momento.</p>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = appts.map(apt => {
+            const dataHora = apt.starts_at 
+              ? new Date(apt.starts_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) 
+              : '-';
+            const priceFormatted = formatBRL(apt.price_cents || 0);
+
+            return `
+              <div class="p-4 rounded-2xl bg-brand-darker border border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-sm text-brand-main">${escapeHtml(apt.client_name || 'Cliente')}</span>
+                    <span class="text-brand-muted font-mono">(${escapeHtml(apt.client_phone || '-')})</span>
+                  </div>
+                  <div class="text-brand-emerald font-semibold mt-1">
+                    ${escapeHtml(apt.services?.name || 'Serviço')} • ${dataHora}
+                  </div>
+                  <div class="font-mono text-[11px] text-brand-muted mt-0.5">Valor: ${priceFormatted}</div>
+                </div>
+                <div class="flex items-center gap-2 justify-end">
+                  <span class="px-2.5 py-1 rounded-md uppercase font-bold text-[10px] bg-emerald-500/10 text-brand-emerald border border-emerald-500/20">
+                    ${apt.status}
+                  </span>
+                  ${apt.status === 'confirmed' ? `
+                    <button onclick="markDone('${apt.id}')" class="btn-emerald-invert px-3 py-1.5 rounded-xl font-bold flex items-center gap-1 cursor-pointer">
+                      <i class="ph-bold ph-check"></i> Concluir
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+        } catch (err) {
+          container.innerHTML = `<p class="text-xs text-red-400 py-4 text-center">Falha ao buscar atendimentos: ${escapeHtml(err.message)}</p>`;
+        }
+      }
+
+      window.markDone = async (aptId) => {
+        if (!confirm('Deseja marcar este atendimento como concluído?')) return;
+        try {
+          const { error } = await client.from('appointments').update({ status: 'done' }).eq('id', aptId);
+          if (error) throw error;
+          loadAppointments();
+        } catch (e) {
+          alert('Erro ao atualizar: ' + e.message);
+        }
+      };
+
+      document.getElementById('btn-logout').addEventListener('click', async () => {
+        await client.auth.signOut();
+        window.location.href = 'login.html';
+      });
+
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>

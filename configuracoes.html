@@ -196,17 +196,21 @@
       };
 
       window.deleteAccountRequest = async () => {
-        if (!confirm('ATENÇÃO: Deseja realmente excluir permanentemente a sua conta e os dados da sua loja? Esta ação não pode ser desfeita.')) return;
-        const confirmText = prompt('Digite EXCLUIR para confirmar:');
+        if (!confirm('ATENÇÃO: Deseja realmente excluir permanentemente a sua conta e todos os dados da sua loja? Esta ação apagará seu login e não pode ser desfeita.')) return;
+        const confirmText = prompt('Digite EXCLUIR para confirmar a eliminação de dados (LGPD):');
         if (confirmText !== 'EXCLUIR') return alert('Ação cancelada.');
 
         try {
-          await client.from('barbershops').delete().eq('id', currentShop.id);
+          const { data, error } = await client.functions.invoke('manage-account', {
+            body: { action: 'delete_account' }
+          });
+          if (error) throw error;
+
           await client.auth.signOut();
-          alert('Conta e dados da barbearia excluídos com sucesso.');
+          alert('Conta e dados excluídos definitivamente com sucesso.');
           window.location.href = 'index.html';
         } catch(err) {
-          alert('Erro ao excluir: ' + err.message);
+          alert('Erro ao excluir conta: ' + (err.message || 'Erro inesperado'));
         }
       };
 

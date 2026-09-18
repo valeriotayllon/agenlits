@@ -243,6 +243,7 @@
         const id = document.getElementById('barber-id').value;
         const name = document.getElementById('barber-name').value.trim();
         const phone = document.getElementById('barber-phone').value.trim();
+        const loginEmail = document.getElementById('barber-login-email').value.trim();
         const commission = parseFloat(document.getElementById('barber-commission').value) || 0;
         const isActive = document.getElementById('barber-active').value === 'true';
         const workStart = document.getElementById('barber-work-start').value || '08:00';
@@ -255,6 +256,7 @@
         btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Salvando...';
 
         try {
+          let targetBarberId = id;
           if (id) {
             await client.from('barbers').update({
               name,
@@ -265,7 +267,7 @@
               work_end: workEnd
             }).eq('id', id);
           } else {
-            await client.from('barbers').insert([{
+            const { data: newB, error: insErr } = await client.from('barbers').insert([{
               barbershop_id: currentShopId,
               name,
               phone,
@@ -273,22 +275,35 @@
               is_active: isActive,
               work_start: workStart,
               work_end: workEnd
-            }]);
+            }]).select().single();
+            if (insErr) throw insErr;
+            targetBarberId = newB.id;
           }
 
-          showNotice('Profissional salvo com sucesso!');
+          if (loginEmail && targetBarberId) {
+            btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Configurando login...';
+            const { data: linkRes, error: linkErr } = await client.functions.invoke('manage-account', {
+              body: {
+                action: 'link_barber_login',
+                barber_id: targetBarberId,
+                email: loginEmail
+              }
+            });
+            if (linkErr) {
+              console.warn('Aviso ao vincular login:', linkErr);
+              showNotice('Profissional salvo! Porém houve um aviso no login: ' + (linkErr.message || ''), true);
+            }
+          }
+
+          showNotice('Profissional atualizado com sucesso!');
           closeBarberModal();
           loadBarbers();
         } catch(err) {
-          showNotice('Erro ao salvar profissional: ' + err.message, true);
+          showNotice('Erro ao salvar: ' + err.message, true);
         } finally {
           btn.disabled = false;
           btn.innerHTML = 'Salvar Profissional <i class="ph-bold ph-check"></i>';
         }
       };
 
-      document.addEventListener('DOMContentLoaded', init);
-    })();
-  </script>
-</body>
-</html>
+      
