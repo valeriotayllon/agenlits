@@ -326,8 +326,11 @@
         btnLogout.addEventListener('click', async () => {
           btnLogout.disabled = true;
           btnLogout.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i>';
-          localStorage.removeItem('agenlits_user_type'); await client.auth.signOut();
-          window.location.href = 'login.html?type=client';
+          localStorage.removeItem('agenlits_user_type');
+          localStorage.removeItem('agenlits_staff_role');
+          localStorage.removeItem('agenlits_staff_shop_id');
+          await client.auth.signOut();
+          window.location.href = 'index.html';
         });
       }
 
