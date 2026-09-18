@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Fidelidade & Clube de Assinatura — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="js/layout.js"></script>
+  <script src="js/supabase-client.js"></script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+
+  <header class="sticky top-0 z-40 bg-brand-card/95 backdrop-blur-md border-b border-brand-border px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="painel.html" class="flex items-center gap-2">
+        <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-7 sm:h-8 w-auto object-contain" />
+      </a>
+      <span class="text-xs px-2.5 py-1 font-semibold rounded-md bg-brand-darker border border-brand-border text-brand-emerald">
+        Fidelidade & Assinaturas de Clientes
+      </span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button type="button" class="theme-toggle-btn p-2 rounded-xl border border-brand-border bg-brand-card hover:border-brand-emerald text-brand-muted hover:text-white transition flex items-center justify-center cursor-pointer" title="Alternar tema">
+        <i class="ph-bold ph-sun text-lg text-emerald-400"></i>
+      </button>
+      <a href="painel.html" class="btn-secondary-invert flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold">
+        <i class="ph-bold ph-arrow-left"></i> Painel Principal
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 space-y-8">
+    
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-black flex items-center gap-2.5">
+        <i class="ph-bold ph-gift text-brand-emerald"></i> Programa de Fidelidade & Recorrência
+      </h1>
+      <p class="text-xs text-brand-muted mt-1">Crie planos mensais para seus clientes (ex: R$ 99/mês) e configure metas de fidelidade com corte grátis.</p>
+    </div>
+
+    <!-- Seção 1: Configuração do Cartão Fidelidade Digital -->
+    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-7 shadow-xl space-y-4 text-xs">
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+        <h2 class="text-sm font-bold flex items-center gap-2">
+          <i class="ph-bold ph-medal text-brand-emerald"></i> Cartão Fidelidade Digital (Ex: 10 cortes = 1 grátis)
+        </h2>
+        <span class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Ativo</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-bold text-brand-muted uppercase mb-1">Meta de Atendimentos para Recompensa</label>
+          <input type="number" id="loyalty-goal-input" min="3" max="50" value="10" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl font-bold text-xs focus:outline-none focus:border-brand-emerald" />
+          <p class="text-[10px] text-brand-muted mt-1">Quantidade de visitas que o cliente deve acumular para ganhar 1 serviço de cortesia.</p>
+        </div>
+
+        <div class="flex items-end">
+          <button type="button" onclick="saveLoyaltySettings()" id="btn-save-loyalty" class="btn-emerald-invert px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+            Atualizar Meta <i class="ph-bold ph-check"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção 2: Planos de Assinatura Recorrente (Clube de Membros) -->
+    <div class="bg-brand-card border border-brand-border rounded-3xl p-6 sm:p-7 shadow-xl space-y-5 text-xs">
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+        <div>
+          <h2 class="text-sm font-bold flex items-center gap-2">
+            <i class="ph-bold ph-crown text-brand-emerald"></i> Planos do Clube de Assinaturas (Recorrente)
+          </h2>
+          <p class="text-[11px] text-brand-muted">Ofereça assinaturas mensais para garantir receita previsível todo mês.</p>
+        </div>
+        <button type="button" onclick="openNewPlanModal()" class="btn-emerald-invert px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+          <i class="ph-bold ph-plus"></i> Novo Plano
+        </button>
+      </div>
+
+      <div id="plans-list-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+        <div class="p-5 rounded-2xl bg-brand-darker border border-brand-border space-y-2 text-center py-8 text-brand-muted">
+          <i class="ph ph-circle-notch animate-spin text-xl text-brand-emerald mx-auto"></i>
+          <p>Carregando planos de sócios...</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-brand-muted">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    (() => {
+      let currentShop = null;
+
+      async function init() {
+        const { data: { session } } = await client.auth.getSession();
+        if (!session) return window.location.href = 'login.html';
+
+        const { data: shop } = await client.from('barbershops').select('*').eq('owner_id', session.user.id).maybeSingle();
+        if (!shop) return window.location.href = 'cadastro.html';
+
+        currentShop = shop;
+        document.getElementById('loyalty-goal-input').value = shop.loyalty_goal || 10;
+        loadMembershipPlans();
+      }
+
+      window.saveLoyaltySettings = async () => {
+        const goal = parseInt(document.getElementById('loyalty-goal-input').value) || 10;
+        try {
+          await client.from('barbershops').update({ loyalty_goal: goal }).eq('id', currentShop.id);
+          alert('Meta do programa de fidelidade atualizada!');
+        } catch(e) {
+          alert('Erro ao salvar meta: ' + e.message);
+        }
+      };
+
+      async function loadMembershipPlans() {
+        const container = document.getElementById('plans-list-container');
+        try {
+          const { data: plans, error } = await client
+            .from('client_membership_plans')
+            .select('*')
+            .eq('barbershop_id', currentShop.id)
+            .order('created_at', { ascending: true });
+
+          if (error) throw error;
+
+          if (!plans || plans.length === 0) {
+            container.innerHTML = `
+              <div class="col-span-full py-8 text-center text-brand-muted bg-brand-darker rounded-2xl border border-brand-border space-y-2">
+                <i class="ph-bold ph-cards text-2xl text-brand-emerald"></i>
+                <p class="font-bold">Nenhum plano recorrente criado ainda.</p>
+                <p class="text-[11px]">Exemplo: "Clube Cabelo & Barba Ilimitado - R$ 99/mês"</p>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = plans.map(p => `
+            <div class="p-5 rounded-2xl bg-brand-darker border border-brand-border flex flex-col justify-between space-y-4">
+              <div class="space-y-1 text-left">
+                <div class="font-black text-sm text-brand-main">${escapeHtml(p.name)}</div>
+                <div class="text-xl font-black text-brand-emerald">${formatBRL(p.price_cents)}<span class="text-xs text-brand-muted font-normal"> /mês</span></div>
+                <p class="text-[11px] text-brand-muted pt-1">${escapeHtml(p.description || 'Acesso mensal recorrente.')}</p>
+              </div>
+              <button onclick="deletePlan('${p.id}')" class="text-[11px] text-red-400 hover:text-red-300 font-bold flex items-center justify-center gap-1 cursor-pointer">
+                <i class="ph-bold ph-trash"></i> Remover Plano
+              </button>
+            </div>
+          `).join('');
+        } catch (e) {
+          container.innerHTML = `<p class="text-xs text-red-400 col-span-full text-center">Erro: ${escapeHtml(e.message)}</p>`;
+        }
+      }
+
+      window.openNewPlanModal = async () => {
+        const name = prompt('Nome do plano (Ex: Clube VIP Cabelo Ilimitado):');
+        if (!name) return;
+        const priceStr = prompt('Valor mensal em Reais (Ex: 99.00):', '99.00');
+        if (!priceStr) return;
+        const priceCents = Math.round(parseFloat(priceStr.replace(',', '.')) * 100);
+
+        try {
+          await client.from('client_membership_plans').insert([{
+            barbershop_id: currentShop.id,
+            name: name.trim(),
+            price_cents: priceCents,
+            description: 'Atendimento recorrente ilimitado para membros cadastrados.'
+          }]);
+          alert('Plano do clube criado com sucesso!');
+          loadMembershipPlans();
+        } catch(e) {
+          alert('Erro ao criar plano: ' + e.message);
+        }
+      };
+
+      window.deletePlan = async (id) => {
+        if (!confirm('Deseja excluir este plano de membros?')) return;
+        try {
+          await client.from('client_membership_plans').delete().eq('id', id);
+          loadMembershipPlans();
+        } catch(e) {
+          alert('Erro ao remover: ' + e.message);
+        }
+      };
+
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>

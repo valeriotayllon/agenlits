@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Avaliar Atendimento — agenlits</title>
+  <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="js/layout.js"></script>
+  <script src="js/supabase-client.js"></script>
+</head>
+<body class="bg-brand-main text-brand-main min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black">
+
+  <header class="p-4 sm:p-6 flex items-center justify-between max-w-lg mx-auto w-full">
+    <a href="index.html" class="flex items-center gap-2">
+      <img src="images/fundo transparente fonte escura.png" alt="agenlits" class="h-8 w-auto object-contain" />
+    </a>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center p-4">
+    <div class="bg-brand-card border border-brand-border rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-6 text-center">
+      
+      <div class="w-14 h-14 rounded-2xl bg-brand-emerald/10 text-brand-emerald flex items-center justify-center text-3xl mx-auto shadow-inner">
+        <i class="ph-bold ph-star"></i>
+      </div>
+
+      <div class="space-y-1">
+        <h1 class="text-2xl font-black text-brand-main">Como foi seu atendimento?</h1>
+        <p class="text-xs text-brand-muted" id="review-subtitle">Sua opinião é fundamental para aprimorarmos nossa qualidade.</p>
+      </div>
+
+      <div id="review-alert" class="hidden p-3 rounded-xl text-xs"></div>
+
+      <form id="form-review" onsubmit="return false;" class="space-y-5 text-left text-xs">
+        <div>
+          <label class="block font-bold text-brand-muted uppercase text-center mb-2">Sua Nota</label>
+          <div class="flex items-center justify-center gap-2 text-3xl text-amber-400" id="star-rating-container">
+            <button type="button" onclick="setRating(1)" class="cursor-pointer transition hover:scale-110"><i class="ph-fill ph-star" data-star="1"></i></button>
+            <button type="button" onclick="setRating(2)" class="cursor-pointer transition hover:scale-110"><i class="ph-fill ph-star" data-star="2"></i></button>
+            <button type="button" onclick="setRating(3)" class="cursor-pointer transition hover:scale-110"><i class="ph-fill ph-star" data-star="3"></i></button>
+            <button type="button" onclick="setRating(4)" class="cursor-pointer transition hover:scale-110"><i class="ph-fill ph-star" data-star="4"></i></button>
+            <button type="button" onclick="setRating(5)" class="cursor-pointer transition hover:scale-110"><i class="ph-fill ph-star" data-star="5"></i></button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-brand-muted uppercase mb-1">Seu Nome</label>
+          <input type="text" id="review-client-name" required placeholder="Como quer ser identificado" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl focus:outline-none focus:border-brand-emerald" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-brand-muted uppercase mb-1">Comentário (opcional)</label>
+          <textarea id="review-comment" rows="3" placeholder="Conte como foi sua experiência com o corte, atendimento e pontualidade..." class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl focus:outline-none focus:border-brand-emerald resize-none"></textarea>
+        </div>
+
+        <button type="submit" id="btn-submit-review" onclick="submitReview()" class="btn-emerald-invert w-full py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20">
+          <span>Enviar Avaliação</span> <i class="ph-bold ph-paper-plane-tilt"></i>
+        </button>
+      </form>
+
+      <div id="review-thankyou" class="hidden space-y-3 py-4">
+        <div class="text-3xl text-brand-emerald font-black">Obrigado!</div>
+        <p class="text-xs text-brand-muted">Sua avaliação foi registrada com sucesso e ajuda outros clientes na escolha.</p>
+        <a href="index.html" class="btn-secondary-invert inline-block px-4 py-2 rounded-xl text-xs font-semibold">
+          Página Inicial
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="py-4 text-center text-xs text-brand-muted border-t border-brand-border">
+    &copy; 2026 agenlits — Plataforma de Gestão e Agendamento.
+  </footer>
+
+  <script>
+    let currentRating = 5;
+    const urlParams = new URLSearchParams(window.location.search);
+    const appointmentId = urlParams.get('apt');
+    const shopId = urlParams.get('shop');
+
+    window.setRating = (val) => {
+      currentRating = val;
+      document.querySelectorAll('#star-rating-container button i').forEach((icon, idx) => {
+        if (idx < val) {
+          icon.className = 'ph-fill ph-star text-amber-400';
+        } else {
+          icon.className = 'ph-bold ph-star text-brand-border';
+        }
+      });
+    };
+
+    window.submitReview = async () => {
+      const name = document.getElementById('review-client-name').value.trim();
+      const comment = document.getElementById('review-comment').value.trim();
+
+      if (!name) return alert('Por favor, digite seu nome.');
+
+      const btn = document.getElementById('btn-submit-review');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Enviando...';
+
+      try {
+        const { error } = await client.from('reviews').insert([{
+          barbershop_id: shopId,
+          appointment_id: appointmentId || null,
+          client_name: name,
+          rating: currentRating,
+          comment: comment || null
+        }]);
+
+        if (error) throw error;
+
+        document.getElementById('form-review').classList.add('hidden');
+        document.getElementById('review-thankyou').classList.remove('hidden');
+      } catch(err) {
+        alert('Erro ao enviar avaliação: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<span>Enviar Avaliação</span> <i class="ph-bold ph-paper-plane-tilt"></i>';
+      }
+    };
+  </script>
+</body>
+</html>
