@@ -95,12 +95,20 @@ serve(async (req) => {
         throw new Error("Não foi possível gerar conta de acesso para o e-mail informado.");
       }
 
+      const userRole = payload.role || "barber";
+
       const { error: linkErr } = await supabaseAdmin
         .from("barbers")
         .update({ user_id: barberUserId })
         .eq("id", barber_id);
 
       if (linkErr) throw linkErr;
+
+      await supabaseAdmin.from("barbershop_staff").upsert({
+        barbershop_id: barber.barbershop_id,
+        user_id: barberUserId,
+        role: userRole
+      }, { onConflict: "barbershop_id,user_id" });
 
       return new Response(JSON.stringify({
         success: true,
