@@ -194,6 +194,13 @@
       let currentShop = null;
       let selectedService = null;
       let selectedBarber = null;
+      let allServices = [];
+
+      function escapeHtml(str) {
+        return String(str || '').replace(/[&<>'"]/g, t => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[t]));
+      }
 
       const shopAvatarImg = document.getElementById('shop-avatar-img');
       const shopAvatarIcon = document.getElementById('shop-avatar-icon');
@@ -268,16 +275,22 @@
         }
 
         const { data: services } = await client.from('services').select('*').eq('barbershop_id', shop.id);
-        if (services && services.length) {
-          servicesGrid.innerHTML = services.map(s => `
-            <div onclick="window.chooseService('${s.id}', '${s.name}', ${s.price}, ${s.duration_minutes}, this)" class="service-card cursor-pointer p-4 rounded-2xl bg-brand-darker border border-brand-border hover:border-brand-emerald transition flex items-center justify-between">
+        allServices = services || [];
+        if (allServices.length) {
+          servicesGrid.innerHTML = allServices.map(s => {
+            const priceCents = (s.price_cents !== undefined && s.price_cents !== null)
+              ? s.price_cents
+              : Math.round((parseFloat(s.price) || 0) * 100);
+            return `
+            <div data-service-id="${escapeHtml(s.id)}" data-service-name="${escapeHtml(s.name)}" data-price-cents="${priceCents}" data-duration="${Number(s.duration_minutes) || 30}" class="service-card cursor-pointer p-4 rounded-2xl bg-brand-darker border border-brand-border hover:border-brand-emerald transition flex items-center justify-between">
               <div>
-                <div class="font-bold text-sm text-brand-main">${s.name}</div>
-                <div class="text-[11px] text-brand-muted">${s.duration_minutes} minutos</div>
+                <div class="font-bold text-sm text-brand-main">${escapeHtml(s.name)}</div>
+                <div class="text-[11px] text-brand-muted">${Number(s.duration_minutes) || 30} minutos</div>
               </div>
-              <span class="text-sm font-extrabold text-brand-emerald">R$ ${(s.price_cents !== undefined && s.price_cents !== null ? (s.price_cents / 100) : (parseFloat(s.price) || 0)).toFixed(2).replace('.', ',')}</span>
+              <span class="text-sm font-extrabold text-brand-emerald">${formatBRL(priceCents)}</span>
             </div>
-          `).join('');
+          `;
+          }).join('');
         } else {
           servicesGrid.innerHTML = '<div class="text-brand-muted text-xs col-span-full">Nenhum serviço disponível no momento.</div>';
         }
@@ -285,11 +298,11 @@
         const { data: barbers } = await client.from('barbers').select('*').eq('barbershop_id', shop.id);
         if (barbers && barbers.length) {
           barbersGrid.innerHTML = barbers.map(b => `
-            <div onclick="window.chooseBarber('${b.id}', '${b.name}', this)" class="barber-card cursor-pointer p-4 rounded-2xl bg-brand-darker border border-brand-border hover:border-brand-emerald transition flex items-center gap-3">
+            <div data-barber-id="${escapeHtml(b.id)}" data-barber-name="${escapeHtml(b.name)}" class="barber-card cursor-pointer p-4 rounded-2xl bg-brand-darker border border-brand-border hover:border-brand-emerald transition flex items-center gap-3">
               <div class="w-10 h-10 rounded-full bg-brand-card border border-brand-border flex items-center justify-center font-bold text-xs text-brand-emerald">
-                ${b.name.slice(0, 2).toUpperCase()}
+                ${escapeHtml((b.name || '').slice(0, 2).toUpperCase())}
               </div>
-              <div class="font-bold text-xs text-brand-main">${b.name}</div>
+              <div class="font-bold text-xs text-brand-main">${escapeHtml(b.name)}</div>
             </div>
           `).join('');
         } else {
@@ -302,21 +315,17 @@
 
       window.chooseService = (id, name, price, duration, element) => {
         const dur = Number(duration) || 30;
-        selectedService = { 
-          id, 
-          name, 
-          price: Number(price) || 0, 
-          duration_minutes: dur, 
-          duration: dur 
+        selectedService = {
+          id,
+          name,
+          price: Number(price) || 0,
+          price_cents: Number(price) || 0,
+          duration_minutes: dur,
+          duration: dur
         };
         document.querySelectorAll('.service-card').forEach(c => c.classList.remove('border-brand-emerald', 'bg-brand-emerald/10'));
         element.classList.add('border-brand-emerald', 'bg-brand-emerald/10');
         populateTimes();
-      };
-        document.querySelectorAll('.service-card').forEach(c => c.classList.remove('border-brand-emerald', 'bg-brand-emerald/10'));
-        element.classList.add('border-brand-emerald', 'bg-brand-emerald/10');
-        populateTimes();
-        await loadShopPhotos(currentShop.id, currentShop);
       };
 
       window.chooseBarber = (id, name, element) => {
@@ -324,8 +333,25 @@
         document.querySelectorAll('.barber-card').forEach(c => c.classList.remove('border-brand-emerald', 'bg-brand-emerald/10'));
         element.classList.add('border-brand-emerald', 'bg-brand-emerald/10');
         populateTimes();
-        await loadShopPhotos(currentShop.id, currentShop);
       };
+
+      servicesGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.service-card');
+        if (!card || !card.dataset.serviceId) return;
+        window.chooseService(
+          card.dataset.serviceId,
+          card.dataset.serviceName,
+          Number(card.dataset.priceCents) || 0,
+          Number(card.dataset.duration) || 30,
+          card
+        );
+      });
+
+      barbersGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.barber-card');
+        if (!card || !card.dataset.barberId) return;
+        window.chooseBarber(card.dataset.barberId, card.dataset.barberName, card);
+      });
 
 async function populateTimes() {
         if (!currentShop || !currentShop.id) return;
@@ -376,12 +402,6 @@ async function populateTimes() {
       }
 
       dateInput.addEventListener('change', populateTimes);
-
-      function escapeHtml(str) {
-        return String(str || '').replace(/[&<>'"]/g, t => ({
-          '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-        }[t]));
-      }
 
       btnConfirm.addEventListener('click', async () => {
         if (!selectedService) return alert('Por favor, escolha um serviço.');

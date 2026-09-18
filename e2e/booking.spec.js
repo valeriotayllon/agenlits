@@ -13,12 +13,12 @@ test.describe('Testes Críticos de Negócio e Segurança - agenlits', () => {
     await expect(serviceCard).toBeVisible();
     await serviceCard.click();
 
-    const timeSelect = page.locator('#time-select');
+    const timeSelect = page.locator('#booking-time');
     await expect(timeSelect).toBeEnabled();
     await timeSelect.selectOption({ index: 1 });
 
-    await page.fill('#client-name-input', 'Cliente Teste');
-    await page.fill('#client-phone-input', '85999999999');
+    await page.fill('#client-name', 'Cliente Teste');
+    await page.fill('#client-phone', '85999999999');
 
     await page.locator('#btn-confirm-booking').click();
     await expect(page.locator('#booking-success-modal')).toBeVisible({ timeout: 10000 });

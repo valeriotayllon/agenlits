@@ -5,60 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Área do Cliente — agenlits</title>
   <link rel="icon" type="image/png" href="images/fundo transparente fonte escura.png" />
-  <script src="https://cdn.tailwindcss.com">
-      window.cancelCustomerBooking = async (id) => {
-        if (!confirm('Deseja realmente cancelar seu agendamento?')) return;
-        try {
-          const { data, error } = await client.rpc('change_appointment_status', {
-            p_appointment_id: id,
-            p_new_status: 'cancelled',
-            p_reason: 'Cancelado pelo cliente no painel'
-          });
-          if (error) throw error;
-          alert('Agendamento cancelado com sucesso.');
-          window.location.reload();
-        } catch(err) {
-          alert('Não foi possível cancelar: ' + (err.message || 'Erro inesperado.'));
-        }
-      };
-
-    </script>
-  <script src="https://unpkg.com/@phosphor-icons/web">
-      window.cancelCustomerBooking = async (id) => {
-        if (!confirm('Deseja realmente cancelar seu agendamento?')) return;
-        try {
-          const { data, error } = await client.rpc('change_appointment_status', {
-            p_appointment_id: id,
-            p_new_status: 'cancelled',
-            p_reason: 'Cancelado pelo cliente no painel'
-          });
-          if (error) throw error;
-          alert('Agendamento cancelado com sucesso.');
-          window.location.reload();
-        } catch(err) {
-          alert('Não foi possível cancelar: ' + (err.message || 'Erro inesperado.'));
-        }
-      };
-
-    </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-      window.cancelCustomerBooking = async (id) => {
-        if (!confirm('Deseja realmente cancelar seu agendamento?')) return;
-        try {
-          const { data, error } = await client.rpc('change_appointment_status', {
-            p_appointment_id: id,
-            p_new_status: 'cancelled',
-            p_reason: 'Cancelado pelo cliente no painel'
-          });
-          if (error) throw error;
-          alert('Agendamento cancelado com sucesso.');
-          window.location.reload();
-        } catch(err) {
-          alert('Não foi possível cancelar: ' + (err.message || 'Erro inesperado.'));
-        }
-      };
-
-    </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="style.css" />
   <script>
     function initTheme() {
@@ -83,23 +32,6 @@
       document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.addEventListener('click', toggleTheme));
       updateThemeIcons();
     });
-  
-      window.cancelCustomerBooking = async (id) => {
-        if (!confirm('Deseja realmente cancelar seu agendamento?')) return;
-        try {
-          const { data, error } = await client.rpc('change_appointment_status', {
-            p_appointment_id: id,
-            p_new_status: 'cancelled',
-            p_reason: 'Cancelado pelo cliente no painel'
-          });
-          if (error) throw error;
-          alert('Agendamento cancelado com sucesso.');
-          window.location.reload();
-        } catch(err) {
-          alert('Não foi possível cancelar: ' + (err.message || 'Erro inesperado.'));
-        }
-      };
-
     </script>
 
 <script>
@@ -133,23 +65,6 @@
       console.error('Erro no link dinâmico da logo:', e);
     }
   })();
-
-      window.cancelCustomerBooking = async (id) => {
-        if (!confirm('Deseja realmente cancelar seu agendamento?')) return;
-        try {
-          const { data, error } = await client.rpc('change_appointment_status', {
-            p_appointment_id: id,
-            p_new_status: 'cancelled',
-            p_reason: 'Cancelado pelo cliente no painel'
-          });
-          if (error) throw error;
-          alert('Agendamento cancelado com sucesso.');
-          window.location.reload();
-        } catch(err) {
-          alert('Não foi possível cancelar: ' + (err.message || 'Erro inesperado.'));
-        }
-      };
-
     </script>
 
 </head>
@@ -334,9 +249,6 @@
         });
       }
 
-      document.addEventListener('DOMContentLoaded', init);
-    })();
-  
       window.cancelCustomerBooking = async (id) => {
         if (!confirm('Deseja realmente cancelar seu agendamento?')) return;
         try {
@@ -348,11 +260,13 @@
           if (error) throw error;
           alert('Agendamento cancelado com sucesso.');
           window.location.reload();
-        } catch(err) {
+        } catch (err) {
           alert('Não foi possível cancelar: ' + (err.message || 'Erro inesperado.'));
         }
       };
 
+      document.addEventListener('DOMContentLoaded', init);
+    })();
     </script>
 </body>
 </html>
