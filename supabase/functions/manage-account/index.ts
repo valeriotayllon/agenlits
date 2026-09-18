@@ -70,7 +70,8 @@ serve(async (req) => {
       }
 
       let barberUserId = null;
-      const pwd = password || "Mudar@123456";
+      // Gera senha aleatória segura caso não informada
+      const pwd = password || (crypto.randomUUID().replace(/-/g, '').slice(0, 12) + '!Aa1');
 
       const { data: newUser, error: createErr } = await supabaseAdmin.auth.admin.createUser({
         email: email.trim().toLowerCase(),
@@ -89,6 +90,11 @@ serve(async (req) => {
         }
       } else {
         barberUserId = newUser.user.id;
+      try {
+        await supabaseAdmin.auth.resetPasswordForEmail(email.trim().toLowerCase());
+      } catch (e) {
+        console.warn("Aviso ao enviar e-mail de definição de senha:", e);
+      }
       }
 
       if (!barberUserId) {
