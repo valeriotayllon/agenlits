@@ -314,7 +314,7 @@
             const dest = isClient ? '/cliente.html' : '/painel.html';
             const redirectUrl = window.location.origin.includes('localhost') 
               ? window.location.origin + dest 
-              : 'https://3lits-agenlits.vercel.app' + dest;
+              : window.location.origin + dest;
 
             localStorage.setItem('agenlits_user_type', regType);
 

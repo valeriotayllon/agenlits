@@ -450,23 +450,25 @@
                   </span>
                   ${apt.client_phone ? `
                     <div class="flex items-center gap-1">
-                      <button onclick="window.sendWhatsAppMessage('${escapeHtml(apt.client_phone)}', 'confirm', '${escapeHtml(cliente)}', '${escapeHtml(servico)}', '${dataHora.split(' ')[0]}', '${dataHora.split(' ')[1] || ''}')" class="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-black transition cursor-pointer text-xs" title="Enviar Confirmação WhatsApp">
-                        <i class="ph-bold ph-whatsapp-logo text-xs"></i>
+                      <button type="button" class="btn-wa-action p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-black transition cursor-pointer text-xs" title="Enviar Confirmação WhatsApp"
+                        data-phone="${escapeHtml(apt.client_phone)}" data-type="confirm" data-client="${escapeHtml(cliente)}" data-service="${escapeHtml(servico)}" data-date="${escapeHtml(dataHora.split(' ')[0])}" data-time="${escapeHtml(dataHora.split(' ')[1] || '')}">
+                        <i class="ph-bold ph-whatsapp-logo text-xs pointer-events-none"></i>
                       </button>
-                      <button onclick="window.sendWhatsAppMessage('${escapeHtml(apt.client_phone)}', 'reminder', '${escapeHtml(cliente)}', '${escapeHtml(servico)}', '${dataHora.split(' ')[0]}', '${dataHora.split(' ')[1] || ''}')" class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500 hover:text-black transition cursor-pointer text-xs" title="Enviar Lembrete 24h">
-                        <i class="ph-bold ph-bell-ringing text-xs"></i>
+                      <button type="button" class="btn-wa-action p-1.5 rounded-lg bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500 hover:text-black transition cursor-pointer text-xs" title="Enviar Lembrete 24h"
+                        data-phone="${escapeHtml(apt.client_phone)}" data-type="reminder" data-client="${escapeHtml(cliente)}" data-service="${escapeHtml(servico)}" data-date="${escapeHtml(dataHora.split(' ')[0])}" data-time="${escapeHtml(dataHora.split(' ')[1] || '')}">
+                        <i class="ph-bold ph-bell-ringing text-xs pointer-events-none"></i>
                       </button>
                     </div>
                   ` : ''}
                   ${apt.status !== 'done' && apt.status !== 'cancelled' ? `
-                    <button onclick="window.updateAppointmentStatus('${apt.id}', 'done')" class="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white transition cursor-pointer text-xs" title="Concluir Atendimento">
-                      <i class="ph-bold ph-check text-xs"></i>
+                    <button type="button" class="btn-status-action p-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white transition cursor-pointer text-xs" title="Concluir Atendimento" data-id="${apt.id}" data-status="done">
+                      <i class="ph-bold ph-check text-xs pointer-events-none"></i>
                     </button>
-                    <button onclick="window.updateAppointmentStatus('${apt.id}', 'no_show')" class="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-black transition cursor-pointer text-xs" title="Marcar No-Show (Falta)">
-                      <i class="ph-bold ph-user-minus text-xs"></i>
+                    <button type="button" class="btn-status-action p-1.5 rounded-lg bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-black transition cursor-pointer text-xs" title="Marcar No-Show (Falta)" data-id="${apt.id}" data-status="no_show">
+                      <i class="ph-bold ph-user-minus text-xs pointer-events-none"></i>
                     </button>
-                    <button onclick="window.updateAppointmentStatus('${apt.id}', 'cancelled')" class="p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition cursor-pointer text-xs" title="Cancelar Agendamento">
-                      <i class="ph-bold ph-x text-xs"></i>
+                    <button type="button" class="btn-status-action p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white transition cursor-pointer text-xs" title="Cancelar Agendamento" data-id="${apt.id}" data-status="cancelled">
+                      <i class="ph-bold ph-x text-xs pointer-events-none"></i>
                     </button>
                   ` : ''}
                 </div>
@@ -481,6 +483,24 @@
           </div>`;
         }
       }
+
+      
+      // Delegação de eventos segura contra quebra de contexto JS / XSS
+      document.addEventListener('click', (e) => {
+        const waBtn = e.target.closest('.btn-wa-action');
+        if (waBtn) {
+          const { phone, type, client, service, date, time } = waBtn.dataset;
+          window.sendWhatsAppMessage(phone, type, client, service, date, time);
+          return;
+        }
+
+        const statusBtn = e.target.closest('.btn-status-action');
+        if (statusBtn) {
+          const { id, status } = statusBtn.dataset;
+          window.updateAppointmentStatus(id, status);
+          return;
+        }
+      });
 
       window.updateAppointmentStatus = async (appointmentId, newStatus) => {
         const statusLabels = {
@@ -606,7 +626,7 @@
         } else if (type === 'reminder') {
           msg = `Olá ${clientName}! Lembrando do seu atendimento amanhã (*${dateStr} às ${timeStr}*) na *${currentShop?.name || 'barbearia'}* para *${serviceName}*. Até logo!`;
         } else if (type === 'cancel') {
-          msg = `Olá ${clientName}, informamos que o agendamento de *${serviceName}* marcado para *${dateStr} às ${timeStr}* foi cancelado. Se desejar remarcar, acesse nosso link: 3lits-agenlits.vercel.app/agendar.html?b=${currentShop?.slug || ''}`;
+          msg = `Olá ${clientName}, informamos que o agendamento de *${serviceName}* marcado para *${dateStr} às ${timeStr}* foi cancelado. Se desejar remarcar, acesse nosso link: ${window.location.origin}/agendar.html?b=${currentShop?.slug || ''}`;
         }
 
         const url = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`;
@@ -683,7 +703,8 @@
           if (barbershop) {
             currentShop = barbershop;
             shopNameTitle.textContent = barbershop.name;
-            const fullUrl = '3lits-agenlits.vercel.app/agendar.html?b=' + barbershop.slug;
+            const originDomain = window.location.host;
+            const fullUrl = originDomain + '/agendar.html?b=' + barbershop.slug;
             publicLinkText.textContent = fullUrl;
             btnVisitPage.href = 'agendar.html?b=' + barbershop.slug;
 

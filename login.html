@@ -326,7 +326,7 @@
             const dest = currentType === 'owner' ? '/painel.html' : '/cliente.html';
             const redirectUrl = window.location.origin.includes('localhost') 
               ? window.location.origin + dest 
-              : 'https://3lits-agenlits.vercel.app' + dest;
+              : window.location.origin + dest;
 
             // Salva antecipadamente o tipo para redirecionamento pós-OAuth
             localStorage.setItem('agenlits_user_type', currentType);

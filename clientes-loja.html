@@ -172,7 +172,7 @@
             : `<span class="text-brand-muted text-[11px]">Há ${daysAgo} dias</span>`;
 
           const cleanPhone = c.phone.replace(/\D/g, '');
-          const recallMsg = encodeURIComponent(`Olá ${c.name}! Tudo bem? Notamos que já faz cerca de ${daysAgo} dias desde o seu último atendimento na ${currentShop.name}. Que tal agendar seu horário para essa semana? Acesse nosso link: 3lits-agenlits.vercel.app/agendar.html?b=${currentShop.slug}`);
+          const recallMsg = encodeURIComponent(`Olá ${c.name}! Tudo bem? Notamos que já faz cerca de ${daysAgo} dias desde o seu último atendimento na ${currentShop.name}. Que tal agendar seu horário para essa semana? Acesse nosso link: ${window.location.host}/agendar.html?b=${currentShop.slug}`);
 
           return `
             <tr class="hover:bg-brand-darker/40 transition">
