@@ -250,7 +250,30 @@
           }
 
           if (currentType === 'owner') {
-            // Verifica se é barbeiro/profissional da equipe primeiro
+            // 1. Verifica se é colaborador com acesso atribuído (staff)
+            const { data: staffMember } = await supabaseAuthClient
+              .from('barbershop_staff')
+              .select('barbershop_id, role')
+              .eq('user_id', user.id)
+              .maybeSingle();
+
+            if (staffMember) {
+              localStorage.setItem('agenlits_staff_role', staffMember.role);
+              localStorage.setItem('agenlits_staff_shop_id', staffMember.barbershop_id);
+
+              if (staffMember.role === 'barber') {
+                localStorage.setItem('agenlits_user_type', 'barber');
+                window.location.href = 'barbeiro-agenda.html';
+                return;
+              }
+
+              // Atendente (receptionist) ou Gerente (admin) navega para o painel com restrições
+              localStorage.setItem('agenlits_user_type', 'staff');
+              window.location.href = 'painel.html';
+              return;
+            }
+
+            // 2. Se for barbeiro cadastrado diretamente
             const { data: barberProfile } = await supabaseAuthClient
               .from('barbers')
               .select('id, name')
@@ -263,7 +286,7 @@
               return;
             }
 
-            // Se não for barbeiro, verifica se é dono de barbearia
+            // 3. Se for o proprietário da barbearia
             const { data: shop } = await supabaseAuthClient
               .from('barbershops')
               .select('id, name')
@@ -279,6 +302,7 @@
             }
 
             localStorage.setItem('agenlits_user_type', 'owner');
+            localStorage.setItem('agenlits_staff_role', 'owner');
             window.location.href = 'painel.html';
             return;
           }

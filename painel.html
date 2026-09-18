@@ -642,11 +642,34 @@
         userNameEl.textContent = session.user.user_metadata?.full_name || 'Administrador';
 
         try {
-          const { data: barbershop } = await client
+          let userRole = localStorage.getItem('agenlits_staff_role') || 'owner';
+          let { data: barbershop } = await client
             .from('barbershops')
             .select('*')
             .eq('owner_id', session.user.id)
             .maybeSingle();
+
+          if (!barbershop) {
+            const { data: staffMember } = await client
+              .from('barbershop_staff')
+              .select('role, barbershop_id, barbershops(*)')
+              .eq('user_id', session.user.id)
+              .maybeSingle();
+
+            if (staffMember && staffMember.barbershops) {
+              barbershop = staffMember.barbershops;
+              userRole = staffMember.role;
+            }
+          }
+
+          // Restrições de visibilidade para Atendentes/Recepção
+          if (userRole === 'receptionist') {
+            document.querySelectorAll('a[href="relatorios.html"], a[href="equipe.html"], a[href="configuracoes.html"], a[href="planos.html"]').forEach(el => {
+              el.style.display = 'none';
+            });
+            const badge = document.querySelector('header span');
+            if (badge) badge.textContent = 'Atendimento / Recepção';
+          }
 
           if (barbershop) {
             currentShop = barbershop;

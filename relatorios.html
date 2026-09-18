@@ -169,9 +169,23 @@
         if (!session) return window.location.href = 'login.html';
 
         if (!currentShopId) {
-          const { data: shop } = await client.from('barbershops').select('id').eq('owner_id', session.user.id).maybeSingle();
-          if (!shop) return window.location.href = 'cadastro.html';
-          currentShopId = shop.id;
+          // Validação de papel (RBAC): apenas Dono e Gerente visualizam o financeiro
+        let { data: shop } = await client.from('barbershops').select('id, name').eq('owner_id', session.user.id).maybeSingle();
+        if (!shop) {
+          const { data: staffMember } = await client
+            .from('barbershop_staff')
+            .select('role, barbershop_id, barbershops(id, name)')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+
+          if (!staffMember || staffMember.role === 'receptionist') {
+            alert('Acesso negado: colaboradores com função de atendimento não possuem permissão para consultar relatórios financeiros.');
+            return window.location.href = 'painel.html';
+          }
+          shop = staffMember.barbershops;
+        }
+
+        currentShopId = shop.id;
         }
 
         const period = document.getElementById('report-period-select').value;

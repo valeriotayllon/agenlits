@@ -244,6 +244,7 @@
         const name = document.getElementById('barber-name').value.trim();
         const phone = document.getElementById('barber-phone').value.trim();
         const loginEmail = document.getElementById('barber-login-email').value.trim();
+        const staffRole = document.getElementById('barber-staff-role').value || 'barber';
         const commission = parseFloat(document.getElementById('barber-commission').value) || 0;
         const isActive = document.getElementById('barber-active').value === 'true';
         const workStart = document.getElementById('barber-work-start').value || '08:00';
@@ -285,6 +286,7 @@
             const { data: linkRes, error: linkErr } = await client.functions.invoke('manage-account', {
               body: {
                 action: 'link_barber_login',
+                role: staffRole,
                 barber_id: targetBarberId,
                 email: loginEmail
               }
