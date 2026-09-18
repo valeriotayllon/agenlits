@@ -268,34 +268,61 @@
       window.processSubscriptionActivation = async () => {
         if (!currentShop) return;
         const btn = document.getElementById('btn-confirm-subscription');
+        const payMethod = document.getElementById('btn-pay-pix').classList.contains('border-brand-emerald') ? 'pix' : 'card';
+        
         btn.disabled = true;
-        btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Ativando Assinatura...';
+        btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Gerando cobrança segura...';
 
         try {
-          // Atualiza status da barbearia
-          const { error: shopErr } = await client.from('barbershops').update({
-            plan: 'pro',
-            subscription_status: 'active'
-          }).eq('id', currentShop.id);
+          const { data, error } = await client.functions.invoke('create-checkout', {
+            body: {
+              barbershop_id: currentShop.id,
+              plan: selectedPlan,
+              amount_cents: selectedAmount,
+              payment_method: payMethod
+            }
+          });
 
-          if (shopErr) throw shopErr;
+          if (error) throw error;
 
-          // Grava/Atualiza registro de assinatura
-          await client.from('subscriptions').upsert({
-            barbershop_id: currentShop.id,
-            provider: 'asaas',
-            status: 'active',
-            amount_cents: selectedAmount,
-            payment_method: 'pix',
-            current_period_end: new Date(Date.now() + 30 * 86400000).toISOString()
-          }, { onConflict: 'barbershop_id' });
+          if (data && data.pix_payload) {
+            const pixBox = document.getElementById('pix-container');
+            const qrImg = pixBox.querySelector('img');
+            if (data.pix_qrcode && qrImg) {
+              qrImg.src = `data:image/png;base64,${data.pix_qrcode}`;
+            }
+            
+            const textDesc = pixBox.querySelector('.text-\\[11px\\]') || pixBox.querySelector('div:last-child');
+            if (textDesc) {
+              textDesc.innerHTML = `
+                <div class="space-y-2 mt-2">
+                  <span class="text-xs text-brand-emerald font-bold">Cobrança gerada! Pague via Pix no app do banco:</span>
+                  <input type="text" readonly value="${data.pix_payload}" onclick="this.select(); navigator.clipboard.writeText(this.value); alert('Chave Pix copiada!');" class="w-full px-3 py-2 bg-brand-darker border border-brand-emerald/40 rounded-xl text-[10px] font-mono select-all cursor-pointer text-center" title="Clique para copiar" />
+                  <p class="text-[10px] text-brand-muted">Assim que o pagamento for liquidado, nosso webhook ativará seu plano automaticamente.</p>
+                </div>
+              `;
+            }
+          }
 
-          alert('🎉 Assinatura ativada com sucesso! Bem-vindo ao Plano Pro.');
-          closeCheckoutModal();
-          window.location.href = 'painel.html';
+          btn.innerHTML = '<i class="ph-bold ph-clock"></i> Aguardando Pagamento...';
+
+          const checkInterval = setInterval(async () => {
+            const { data: updatedShop } = await client
+              .from('barbershops')
+              .select('plan, subscription_status')
+              .eq('id', currentShop.id)
+              .single();
+
+            if (updatedShop && (updatedShop.plan === 'pro' || updatedShop.subscription_status === 'active')) {
+              clearInterval(checkInterval);
+              alert('🎉 Pagamento confirmado via webhook! Sua barbearia agora é PRO.');
+              window.location.href = 'painel.html';
+            }
+          }, 3000);
+
         } catch(err) {
-          alert('Erro ao ativar assinatura: ' + err.message);
-        } finally {
+          console.error(err);
+          alert('Não foi possível gerar a cobrança: ' + (err.message || 'Erro de comunicação com o gateway.'));
           btn.disabled = false;
           btn.innerHTML = 'Confirmar Ativação <i class="ph-bold ph-check"></i>';
         }

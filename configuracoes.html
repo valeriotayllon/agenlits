@@ -59,7 +59,7 @@
 
         <div>
           <label class="block font-bold text-brand-muted uppercase mb-1">Link Público (Slug)</label>
-          <input type="text" id="cfg-shop-slug" disabled class="w-full px-3.5 py-2.5 bg-brand-darker/50 border border-brand-border rounded-xl text-brand-muted cursor-not-allowed font-mono" />
+          <input type="text" id="cfg-shop-slug" class="w-full px-3.5 py-2.5 bg-brand-darker border border-brand-border rounded-xl font-mono text-xs focus:outline-none focus:border-brand-emerald" placeholder="link-da-sua-loja" />
         </div>
 
         <div>
@@ -147,31 +147,48 @@
       window.saveSettings = async () => {
         if (!currentShop) return;
         const name = document.getElementById('cfg-shop-name').value.trim();
+        const newSlug = document.getElementById('cfg-shop-slug').value.trim().toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
         const docType = document.getElementById('cfg-doc-type').value;
         const docNumber = document.getElementById('cfg-doc-number').value.trim().replace(/\D/g, '');
         const phone = document.getElementById('cfg-shop-phone').value.trim();
         const cancelHours = parseInt(document.getElementById('cfg-cancel-hours').value) || 2;
 
         if (!name) return showNotice('O nome do estabelecimento é obrigatório.', true);
+        if (!newSlug || newSlug.length < 3) return showNotice('O link exclusivo (slug) deve ter pelo menos 3 caracteres.', true);
 
         const btn = document.getElementById('btn-save-cfg');
         btn.disabled = true;
         btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Salvando...';
 
         try {
+          if (newSlug !== currentShop.slug) {
+            const { data: slugCheck } = await client.rpc('check_slug_available', {
+              p_slug: newSlug,
+              p_current_shop_id: currentShop.id
+            });
+            if (slugCheck && !slugCheck.available) {
+              btn.disabled = false;
+              btn.innerHTML = 'Salvar Alterações <i class="ph-bold ph-check"></i>';
+              return showNotice(slugCheck.reason || 'Este link exclusivo já está em uso.', true);
+            }
+          }
+
           const { error } = await client.from('barbershops').update({
             name,
+            slug: newSlug,
             document_type: docType,
             document_number: docNumber,
             phone,
-            cancel_lead_hours: cancelHours,
-            cancellation_window_hours: cancelHours
+            cancel_lead_hours: cancelHours
           }).eq('id', currentShop.id);
 
           if (error) throw error;
+          currentShop.slug = newSlug;
+          currentShop.name = name;
           showNotice('Configurações atualizadas com sucesso!');
         } catch(err) {
-          showNotice('Erro ao salvar: ' + err.message, true);
+          showNotice('Erro ao salvar: ' + (err.message || 'Falha na atualização.'), true);
         } finally {
           btn.disabled = false;
           btn.innerHTML = 'Salvar Alterações <i class="ph-bold ph-check"></i>';
