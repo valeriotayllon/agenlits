@@ -14,10 +14,15 @@ serve(async (req) => {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  // 1. Validação de token de segurança do webhook
-  const webhookToken = req.headers.get("asaas-access-token");
+  // 1. Validação Fail-Closed: se ASAAS_WEBHOOK_SECRET não estiver configurado, REJEITA
   const expectedSecret = Deno.env.get("ASAAS_WEBHOOK_SECRET");
-  if (expectedSecret && webhookToken !== expectedSecret) {
+  if (!expectedSecret) {
+    console.error("ERRO CRÍTICO: ASAAS_WEBHOOK_SECRET não configurado no ambiente.");
+    return new Response(JSON.stringify({ error: "Webhook secret não configurado no servidor" }), { status: 500 });
+  }
+
+  const webhookToken = req.headers.get("asaas-access-token");
+  if (!webhookToken || webhookToken !== expectedSecret) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
@@ -37,7 +42,6 @@ serve(async (req) => {
 
     // Pagamento confirmado ou recebido via Pix/Cartão
     if (event === "PAYMENT_RECEIVED" || event === "PAYMENT_CONFIRMED") {
-      // Atualização segura do plano via service_role
       const { error: shopErr } = await supabaseAdmin
         .from("barbershops")
         .update({
@@ -48,7 +52,6 @@ serve(async (req) => {
 
       if (shopErr) throw shopErr;
 
-      // Persistência em subscriptions
       await supabaseAdmin.from("subscriptions").upsert({
         barbershop_id: barbershopId,
         provider: "asaas",
